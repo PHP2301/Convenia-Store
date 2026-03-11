@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Circle K Việt Nam - Bản Clone</title>
-    <link rel="stylesheet" href="../css/style.css" />
+    <title>Circle K Việt Nam - Clone</title>
+    <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   </head>
   <body>
@@ -18,7 +18,6 @@
           <li><a href="#">Sản phẩm</a></li>
           <li><a href="#">Dịch vụ</a></li>
           <li><a href="#">Khuyến mãi</a></li>
-          <li><a href="#">Tin tức</a></li>
           <li><a href="#" class="btn-store">Tìm cửa hàng</a></li>
         </ul>
       </nav>
@@ -32,7 +31,11 @@
           <span>CIRCLE K VIỆT NAM</span>
         </h1>
         <p>Mở cửa 24/7 - Luôn sẵn sàng phục vụ bạn.</p>
-        <button onclick="saveToFirebase()">Nhận tin khuyến mãi</button>
+
+        <div class="subscribe-form">
+          <input type="email" id="customerEmail" placeholder="Nhập email của bạn..." />
+          <button onclick="saveToFirebase()">Nhận tin khuyến mãi</button>
+        </div>
       </div>
     </section>
 
@@ -45,7 +48,7 @@
         </div>
         <div class="card">
           <i class="fas fa-coffee"></i>
-          <h3>Đồ uống nóng/lạnh</h3>
+          <h3>Đồ uống</h3>
         </div>
         <div class="card">
           <i class="fas fa-wifi"></i>
@@ -54,6 +57,6 @@
       </div>
     </section>
 
-    <script src="script.js"></script>
+    <script type="module" src="js/script.js"></script>
   </body>
 </html>
