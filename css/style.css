@@ -1,50 +1,68 @@
-body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+/* --- 1. Reset & Cơ bản --- */
+* {
+  box-sizing: border-box; /* Giúp tính toán kích thước chuẩn, không bị tràn viền */
   margin: 0;
   padding: 0;
 }
 
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  overflow-x: hidden; /* Ngăn chặn tình trạng bị cuộn ngang trên điện thoại */
+}
+
+/* --- 2. Header (Thanh điều hướng) --- */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 10%;
+  padding: 15px 5%;
   background: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
+  flex-wrap: wrap; /* Tự xuống dòng khi màn hình quá nhỏ */
 }
 
 .logo img {
-  height: 50px;
+  height: 45px;
+  width: auto;
 }
 
 nav ul {
   list-style: none;
   display: flex;
-  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
-nav ul li {
-  margin: 0 15px;
-}
+
 nav ul li a {
   text-decoration: none;
   color: #333;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+
+nav ul li a:hover {
+  color: #df2027;
 }
 
 .btn-store {
   background: #df2027;
   color: #fff !important;
-  padding: 8px 20px;
+  padding: 8px 15px;
   border-radius: 20px;
 }
 
+/* --- 3. Hero Section (Banner chính) --- */
 .hero {
-  height: 70vh;
+  min-height: 80vh;
   background:
-    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
     url("https://www.circlek.com.vn/wp-content/uploads/2019/12/banner-home.jpg");
   background-size: cover;
   background-position: center;
@@ -53,50 +71,98 @@ nav ul li a {
   justify-content: center;
   color: #fff;
   text-align: center;
+  padding: 20px;
+}
+
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 3.5rem); /* Tự động co giãn kích thước chữ */
+  line-height: 1.2;
 }
 
 .hero h1 span {
   color: #f7941d;
-  font-size: 3.5rem;
 }
 
 .subscribe-form {
-  margin-top: 20px;
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
+
 .subscribe-form input {
-  padding: 12px;
-  width: 250px;
+  padding: 15px;
+  width: 100%;
+  max-width: 350px; /* Độ rộng tối đa trên máy tính */
   border-radius: 5px;
   border: none;
   outline: none;
+  font-size: 16px; /* Tránh tình trạng bị zoom trên iPhone khi nhấn vào ô nhập */
 }
+
 .subscribe-form button {
-  padding: 12px 20px;
+  padding: 15px 30px;
   background: #f7941d;
   color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
+  font-size: 16px;
+  width: auto;
 }
 
+/* --- 4. Services (Các ô dịch vụ) --- */
 .services {
-  padding: 50px 10%;
+  padding: 60px 5%;
   text-align: center;
 }
-.service-container {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 30px;
-}
-.card {
-  width: 25%;
-  padding: 20px;
-  border: 1px solid #eee;
-  border-radius: 10px;
-}
-.card i {
-  font-size: 2.5rem;
+
+.services h2 {
+  margin-bottom: 40px;
+  font-size: 2rem;
   color: #df2027;
-  margin-bottom: 10px;
+}
+
+.service-container {
+  display: grid;
+  /* Grid tự động chia cột dựa trên kích thước màn hình */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.card {
+  padding: 40px 20px;
+  border: 1px solid #eee;
+  border-radius: 15px;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+  background: #fff;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card i {
+  font-size: 3rem;
+  color: #df2027;
+  margin-bottom: 20px;
+}
+
+/* --- 5. Tablet & Mobile Tinh chỉnh --- */
+@media (max-width: 600px) {
+  header {
+    justify-content: center; /* Đưa logo ra giữa trên điện thoại nhỏ */
+  }
+  nav ul {
+    margin-top: 10px;
+  }
+  .subscribe-form button {
+    width: 100%; /* Nút bấm chiếm hết chiều ngang trên điện thoại */
+    max-width: 350px;
+  }
 }
