@@ -1,0 +1,317 @@
+/* --- 1. Reset & Layout Chung --- */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-container {
+  display: flex;
+  width: 850px;
+  height: 520px;
+  background-color: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- 2. Cột Trái (Form) --- */
+.form-section {
+  flex: 1.2;
+  padding: 40px 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* THÊM: Logo nhỏ trong Form */
+.form-logo {
+  width: 80px;
+  margin-bottom: 10px;
+  background: white;
+  padding: 5px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-section h2 {
+  color: #df2027;
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.form-section form {
+  width: 100%;
+  max-width: 320px;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  position: relative;
+  width: 100%;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 15px 12px 42px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: 0.3s;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.input-group input:focus {
+  border-color: #df2027;
+  box-shadow: 0 0 5px rgba(223, 32, 39, 0.15);
+  outline: none;
+}
+
+.input-group i {
+  position: absolute;
+  left: 15px;
+  top: 38px;
+  color: #df2027;
+  font-size: 14px;
+  z-index: 5;
+}
+
+/* --- THÊM: GIAO DIỆN 6 Ô OTP NHỎ --- */
+.otp-slide-wrapper {
+  display: none;
+  width: 100%;
+  margin: 15px 0;
+  text-align: center;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 120px;
+    transform: translateY(0);
+  }
+}
+
+.otp-input-container {
+  display: flex;
+  justify-content: center; /* Căn giữa các ô */
+  gap: 8px; /* Khoảng cách giữa các ô */
+  width: 100%;
+}
+
+.otp-field {
+  width: 40px;
+  height: 45px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  transition: 0.3s;
+  box-sizing: border-box;
+}
+
+.otp-field:focus {
+  border-color: #df2027;
+  box-shadow: 0 0 5px rgba(223, 32, 39, 0.2);
+  outline: none;
+}
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.form-options a {
+  text-decoration: none;
+  color: #df2027;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 12px;
+  background-color: #df2027;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+.btn-submit:hover {
+  background-color: #b3191f;
+  transform: translateY(-2px);
+}
+
+/* --- 3. Cột Phải (Chào mừng) --- */
+.welcome-section {
+  flex: 1;
+  background-color: #df2027;
+  color: #fff;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.welcome-section h1 {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+  font-weight: 900;
+}
+
+.welcome-section p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 25px;
+  opacity: 0.95;
+}
+
+.btn-register-outline {
+  padding: 10px 30px;
+  background-color: transparent;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-register-outline:hover {
+  background-color: #fff;
+  color: #df2027;
+}
+
+.back-home {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+  color: #666;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* --- 4. BOX THÔNG BÁO --- */
+.notification-popup {
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  padding: 12px 25px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  min-width: 280px;
+  justify-content: center;
+  background-color: #333;
+}
+
+.notification-popup.show {
+  top: 30px;
+}
+
+.notification-popup.success {
+  background-color: #28a745;
+}
+.notification-popup.error {
+  background-color: #df2027;
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notification-content p {
+  margin: 0;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* --- 5. HIỆU ỨNG CHUYỂN TRANG --- */
+#authContent,
+#forgotSection {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- GIAO DIỆN 1 CỘT KHI ĐĂNG KÝ --- */
+.main-container.register-mode {
+  width: 450px;
+}
+
+.main-container.register-mode .welcome-section {
+  display: none;
+}
+
+.main-container.register-mode .form-section {
+  flex: 1;
+  width: 100%;
+  padding: 40px;
+}
+
+.btn-back-to-login {
+  display: block;
+  width: 100%;
+  margin-top: 15px;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-align: center;
+}

@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// THAY THẾ ĐOẠN NÀY BẰNG CONFIG CỦA BẠN
+// 1. Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
   authDomain: "circlek-db.firebaseapp.com",
@@ -16,10 +16,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Hàm lưu dữ liệu
+// 2. Hàm lưu dữ liệu Email
 async function saveToFirebase() {
   const emailInput = document.getElementById("customerEmail");
-  const emailValue = emailInput.value;
+  if (!emailInput) return; // Bảo vệ nếu không tìm thấy ô nhập
+
+  const emailValue = emailInput.value.trim();
 
   if (!emailValue) {
     alert("Vui lòng nhập email!");
@@ -34,12 +36,52 @@ async function saveToFirebase() {
 
     console.log("Thành công với ID: ", docRef.id);
     alert("Cảm ơn! Email của bạn đã được lưu vào Firebase.");
-    emailInput.value = ""; // Xóa trống ô nhập sau khi gửi
+    emailInput.value = "";
   } catch (e) {
     console.error("Lỗi: ", e);
     alert("Có lỗi xảy ra, vui lòng thử lại.");
   }
 }
 
-// Đẩy hàm ra window để HTML nhận diện được
+// 3. XỬ LÝ SLIDESHOW BANNER
+let slideIndex = 1;
+
+function showSlides(n) {
+  const slides = document.querySelectorAll(".slide");
+  const dots = document.querySelectorAll(".dot");
+
+  if (slides.length === 0) return; // Nếu chưa có slide thì thoát
+
+  if (n > slides.length) slideIndex = 1;
+  if (n < 1) slideIndex = slides.length;
+
+  // Xóa class active của tất cả slide và dots
+  slides.forEach((slide) => slide.classList.remove("active"));
+  dots.forEach((dot) => dot.classList.remove("active"));
+
+  // Hiển thị slide và dot tương ứng
+  slides[slideIndex - 1].classList.add("active");
+  if (dots[slideIndex - 1]) {
+    dots[slideIndex - 1].classList.add("active");
+  }
+}
+
+// Hàm cho các chấm khi nhấn (onclick)
+function currentSlide(n) {
+  showSlides((slideIndex = n));
+}
+
+// Tự động chuyển sau mỗi 5 giây
+let slideInterval = setInterval(() => {
+  slideIndex++;
+  showSlides(slideIndex);
+}, 5000);
+
+// 4. Đưa các hàm ra Window (Vì dùng type="module" nên cần bước này để HTML nhận diện onclick)
 window.saveToFirebase = saveToFirebase;
+window.currentSlide = currentSlide;
+
+// Khởi tạo slide đầu tiên khi trang web tải xong
+document.addEventListener("DOMContentLoaded", () => {
+  showSlides(slideIndex);
+});
