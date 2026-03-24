@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hồ sơ cá nhân - Circle K</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/stylelogin.css" />
+    <style>
+      .profile-card {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        margin: 50px auto;
+      }
+      .user-avatar-large {
+        width: 80px;
+        height: 80px;
+        background: #df2027;
+        color: white;
+        font-size: 2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        text-transform: uppercase;
+        font-weight: bold;
+      }
+      .btn-logout {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+        width: 100%;
+      }
+      .btn-logout:hover {
+        background: #5a6268;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="index.html" class="back-home">
+      <i class="fas fa-arrow-left"></i>
+      Về trang chủ
+    </a>
+
+    <div class="profile-card">
+      <div class="user-avatar-large" id="big-initial">?</div>
+      <h3 id="display-email" style="margin-bottom: 5px">Đang tải...</h3>
+      <p style="color: #888; font-size: 0.8rem; margin-bottom: 25px">Hồ sơ thành viên Circle K</p>
+
+      <div style="text-align: left">
+        <div class="input-group" style="margin-bottom: 15px">
+          <label style="display: block; font-weight: bold; margin-bottom: 5px">Họ và tên</label>
+          <input
+            type="text"
+            id="profile-fullname"
+            placeholder="Nhập họ tên"
+            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px" />
+        </div>
+
+        <div class="input-group" style="margin-bottom: 15px">
+          <label style="display: block; font-weight: bold; margin-bottom: 5px">Ngày sinh</label>
+          <input
+            type="date"
+            id="profile-dob"
+            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px" />
+        </div>
+
+        <div class="input-group" style="margin-bottom: 15px">
+          <label style="display: block; font-weight: bold; margin-bottom: 5px">Số điện thoại</label>
+          <input
+            type="tel"
+            id="profile-phone"
+            placeholder="Nhập số điện thoại"
+            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px" />
+        </div>
+
+        <div class="input-group" style="margin-bottom: 20px">
+          <label style="display: block; font-weight: bold; margin-bottom: 5px">Địa chỉ nhận hàng</label>
+          <input
+            type="text"
+            id="profile-address"
+            placeholder="Số nhà, tên đường..."
+            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px" />
+        </div>
+
+        <button
+          id="btn-save-info"
+          style="
+            width: 100%;
+            padding: 12px;
+            background: #df2027;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+          ">
+          LƯU THÔNG TIN
+        </button>
+      </div>
+    </div>
+
+    <div id="notificationBox" class="notification-popup">
+      <p id="notificationText"></p>
+    </div>
+
+    <script type="module" src="js/profile.js"></script>
+  </body>
+</html>

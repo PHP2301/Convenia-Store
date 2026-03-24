@@ -55,12 +55,38 @@
           <div class="search-icon">
             <i class="fas fa-search"></i>
           </div>
-          <a href="indexlogin.html" style="text-decoration: none">
-            <div class="nav-item btn-login-nav">
-              <i class="fas fa-user"></i>
-              <span>Đăng nhập</span>
+          <div id="auth-zone" style="margin-left: 20px">
+            <a href="indexlogin.html" id="btn-login-nav" style="text-decoration: none">
+              <div class="nav-item btn-login-nav">
+                <i class="fas fa-user"></i>
+                <span>Đăng nhập</span>
+              </div>
+            </a>
+
+            <div
+              id="user-profile-header"
+              style="display: none; align-items: center; cursor: pointer"
+              onclick="window.location.href = 'profile.html'">
+              <div
+                id="user-avatar-circle"
+                style="
+                  width: 35px;
+                  height: 35px;
+                  background: #df2027;
+                  color: white;
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-weight: bold;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                  text-transform: uppercase;
+                  border: 2px solid white;
+                ">
+                <span id="user-initial">?</span>
+              </div>
             </div>
-          </a>
+          </div>
         </nav>
       </div>
     </header>

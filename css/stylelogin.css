@@ -13,7 +13,7 @@ body {
 .main-container {
   display: flex;
   width: 850px;
-  height: 520px;
+  height: 550px;
   background-color: #fff;
   border-radius: 20px;
   overflow: hidden;
@@ -21,17 +21,17 @@ body {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --- 2. Cột Trái (Form) --- */
+/* --- 2. Cột Trái (Form Section) --- */
 .form-section {
   flex: 1.2;
-  padding: 40px 50px;
+  padding: 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
 }
 
-/* THÊM: Logo nhỏ trong Form */
 .form-logo {
   width: 80px;
   margin-bottom: 10px;
@@ -51,7 +51,10 @@ body {
 
 .form-section form {
   width: 100%;
-  max-width: 320px;
+  max-width: 320px; /* Cố định chiều rộng form để căn chỉnh chính xác */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .input-group {
@@ -94,52 +97,75 @@ body {
   z-index: 5;
 }
 
-/* --- THÊM: GIAO DIỆN 6 Ô OTP NHỎ --- */
+/* --- 3. GIAO DIỆN 6 Ô OTP (FIX LỆCH TUYỆT ĐỐI) --- */
 .otp-slide-wrapper {
   display: none;
   width: 100%;
   margin: 15px 0;
   text-align: center;
+  animation: slideDown 0.4s ease-out;
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    max-height: 0;
     transform: translateY(-10px);
   }
   to {
     opacity: 1;
-    max-height: 120px;
     transform: translateY(0);
   }
 }
 
 .otp-input-container {
   display: flex;
-  justify-content: center; /* Căn giữa các ô */
-  gap: 8px; /* Khoảng cách giữa các ô */
+  justify-content: center; /* Căn giữa 6 ô */
+  align-items: center;
+  gap: 8px;
   width: 100%;
+  padding: 5px 0;
+  box-sizing: border-box;
 }
 
 .otp-field {
   width: 40px;
-  height: 45px;
+  height: 48px;
   text-align: center;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: bold;
-  border: 1px solid #ddd;
+  border: 2px solid #ddd;
   border-radius: 8px;
   background: #fff;
-  transition: 0.3s;
+  transition: all 0.3s ease;
   box-sizing: border-box;
+  color: #df2027;
 }
 
 .otp-field:focus {
   border-color: #df2027;
-  box-shadow: 0 0 5px rgba(223, 32, 39, 0.2);
+  box-shadow: 0 0 8px rgba(223, 32, 39, 0.2);
   outline: none;
+  transform: scale(1.08); /* Phóng to nhẹ để tạo điểm nhấn */
 }
+
+/* --- 4. Strength Meter --- */
+.strength-meter {
+  height: 4px;
+  width: 0;
+  margin-top: 5px;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+.strength-weak {
+  width: 33%;
+  background-color: #ff4d4d;
+}
+.strength-strong {
+  width: 100%;
+  background-color: #28a745;
+}
+
+/* --- 5. Nút Bấm & Options --- */
 .form-options {
   display: flex;
   justify-content: space-between;
@@ -148,11 +174,6 @@ body {
   color: #666;
   margin-bottom: 20px;
   width: 100%;
-}
-
-.form-options a {
-  text-decoration: none;
-  color: #df2027;
 }
 
 .btn-submit {
@@ -167,14 +188,16 @@ body {
   cursor: pointer;
   text-transform: uppercase;
   transition: 0.3s;
+  box-shadow: 0 4px 10px rgba(223, 32, 39, 0.2);
 }
 
 .btn-submit:hover {
   background-color: #b3191f;
   transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(223, 32, 39, 0.3);
 }
 
-/* --- 3. Cột Phải (Chào mừng) --- */
+/* --- 6. Cột Phải (Welcome Section) --- */
 .welcome-section {
   flex: 1;
   background-color: #df2027;
@@ -217,19 +240,7 @@ body {
   color: #df2027;
 }
 
-.back-home {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  text-decoration: none;
-  color: #666;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-/* --- 4. BOX THÔNG BÁO --- */
+/* --- 7. Popup Thông Báo --- */
 .notification-popup {
   position: fixed;
   top: -100px;
@@ -247,11 +258,12 @@ body {
   justify-content: center;
   background-color: #333;
 }
-
+.notification-popup i {
+  display: none !important;
+}
 .notification-popup.show {
   top: 30px;
 }
-
 .notification-popup.success {
   background-color: #28a745;
 }
@@ -259,38 +271,11 @@ body {
   background-color: #df2027;
 }
 
-.notification-content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.notification-content p {
-  margin: 0;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-/* --- 5. HIỆU ỨNG CHUYỂN TRANG --- */
-#authContent,
-#forgotSection {
-  animation: fadeIn 0.4s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* --- GIAO DIỆN 1 CỘT KHI ĐĂNG KÝ --- */
+/* --- 8. REGISTER MODE (Giao diện 1 cột) --- */
 .main-container.register-mode {
-  width: 450px;
+  width: 420px; /* Thu gọn container cho cân đối */
+  height: auto;
+  min-height: 560px;
 }
 
 .main-container.register-mode .welcome-section {
@@ -300,18 +285,29 @@ body {
 .main-container.register-mode .form-section {
   flex: 1;
   width: 100%;
-  padding: 40px;
+  padding: 50px 30px; /* Padding đều 2 bên */
 }
 
 .btn-back-to-login {
-  display: block;
-  width: 100%;
-  margin-top: 15px;
   background: none;
   border: none;
   color: #888;
   font-size: 13px;
   cursor: pointer;
   text-decoration: underline;
-  text-align: center;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.back-home {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+  color: #666;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 100;
 }
