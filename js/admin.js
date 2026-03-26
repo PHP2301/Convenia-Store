@@ -20,7 +20,8 @@ const firebaseConfig = {
   apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
   authDomain: "circlek-db.firebaseapp.com",
   projectId: "circlek-db",
-  storageBucket: "circlek-db.appspot.com",
+  // PHẢI CHÍNH XÁC LÀ DÒNG NÀY:
+  storageBucket: "circlek-db.firebasestorage.app",
   messagingSenderId: "515751444593",
   appId: "1:515751444593:web:453df449a3b86f09f09bd0",
 };
