@@ -6,6 +6,15 @@ import {
   sendPasswordResetEmail,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+// --- CẬP NHẬT: Import thêm Firestore ---
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp,
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
 // 1. Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
@@ -18,6 +27,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 // 2. Cấu hình EmailJS
 emailjs.init("utKMKTgKkf6gww2x1");
@@ -39,7 +49,7 @@ const container = document.querySelector(".main-container");
 let isLoginStage = true;
 let generatedOTP = "";
 let isOTPRegisterStep = false;
-let forgotStep = 1; // 1: Email, 2: OTP, 3: Password
+let forgotStep = 1;
 
 // --- HÀM THÔNG BÁO ---
 function showNotify(message, type) {
@@ -48,7 +58,36 @@ function showNotify(message, type) {
   setTimeout(() => notificationBox.classList.remove("show"), 3000);
 }
 
-// --- XỬ LÝ NHẢY Ô OTP (QUAN TRỌNG) ---
+// --- HÀM KIỂM TRA QUYỀN VÀ ĐIỀU HƯỚNG ---
+async function handleUserRoleAndRedirect(userId) {
+  try {
+    const userDoc = await getDoc(doc(db, "users", userId));
+
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      if (userData.role === "admin") {
+        showNotify("Chào Admin Phước! Đang vào hệ thống quản lý...", "success");
+        setTimeout(() => {
+          location.href = "admin.html"; // Chuyển đến trang quản lý
+        }, 1500);
+      } else {
+        showNotify("Đăng nhập thành công!", "success");
+        setTimeout(() => {
+          location.href = "index.html"; // Chuyển về trang chủ
+        }, 1500);
+      }
+    } else {
+      showNotify("Đăng nhập thành công! (Chưa phân quyền)", "success");
+      setTimeout(() => {
+        location.href = "index.html";
+      }, 1500);
+    }
+  } catch (err) {
+    showNotify("Lỗi xác thực quyền: " + err.message, "error");
+  }
+}
+
+// --- XỬ LÝ NHẢY Ô OTP ---
 function setupOTPAutoTab(fieldClass, hiddenInputId) {
   const fields = document.querySelectorAll("." + fieldClass);
   const hiddenInput = document.getElementById(hiddenInputId);
@@ -72,7 +111,6 @@ function setupOTPAutoTab(fieldClass, hiddenInputId) {
   });
 }
 
-// Khởi tạo nhảy ô
 setupOTPAutoTab("reg-otp", "regOTPInput");
 setupOTPAutoTab("f-otp", "forgotOTPInput");
 
@@ -102,6 +140,7 @@ window.addEventListener("hashchange", checkHash);
 
 btnToggleAuth.addEventListener("click", () => {
   window.location.hash = isLoginStage ? "register" : "";
+  isOTPRegisterStep = false;
 });
 
 // --- XỬ LÝ QUÊN MẬT KHẨU ---
@@ -148,7 +187,8 @@ window.handleForgotAction = async function () {
       await sendPasswordResetEmail(auth, email);
       showNotify("Thành công! Kiểm tra email để đổi mật khẩu.", "success");
       setTimeout(() => {
-        location.reload();
+        // SỬA TẠI ĐÂY: Load lại trang login đúng tên
+        location.href = "indexlogin.html";
       }, 2500);
     } catch (err) {
       showNotify(err.message, "error");
@@ -169,21 +209,19 @@ authForm.addEventListener("submit", async (e) => {
   const password = passwordInput.value;
 
   if (isLoginStage) {
+    btnMainAction.innerText = "ĐANG XÁC THỰC...";
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      showNotify("Đăng nhập thành công!", "success");
-      setTimeout(() => {
-        location.href = "index.html";
-      }, 1500);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      handleUserRoleAndRedirect(userCredential.user.uid);
     } catch (err) {
       showNotify("Sai tài khoản hoặc mật khẩu!", "error");
+      btnMainAction.innerText = "ĐĂNG NHẬP NGAY";
     }
   } else {
     if (!isOTPRegisterStep) {
       if (password !== rePasswordInput.value) return showNotify("Mật khẩu không khớp!", "error");
       btnMainAction.innerText = "ĐANG KIỂM TRA...";
       try {
-        // Kiểm tra email tồn tại chưa bằng cách tạo thử và xóa ngay
         const userCredential = await createUserWithEmailAndPassword(auth, email, "check_temp_123");
         await userCredential.user.delete();
 
@@ -195,19 +233,30 @@ authForm.addEventListener("submit", async (e) => {
         btnMainAction.innerText = "XÁC NHẬN ĐĂNG KÝ";
       } catch (err) {
         showNotify(err.code === "auth/email-already-in-use" ? "Email đã tồn tại!" : "Lỗi hệ thống!", "error");
+        btnMainAction.innerText = "ĐĂNG KÝ";
       }
     } else {
       const userOTP = document.getElementById("regOTPInput").value;
       if (userOTP === generatedOTP) {
+        btnMainAction.innerText = "ĐANG TẠO TÀI KHOẢN...";
         try {
-          await createUserWithEmailAndPassword(auth, email, password);
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+          await setDoc(doc(db, "users", userCredential.user.uid), {
+            email: email,
+            role: "customer",
+            createdAt: serverTimestamp(),
+          });
+
           showNotify("Đăng ký thành công!", "success");
           setTimeout(() => {
+            // SỬA TẠI ĐÂY: Quay về trạng thái login của file indexlogin.html
             window.location.hash = "";
             location.reload();
           }, 1500);
         } catch (err) {
           showNotify(err.message, "error");
+          btnMainAction.innerText = "XÁC NHẬN ĐĂNG KÝ";
         }
       } else {
         showNotify("OTP không đúng!", "error");

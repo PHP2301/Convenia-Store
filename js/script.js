@@ -1,104 +1,168 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-// THÊM: Import thêm Auth để kiểm tra trạng thái đăng nhập
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp,
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// 1. Cấu hình Firebase (Giữ nguyên của Phước)
+// 1. Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
   authDomain: "circlek-db.firebaseapp.com",
   projectId: "circlek-db",
-  storageBucket: "circlek-db.firebasestorage.app",
+  storageBucket: "circlek-db.appspot.com",
   messagingSenderId: "515751444593",
   appId: "1:515751444593:web:453df449a3b86f09f09bd0",
-  measurementId: "G-W9RMHWTWXJ",
 };
 
-// Khởi tạo
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app); // Khởi tạo Auth
+const auth = getAuth(app);
 
-// --- 2. XỬ LÝ TRẠNG THÁI ĐĂNG NHẬP (MỚI THÊM) ---
-onAuthStateChanged(auth, (user) => {
-  const btnLogin = document.getElementById("btn-login-nav");
+// --- 2. XỬ LÝ ĐĂNG NHẬP & PHÂN QUYỀN ADMIN ---
+onAuthStateChanged(auth, async (user) => {
+  const btnLogin = document.getElementById("login-btn");
   const userProfile = document.getElementById("user-profile-header");
   const userInitial = document.getElementById("user-initial");
+  const userNameText = document.getElementById("user-name-text");
+  const adminLink = document.getElementById("admin-link");
 
   if (user) {
-    // Nếu đã đăng nhập: Ẩn nút "Đăng nhập", hiện Avatar tròn
+    // Hiện thông tin user
     if (btnLogin) btnLogin.style.display = "none";
     if (userProfile) userProfile.style.display = "flex";
+    if (userInitial) userInitial.innerText = user.email.charAt(0).toUpperCase();
+    if (userNameText) userNameText.innerText = user.email.split("@")[0];
 
-    // Lấy chữ cái đầu của Email hiển thị lên Avatar
-    if (userInitial) {
-      userInitial.innerText = user.email.charAt(0).toUpperCase();
+    // Kiểm tra quyền Admin trong collection 'subscribers'
+    try {
+      const subDoc = await getDoc(doc(db, "subscribers", user.uid));
+      if (subDoc.exists() && subDoc.data().role === "admin") {
+        if (adminLink) adminLink.style.display = "flex";
+        console.log("Quyền: Admin");
+      }
+    } catch (error) {
+      console.error("Lỗi kiểm tra quyền:", error);
     }
   } else {
-    // Nếu chưa đăng nhập: Hiện lại nút "Đăng nhập"
-    if (btnLogin) btnLogin.style.display = "block";
+    // Trạng thái chưa đăng nhập
+    if (btnLogin) btnLogin.style.display = "flex";
     if (userProfile) userProfile.style.display = "none";
+    if (adminLink) adminLink.style.display = "none";
   }
 });
 
-// --- 3. HÀM LƯU DỮ LIỆU EMAIL (FIRESTORE) ---
+// Xử lý Đăng xuất
+document.addEventListener("click", async (e) => {
+  if (e.target.closest("#btn-logout-header")) {
+    e.preventDefault();
+    try {
+      await signOut(auth);
+      window.location.reload();
+    } catch (error) {
+      console.error("Lỗi đăng xuất:", error);
+    }
+  }
+});
+
+// --- 3. LƯU EMAIL KHÁCH HÀNG (SUBSCRIBERS) ---
 async function saveToFirebase() {
   const emailInput = document.getElementById("customerEmail");
   if (!emailInput) return;
 
   const emailValue = emailInput.value.trim();
-  if (!emailValue) {
-    alert("Vui lòng nhập email!");
-    return;
-  }
+  if (!emailValue) return alert("Vui lòng nhập email!");
 
   try {
-    const docRef = await addDoc(collection(db, "subscribers"), {
-      email: emailValue,
-      timestamp: new Date(),
-    });
-    console.log("Thành công với ID: ", docRef.id);
-    alert("Cảm ơn! Email đã được lưu.");
+    // Nếu user đã login, dùng UID làm ID document để quản lý role
+    if (auth.currentUser) {
+      await setDoc(
+        doc(db, "subscribers", auth.currentUser.uid),
+        {
+          email: emailValue,
+          role: "user",
+          timestamp: serverTimestamp(),
+        },
+        { merge: true },
+      );
+    } else {
+      // Nếu chưa login thì lưu bình thường
+      await addDoc(collection(db, "subscribers"), {
+        email: emailValue,
+        role: "guest",
+        timestamp: serverTimestamp(),
+      });
+    }
+    alert("Đăng ký thành công!");
     emailInput.value = "";
   } catch (e) {
-    console.error("Lỗi: ", e);
-    alert("Có lỗi xảy ra, vui lòng thử lại.");
+    console.error(e);
+    alert("Lỗi lưu dữ liệu!");
   }
 }
+window.saveToFirebase = saveToFirebase;
 
-// --- 4. XỬ LÝ SLIDESHOW BANNER ---
+// --- 4. SLIDESHOW BANNER ---
 let slideIndex = 1;
-
 function showSlides(n) {
   const slides = document.querySelectorAll(".slide");
-  const dots = document.querySelectorAll(".dot");
-
   if (slides.length === 0) return;
-
   if (n > slides.length) slideIndex = 1;
   if (n < 1) slideIndex = slides.length;
-
-  slides.forEach((slide) => slide.classList.remove("active"));
-  dots.forEach((dot) => dot.classList.remove("active"));
-
-  if (slides[slideIndex - 1]) slides[slideIndex - 1].classList.add("active");
-  if (dots[slideIndex - 1]) dots[slideIndex - 1].classList.add("active");
+  slides.forEach((s) => s.classList.remove("active"));
+  slides[slideIndex - 1].classList.add("active");
 }
 
-function currentSlide(n) {
-  showSlides((slideIndex = n));
-}
-
-// Tự động chuyển slide
-let slideInterval = setInterval(() => {
+setInterval(() => {
   slideIndex++;
   showSlides(slideIndex);
 }, 5000);
 
-// --- 5. EXPORT RA WINDOW ---
-window.saveToFirebase = saveToFirebase;
-window.currentSlide = currentSlide;
+// --- 5. TÌM KIẾM CỬA HÀNG & GPS ---
+function filterStores(keyword) {
+  const cards = document.querySelectorAll(".store-card");
+  cards.forEach((card) => {
+    const isMatch = card.innerText.toLowerCase().includes(keyword.toLowerCase());
+    card.style.display = isMatch ? "block" : "none";
+  });
+}
 
+const inputStore = document.getElementById("store-search-input");
+if (inputStore) {
+  inputStore.addEventListener("input", (e) => filterStores(e.target.value));
+}
+
+// Tính khoảng cách (Công thức Haversine)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return (R * c).toFixed(2);
+}
+
+window.getMyLocation = function (storeLat, storeLon, storeName) {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, storeLat, storeLon);
+        alert(`Khoảng cách đến ${storeName} là ${dist} km.`);
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${storeLat},${storeLon}`, "_blank");
+      },
+      () => alert("Vui lòng cho phép truy cập vị trí!"),
+    );
+  }
+};
+
+// Khởi tạo khi trang tải xong
 document.addEventListener("DOMContentLoaded", () => {
   showSlides(slideIndex);
 });

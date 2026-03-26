@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Circle K Bình Thạnh</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+  </head>
+  <body>
+    <div class="admin-wrapper">
+      <nav class="sidebar">
+        <div class="sidebar-header">
+          <img src="img/logo.png" alt="Circle K" width="50" />
+          <span>ADMIN PANEL</span>
+        </div>
+        <ul class="nav-links">
+          <li class="active">
+            <a href="#">
+              <i class="fas fa-boxes"></i>
+              Quản lý kho
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fas fa-store"></i>
+              Chi nhánh
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fas fa-history"></i>
+              Lịch sử nhập xuất
+            </a>
+          </li>
+          <li>
+            <a href="index.html">
+              <i class="fas fa-sign-out-alt"></i>
+              Thoát
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <main class="main-content">
+        <header class="top-bar">
+          <h2>
+            <i class="fas fa-warehouse"></i>
+            Quản lý Tồn kho - Bình Thạnh
+          </h2>
+          <div class="admin-info">
+            <span>
+              Xin chào,
+              <strong>Phạm Hữu Phước</strong>
+            </span>
+          </div>
+        </header>
+
+        <div class="control-panel">
+          <div class="select-box">
+            <label>Chọn chi nhánh quản lý:</label>
+            <select id="branch-filter" onchange="loadInventory()">
+              <option value="ngt">Nguyễn Gia Trí</option>
+              <option value="nvt">Nguyễn Văn Thương</option>
+              <option value="dbp">Điện Biên Phủ</option>
+              <option value="nhc">Nguyễn Hữu Cảnh</option>
+            </select>
+          </div>
+          <button class="btn-add-product" id="openModalBtn">
+            <i class="fas fa-plus"></i>
+            Thêm sản phẩm mới
+          </button>
+        </div>
+
+        <table class="inventory-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Hình ảnh</th>
+              <th>Sản phẩm</th>
+              <th>Loại</th>
+              <th>Tồn kho hiện tại</th>
+              <th>Đơn vị</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-list"></tbody>
+        </table>
+      </main>
+    </div>
+
+    <div id="product-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h3>
+          <i class="fas fa-cart-plus"></i>
+          Thêm sản phẩm mới
+        </h3>
+        <form id="add-product-form">
+          <div class="form-group">
+            <label>Mã sản phẩm:</label>
+            <input type="text" id="p-id" placeholder="VD: #001" required />
+          </div>
+          <div class="form-group">
+            <label>Tên sản phẩm:</label>
+            <input type="text" id="p-name" placeholder="Tên sản phẩm" required />
+          </div>
+          <div class="form-group">
+            <label>Loại:</label>
+            <select id="p-type" required>
+              <option value="" disabled selected>Chọn loại sản phẩm</option>
+              <option value="Thức ăn">Thức ăn</option>
+              <option value="Nước uống">Nước uống</option>
+              <option value="Văn phòng phẩm">Văn phòng phẩm</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Số lượng:</label>
+            <input type="number" id="p-stock" placeholder="Số lượng tồn ban đầu" required />
+          </div>
+          <div class="form-group">
+            <label>Đơn vị:</label>
+            <input type="text" id="p-unit" placeholder="Ly, Tô, Cái..." required />
+          </div>
+          <div class="form-group">
+            <label>Hình ảnh sản phẩm:</label>
+            <input type="file" id="p-image" accept="image/*" />
+          </div>
+
+          <button type="submit" class="btn-save">LƯU VÀO KHO</button>
+        </form>
+      </div>
+    </div>
+
+    <script type="module" src="js/admin.js"></script>
+  </body>
+</html>

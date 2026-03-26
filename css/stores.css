@@ -1,0 +1,145 @@
+/* --- 1. Layout chính cho trang Hệ thống --- */
+.store-container {
+  display: flex;
+  height: calc(100vh - 80px); /* Khớp với chiều cao còn lại sau Header */
+  background-color: #f4f4f4;
+}
+
+/* --- 2. Cột danh sách bên trái --- */
+.store-list {
+  width: 380px; /* Độ rộng cố định cho danh sách */
+  background: white;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+.store-search-box {
+  padding: 20px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+/* Tái cấu trúc Search Container giống ảnh mẫu */
+.search-container-store {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #df2027; /* Viền đỏ Circle K */
+  border-radius: 25px;
+  padding: 2px 5px 2px 15px;
+  height: 45px;
+}
+
+.search-container-store input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+}
+
+.search-container-store button {
+  background: #df2027;
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.search-container-store button:hover {
+  background: #b3191f;
+}
+
+/* --- 3. Danh sách Store Card --- */
+#list-result {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.store-card {
+  padding: 20px;
+  border-bottom: 1px solid #f1f1f1;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.store-card:hover {
+  background: #fffafa;
+  border-left: 5px solid #df2027;
+}
+
+.store-card h4 {
+  color: #df2027;
+  font-size: 16px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.store-card p {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+}
+
+.store-card i {
+  width: 20px;
+  color: #df2027;
+}
+
+/* --- 4. Cột Bản đồ --- */
+.map-box {
+  flex-grow: 1;
+  position: relative;
+}
+
+/* --- 5. Responsive cho Mobile --- */
+@media (max-width: 768px) {
+  .store-container {
+    flex-direction: column;
+  }
+  .store-list {
+    width: 100%;
+    height: 40%;
+  }
+  .map-box {
+    height: 60%;
+  }
+}
+/* Thêm vào cuối file stores.css */
+.store-card.active {
+  background: #fff5f5;
+  border-left: 5px solid #df2027;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Đảm bảo iframe chiếm trọn map-box */
+.map-box iframe {
+  display: block;
+}
+.back-home {
+  padding: 15px 20px 5px 20px;
+}
+
+.back-home a {
+  text-decoration: none;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Khoảng cách giữa icon và chữ */
+}
+
+.back-home a i {
+  font-size: 12px;
+}
+
+.back-home a:hover {
+  color: #df2027; /* Đổi sang màu đỏ khi rê chuột vào */
+  transform: translateX(-5px); /* Hiệu ứng nhích nhẹ sang trái */
+}

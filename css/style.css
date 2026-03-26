@@ -1,20 +1,23 @@
-/* --- 1. Reset --- */
+/* --- 1. RESET & CƠ BẢN --- */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
+
 body {
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   overflow-x: hidden;
+  background-color: #f9f9f9;
 }
 
-/* --- 2. Top Bar --- */
+/* --- 2. TOP BAR --- */
 .top-bar {
   background: #fff;
   border-bottom: 1px solid #eee;
   padding: 8px 5%;
 }
+
 .top-bar-content {
   display: flex;
   justify-content: flex-end;
@@ -22,21 +25,368 @@ body {
   font-size: 12px;
   color: #666;
 }
+
 .top-bar a {
   text-decoration: none;
   color: #666;
   transition: 0.3s;
 }
+
 .top-bar a:hover {
   color: #df2027;
 }
-.top-lang {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+
+/* --- 3. HEADER ĐỎ (STICKY) --- */
+header {
+  background: #df2027;
+  padding: 5px 5%;
+  position: sticky;
+  top: 0;
+  z-index: 10001; /* Đảm bảo luôn trên cùng */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* --- 3. Header Đỏ --- */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo img {
+  height: 60px;
+  background: #fff;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+/* Navigation chính */
+.main-nav {
+  display: flex;
+  align-items: center;
+}
+
+.nav-item {
+  padding: 10px 15px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: 0.3s;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: #b3191f;
+}
+.nav-item i {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.nav-item span {
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* --- 4. DROPDOWN THỨC ĂN (HOVER) --- */
+.nav-item.dropdown-menu {
+  position: relative;
+}
+
+.dropdown-subs {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  min-width: 180px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 0 0 8px 8px;
+  border-top: 3px solid #df2027;
+  overflow: hidden;
+}
+
+.nav-item.dropdown-menu:hover .dropdown-subs {
+  display: block;
+}
+
+.dropdown-subs a {
+  color: #333 !important;
+  padding: 12px 20px;
+  text-decoration: none;
+  display: flex !important;
+  align-items: center;
+  font-size: 14px;
+  transition: 0.3s;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.dropdown-subs a:hover {
+  background-color: #f8f8f8;
+  color: #df2027 !important;
+  padding-left: 25px;
+}
+
+.dropdown-subs a i {
+  margin-right: 10px;
+  color: #df2027;
+  width: 20px;
+}
+
+/* --- 5. DROPDOWN USER AVATAR (CLICK) --- */
+#auth-zone {
+  position: relative;
+}
+
+.dropdown-user {
+  padding-top: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.avatar-trigger {
+  width: 38px;
+  height: 38px;
+  background: #fff;
+  color: #df2027;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-size: 18px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 50px;
+  background: white;
+  min-width: 160px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  z-index: 10002;
+}
+
+.dropdown-content a {
+  color: #333;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown-content a:hover {
+  background: #f9f9f9;
+  color: #df2027;
+}
+.dropdown-content a i {
+  margin-right: 10px;
+  color: #df2027;
+}
+
+.show-dropdown {
+  display: block !important;
+}
+
+/* --- 6. BANNER SLIDER (TỐI ƯU KÍCH THƯỚC) --- */
+.hero-slider {
+  position: relative;
+  width: 95%;
+  max-width: 1200px;
+  margin: 20px auto;
+  background: #000;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.slides-container {
+  width: 100%;
+  display: flex;
+  aspect-ratio: 16 / 7;
+}
+
+.slide {
+  display: none; /* JS sẽ điều khiển hiện class active */
+  width: 100%;
+}
+
+.slide.active {
+  display: block;
+  width: 100%;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.banner-tabs {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px 10px 0 0;
+}
+
+.tab {
+  padding: 12px 25px;
+  font-weight: 700;
+  color: #888;
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 4px solid transparent;
+}
+
+.tab.active {
+  color: #df2027;
+  border-bottom: 4px solid #df2027;
+  background: #fff;
+}
+
+/* --- 7. SERVICES CARDS --- */
+.services {
+  padding: 40px 5%;
+  text-align: center;
+}
+.services h2 {
+  color: #df2027;
+  margin-bottom: 30px;
+}
+
+.service-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  padding: 30px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+.card i {
+  font-size: 2rem;
+  color: #df2027;
+  margin-bottom: 10px;
+}
+
+/* --- 8. RESPONSIVE (MOBILE) --- */
+@media (max-width: 992px) {
+  .main-nav {
+    display: none;
+  } /* Ẩn menu chữ to trên mobile */
+  .top-bar-content {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-slider {
+    width: 100%;
+    border-radius: 0;
+    margin-top: 0;
+  }
+  .slides-container {
+    aspect-ratio: 4 / 3;
+  } /* Banner cao hơn trên điện thoại */
+  .tab {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+  .logo img {
+    height: 45px;
+  }
+  .dropdown-content {
+    right: 5px;
+    top: 45px;
+  }
+}
+/* Container chứa cả Avatar và Tên */
+#auth-zone {
+  margin-left: auto; /* Đẩy cụm Avatar/Tên về sát bên phải thay thế vị trí kính lúp */
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+}
+/* Wrapper để bọc Avatar và Tên */
+.avatar-wrapper {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px;
+  transition: 0.3s;
+}
+
+.avatar-wrapper:hover {
+  opacity: 0.8;
+}
+
+/* Vòng tròn Avatar (Giữ nguyên hoặc chỉnh nhỏ lại xíu) */
+.avatar-trigger {
+  width: 32px;
+  height: 32px;
+  background: #fff;
+  color: #df2027;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+  border: 1px solid #eee;
+}
+
+/* Căn chỉnh lại Dropdown content để nó không bị lệch khi có thêm tên */
+.dropdown-content {
+  right: 0;
+  top: 110%; /* Hiện ngay dưới cụm avatar */
+  min-width: 160px;
+}
+.nav-item i.fa-map-marker-alt {
+  color: #ffd700; /* Màu vàng để làm nổi bật icon bản đồ */
+}
+
+.nav-item:hover i.fa-map-marker-alt {
+  animation: bounce 0.5s infinite alternate;
+}
+
+@keyframes bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-3px);
+  }
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #f9f9f9;
+}
 header {
   background: #df2027;
   padding: 5px 5%;
@@ -50,14 +400,14 @@ header {
   align-items: center;
 }
 .logo img {
-  height: 65px;
+  height: 50px;
   background: #fff;
   padding: 5px;
   border-radius: 4px;
 }
 .main-nav {
   display: flex;
-  align-items: stretch;
+  align-items: center;
 }
 
 .nav-item {
@@ -66,7 +416,6 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
   cursor: pointer;
   transition: 0.3s;
 }
@@ -75,149 +424,66 @@ header {
 }
 .nav-item i {
   font-size: 18px;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 .nav-item span {
   font-size: 11px;
   font-weight: bold;
   text-transform: uppercase;
-  text-align: center;
 }
 
-.search-icon {
+/* --- XỬ LÝ DROPDOWN USER --- */
+.dropdown-user {
+  position: relative;
+  cursor: pointer;
+  height: 100%;
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  color: #fff;
-  cursor: pointer;
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
 }
-
-/* --- 4. Banner & Tabs (Kích thước gọn gàng) --- */
-.hero-slider {
-  position: relative;
-  width: 100%;
-  max-width: 1200px; /* Giới hạn độ rộng banner để không bị quá to trên màn hình lớn */
-  margin: 20px auto; /* Căn giữa banner và tạo khoảng cách với Header */
-  background: #000;
-  border-radius: 15px; /* Bo góc nhẹ cho hiện đại */
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-/* Tỉ lệ banner chuẩn (Ví dụ 16:7 sẽ dẹt và gọn hơn 16:9) */
-.slides-container {
-  width: 100%;
-  display: flex;
-  aspect-ratio: 16 / 7;
-}
-
-.slide {
-  position: relative;
-  width: 100%;
-  flex-shrink: 0;
-}
-
-.slide img {
-  width: 100%;
-  height: 100%;
-  /* Thuộc tính giúp ảnh sắc nét hơn khi bị resize */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  object-fit: cover; /* Hoặc contain nếu bạn không muốn mất góc */
-}
-
-/* Các Tab điều hướng trên banner */
-.banner-tabs {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px 10px 0 0;
-  z-index: 20;
-}
-
-.tab {
-  padding: 12px 30px; /* Giảm padding để tab nhỏ lại phù hợp banner mới */
-  font-weight: 700;
-  color: #888;
-  cursor: pointer;
-  border-bottom: 4px solid transparent;
-  transition: 0.3s;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-.tab.active {
-  color: #df2027;
-  border-bottom: 4px solid #df2027;
+.avatar-trigger {
+  width: 35px;
+  height: 35px;
   background: #fff;
-}
-
-/* Responsive cho Mobile */
-@media (max-width: 768px) {
-  .hero-slider {
-    margin: 10px; /* Giảm lề trên điện thoại */
-    border-radius: 8px;
-  }
-  .slides-container {
-    aspect-ratio: 4 / 3; /* Trên mobile nên để banner hơi vuông để dễ nhìn */
-  }
-  .tab {
-    padding: 8px 15px;
-    font-size: 11px;
-  }
-}
-
-/* --- 5. Services --- */
-.services {
-  padding: 50px 5%;
-  text-align: center;
-}
-.services h2 {
   color: #df2027;
-  margin-bottom: 40px;
-  font-size: 1.8rem;
-}
-.service-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
-}
-.card {
-  padding: 40px;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  transition: 0.3s;
-  cursor: pointer;
-}
-.card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-}
-.card i {
-  font-size: 2.5rem;
-  color: #df2027;
-  margin-bottom: 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
 }
 
-/* --- 6. Responsive --- */
-@media (max-width: 992px) {
-  .main-nav {
-    display: none;
-  } /* Trên mobile menu này rất khó hiện, nên ẩn bớt */
-  .top-bar-content {
-    justify-content: center;
-  }
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  min-width: 180px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  z-index: 1100;
 }
-@media (max-width: 600px) {
-  .tab {
-    padding: 10px 15px;
-    font-size: 12px;
-  }
-  .logo img {
-    height: 50px;
-  }
+.dropdown-content a {
+  color: #333;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+.dropdown-content a:hover {
+  background: #f1f1f1;
+  color: #df2027;
+}
+
+/* HOVER ĐỂ HIỆN MENU */
+.dropdown-user:hover .dropdown-content {
+  display: block !important;
+}
+
+/* CƯỠNG ÉP ẨN NÚT LOGIN KHI JS YÊU CẦU */
+#login-btn[style*="display: none"] {
+  display: none !important;
 }
