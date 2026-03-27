@@ -185,3 +185,25 @@ function animateToCart(btn) {
   }, 50);
   setTimeout(() => ball.remove(), 700);
 }
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    // Kiểm tra nếu Modal đang hiển thị thì mới thực hiện đóng
+    const modal = document.getElementById("product-modal");
+    if (modal && modal.style.display === "block") {
+      modal.style.display = "none";
+
+      // Nếu có form bên trong thì reset luôn cho sạch dữ liệu
+      const productForm = document.getElementById("add-product-form");
+      if (productForm) productForm.reset();
+
+      console.log("Đã đóng Modal bằng phím Esc");
+    }
+  }
+});
+window.onclick = (e) => {
+  const modal = document.getElementById("product-modal");
+  if (e.target === modal) {
+    modal.style.display = "none";
+    document.getElementById("add-product-form").reset();
+  }
+};
