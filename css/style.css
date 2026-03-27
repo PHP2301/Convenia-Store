@@ -352,33 +352,65 @@ header {
 }
 
 /* ==========================================================================
-   7. RESPONSIVE (ĐÃ SỬA LỖI MẤT NÚT)
+   7. RESPONSIVE
    ========================================================================== */
-
-/* --- Khi xem trên Máy tính bảng & Điện thoại (Dưới 992px) --- */
 @media (max-width: 992px) {
-  /* KHÔNG dùng display: none ở đây nữa, mà chuyển sang dàn hàng ngang */
   .main-nav {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-    width: 100%;
-    justify-content: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    padding-top: 10px;
+    display: none;
   }
-
-  .main-header {
-    flex-wrap: wrap; /* Cho phép menu nhảy xuống dòng nếu quá chật */
-    justify-content: center;
-    gap: 10px;
-  }
-
   .top-bar-content {
     justify-content: center;
   }
 }
+/* Container bao quanh giỏ hàng */
+.cart-wrapper-link {
+  display: flex;
+  align-items: center;
+  margin-right: 25px; /* Tăng khoảng cách bên phải để dịch giỏ hàng sang trái */
+  text-decoration: none;
+}
 
+.cart-circle-icon {
+  position: relative;
+  background: #df2027; /* Màu đỏ đậm chuẩn Circle K */
+  color: white;
+  width: 52px; /* To hơn một chút so với trước */
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px; /* Icon giỏ hàng to rõ */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng khi di chuột vào */
+.cart-circle-icon:hover {
+  transform: scale(1.1);
+  background: #b3191e; /* Đỏ đậm hơn khi hover */
+}
+
+/* Badge số lượng (Số 33 trong ảnh của bạn) */
+#cart-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ffb800; /* Màu vàng cam */
+  color: #000;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #df2027; /* Viền trùng màu nền nút để trông liền mạch */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hide-node {
+  display: none !important;
+}
 /* --- Khi xem trên Điện thoại nhỏ (Dưới 768px) --- */
 @media (max-width: 768px) {
   /* Thu nhỏ Logo để nhường chỗ cho các nút */
