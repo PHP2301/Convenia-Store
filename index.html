@@ -31,7 +31,7 @@
       <div class="main-header">
         <div class="logo">
           <a href="index.html">
-            <img src="/img/images1.png" alt="Circle K Logo" />
+            <img src="img/images1.png" alt="Circle K Logo" />
           </a>
         </div>
 
@@ -42,27 +42,31 @@
               <span>Hệ thống Circle K</span>
             </div>
           </a>
+
           <div class="nav-item">
             <i class="fas fa-gift"></i>
             <span>Ưu đãi đặc biệt</span>
           </div>
-          <a href="menu.html" style="text-decoration: none; color: inherit">
-            <div class="nav-item dropdown-menu">
-              <i class="fas fa-hamburger"></i>
-              <span>Thức ăn & Thức uống</span>
 
-              <div class="dropdown-subs">
-                <a href="food.html" onclick="event.stopPropagation()">
-                  <i class="fas fa-pizza-slice"></i>
-                  Thức ăn
-                </a>
-                <a href="drink.html" onclick="event.stopPropagation()">
-                  <i class="fas fa-glass-whiskey"></i>
-                  Thức uống
-                </a>
-              </div>
+          <div class="nav-item dropdown-menu">
+            <i class="fas fa-hamburger"></i>
+            <span>Thức ăn & Thức uống</span>
+            <div class="dropdown-subs">
+              <a href="food.html">
+                <i class="fas fa-pizza-slice"></i>
+                Thức ăn
+              </a>
+              <a href="drink.html">
+                <i class="fas fa-glass-whiskey"></i>
+                Thức uống
+              </a>
+              <a href="menu.html">
+                <i class="fas fa-list"></i>
+                Tất cả Menu
+              </a>
             </div>
-          </a>
+          </div>
+
           <div class="nav-item">
             <i class="fas fa-concierge-bell"></i>
             <span>Sản phẩm & Dịch vụ</span>
@@ -75,15 +79,27 @@
             </a>
 
             <div id="user-profile-header" class="dropdown-user" style="display: none">
-              <div class="avatar-wrapper" id="user-avatar-circle">
-                <div class="avatar-trigger">
+              <div
+                class="avatar-wrapper"
+                id="user-avatar-circle"
+                style="display: flex; align-items: center; gap: 8px; cursor: pointer">
+                <div
+                  class="avatar-trigger"
+                  style="
+                    background: #ffb800;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                    color: #fff;
+                  ">
                   <span id="user-initial">P</span>
                 </div>
-                <span
-                  id="user-name-text"
-                  style="color: white; font-size: 13px; font-weight: 500; margin-left: 8px; cursor: pointer">
-                  Tài khoản
-                </span>
+                <span id="user-name-text" style="color: white; font-size: 13px; font-weight: 500">Tài khoản</span>
+                <i class="fas fa-caret-down" style="color: white; font-size: 10px; margin-left: 5px"></i>
               </div>
 
               <div class="dropdown-content" id="myDropdown">
@@ -93,7 +109,7 @@
                 </a>
                 <a href="indexprofile.html">
                   <i class="fas fa-user"></i>
-                  Thông tin
+                  Thông tin cá nhân
                 </a>
                 <a href="#" id="btn-logout-header">
                   <i class="fas fa-sign-out-alt"></i>

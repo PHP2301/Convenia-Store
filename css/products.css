@@ -1,0 +1,184 @@
+/* ==========================================================================
+   PRODUCTS DISPLAY SYSTEM - OPTIMIZED BY PHUOC
+   ========================================================================== */
+
+.product-display {
+  padding: 60px 5%;
+  background-color: #fcfcfc;
+  min-height: 100vh;
+}
+
+#category-title {
+  text-align: center;
+  margin-bottom: 50px;
+  color: #df2027;
+  font-size: 2.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#category-title::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 5px;
+  background: #ffb800;
+  margin: 15px auto;
+  border-radius: 10px;
+}
+
+/* Hệ thống lưới Grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Thẻ sản phẩm */
+.product-item {
+  background: #ffffff;
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid #f0f0f0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.product-item:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(223, 32, 39, 0.15);
+  border-color: #df2027;
+}
+
+/* Container hình ảnh để xử lý zoom */
+.img-container {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-item img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.5s ease;
+}
+
+.product-item:hover img {
+  transform: scale(1.1); /* Hiệu ứng zoom ảnh chuyên nghiệp */
+}
+
+/* Thông tin sản phẩm */
+.pid-label {
+  font-size: 11px;
+  color: #bbb;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.product-item h3 {
+  font-size: 1.1rem;
+  color: #222;
+  margin: 5px 0 10px 0;
+  font-weight: 700;
+  height: 2.8rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.stock-info {
+  font-size: 13px;
+  color: #27ae60;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.price-tag {
+  color: #df2027;
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+/* Nút Mua hàng */
+.btn-add-cart {
+  background: #df2027;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  text-transform: uppercase;
+  font-size: 12px;
+  margin-top: auto; /* Đẩy nút xuống dưới cùng của card */
+}
+
+.btn-add-cart:hover {
+  background: #000; /* Chuyển đen khi hover cho cá tính */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive cho Tablet & Mobile */
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    padding: 10px;
+  }
+
+  #category-title {
+    font-size: 1.8rem;
+  }
+
+  .product-item {
+    padding: 15px;
+  }
+}
+/* Tìm đến phần h3 và price-tag trong file products.css của bạn và cập nhật: */
+
+.product-item h3 {
+  font-size: 1.1rem;
+  color: #222;
+  margin: 5px 0 15px 0; /* Tăng margin bottom một chút */
+  font-weight: 700;
+  height: 2.8rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.price-tag {
+  color: #df2027;
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-top: auto; /* Đẩy giá và nút bấm xuống sát đáy card cho đều nhau */
+  margin-bottom: 15px;
+}
+
+.btn-add-cart {
+  background: #df2027;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  text-transform: uppercase;
+  font-size: 12px;
+}

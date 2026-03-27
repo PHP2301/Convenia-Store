@@ -1,11 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
   getFirestore,
-  collection,
-  addDoc,
   doc,
   getDoc,
   setDoc,
+  collection,
+  addDoc,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -15,7 +15,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
   authDomain: "circlek-db.firebaseapp.com",
   projectId: "circlek-db",
-  storageBucket: "circlek-db.appspot.com",
+  storageBucket: "circlek-db.firebasestorage.app", // Đã cập nhật cho chuẩn Storage
   messagingSenderId: "515751444593",
   appId: "1:515751444593:web:453df449a3b86f09f09bd0",
 };
@@ -24,7 +24,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// --- 2. XỬ LÝ ĐĂNG NHẬP & PHÂN QUYỀN ADMIN ---
+// --- 2. XỬ LÝ ĐĂNG NHẬP & HIỂN THỊ TÊN KHÁCH HÀNG ---
 onAuthStateChanged(auth, async (user) => {
   const btnLogin = document.getElementById("login-btn");
   const userProfile = document.getElementById("user-profile-header");
@@ -33,39 +33,48 @@ onAuthStateChanged(auth, async (user) => {
   const adminLink = document.getElementById("admin-link");
 
   if (user) {
-    // Hiện thông tin user
+    // A. Hiển thị thông tin User
     if (btnLogin) btnLogin.style.display = "none";
     if (userProfile) userProfile.style.display = "flex";
-    if (userInitial) userInitial.innerText = user.email.charAt(0).toUpperCase();
-    if (userNameText) userNameText.innerText = user.email.split("@")[0];
 
-    // Kiểm tra quyền Admin trong collection 'subscribers'
+    // Lấy tên hiển thị: Ưu tiên displayName -> Email cắt bỏ phần @
+    const displayName = user.displayName || user.email.split("@")[0];
+
+    if (userNameText) userNameText.innerText = displayName;
+    if (userInitial) userInitial.innerText = displayName.charAt(0).toUpperCase();
+
+    // B. Kiểm tra quyền Admin trong Firestore
     try {
       const subDoc = await getDoc(doc(db, "subscribers", user.uid));
       if (subDoc.exists() && subDoc.data().role === "admin") {
-        if (adminLink) adminLink.style.display = "flex";
-        console.log("Quyền: Admin");
+        if (adminLink) {
+          adminLink.style.display = "flex";
+          adminLink.style.color = "#df2027"; // Highlight màu đỏ cho admin
+        }
       }
     } catch (error) {
-      console.error("Lỗi kiểm tra quyền:", error);
+      console.error("Lỗi phân quyền:", error);
     }
   } else {
-    // Trạng thái chưa đăng nhập
+    // C. Trạng thái chưa đăng nhập
     if (btnLogin) btnLogin.style.display = "flex";
     if (userProfile) userProfile.style.display = "none";
     if (adminLink) adminLink.style.display = "none";
   }
 });
 
-// Xử lý Đăng xuất
+// Xử lý Đăng xuất (Dùng event delegation để tránh lỗi khi element chưa load)
 document.addEventListener("click", async (e) => {
-  if (e.target.closest("#btn-logout-header")) {
+  const logoutBtn = e.target.closest("#btn-logout-header");
+  if (logoutBtn) {
     e.preventDefault();
-    try {
-      await signOut(auth);
-      window.location.reload();
-    } catch (error) {
-      console.error("Lỗi đăng xuất:", error);
+    if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+      try {
+        await signOut(auth);
+        window.location.href = "index.html"; // Chuyển về trang chủ sau khi logout
+      } catch (error) {
+        console.error("Lỗi đăng xuất:", error);
+      }
     }
   }
 });
@@ -165,4 +174,9 @@ window.getMyLocation = function (storeLat, storeLon, storeName) {
 // Khởi tạo khi trang tải xong
 document.addEventListener("DOMContentLoaded", () => {
   showSlides(slideIndex);
+});
+document.querySelectorAll(".dropdown-subs a").forEach((link) => {
+  link.addEventListener("click", function (e) {
+    window.location.href = this.getAttribute("href");
+  });
 });

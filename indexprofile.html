@@ -5,46 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hồ sơ cá nhân - Circle K</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <link rel="stylesheet" href="css/stylelogin.css" />
-    <style>
-      .profile-card {
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 400px;
-        text-align: center;
-        margin: 50px auto;
-      }
-      .user-avatar-large {
-        width: 80px;
-        height: 80px;
-        background: #df2027;
-        color: white;
-        font-size: 2rem;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 15px;
-        text-transform: uppercase;
-        font-weight: bold;
-      }
-      .btn-logout {
-        background: #6c757d;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 20px;
-        width: 100%;
-      }
-      .btn-logout:hover {
-        background: #5a6268;
-      }
-    </style>
+    <link rel="stylesheet" href="css/profile.css" />
   </head>
   <body>
     <a href="index.html" class="back-home">
@@ -54,64 +15,47 @@
 
     <div class="profile-card">
       <div class="user-avatar-large" id="big-initial">?</div>
-      <h3 id="display-email" style="margin-bottom: 5px">Đang tải...</h3>
+      <h3 id="display-email">Đang tải...</h3>
       <p style="color: #888; font-size: 0.8rem; margin-bottom: 25px">Hồ sơ thành viên Circle K</p>
 
-      <div style="text-align: left">
-        <div class="input-group" style="margin-bottom: 15px">
-          <label style="display: block; font-weight: bold; margin-bottom: 5px">Họ và tên</label>
-          <input
-            type="text"
-            id="profile-fullname"
-            placeholder="Nhập họ tên"
-            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px" />
+      <form id="profile-form">
+        <div class="input-group">
+          <label>Họ và tên</label>
+          <input type="text" id="profile-fullname" placeholder="Nhập họ tên" required />
         </div>
 
-        <div class="input-group" style="margin-bottom: 15px">
-          <label style="display: block; font-weight: bold; margin-bottom: 5px">Ngày sinh</label>
-          <input
-            type="date"
-            id="profile-dob"
-            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px" />
+        <div class="input-group">
+          <label>Số điện thoại</label>
+          <input type="tel" id="profile-phone" placeholder="Nhập số điện thoại" required />
         </div>
 
-        <div class="input-group" style="margin-bottom: 15px">
-          <label style="display: block; font-weight: bold; margin-bottom: 5px">Số điện thoại</label>
-          <input
-            type="tel"
-            id="profile-phone"
-            placeholder="Nhập số điện thoại"
-            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px" />
+        <div class="input-group">
+          <label>Cửa hàng Circle K gần nhất</label>
+          <div class="location-wrapper">
+            <input type="text" id="user-location-display" placeholder="Nhấn nút để tìm store..." readonly />
+            <button type="button" id="btn-get-location" class="btn-location" title="Lấy vị trí hiện tại">
+              <i class="fas fa-location-crosshairs"></i>
+            </button>
+          </div>
+
+          <select id="nearest-store-select">
+            <option value="" disabled selected>-- Chọn chi nhánh --</option>
+            <option value="ngt">Nguyễn Gia Trí</option>
+            <option value="nvt">Nguyễn Văn Thương</option>
+            <option value="dbp">Điện Biên Phủ</option>
+            <option value="nhc">Nguyễn Hữu Cảnh</option>
+          </select>
         </div>
 
-        <div class="input-group" style="margin-bottom: 20px">
-          <label style="display: block; font-weight: bold; margin-bottom: 5px">Địa chỉ nhận hàng</label>
-          <input
-            type="text"
-            id="profile-address"
-            placeholder="Số nhà, tên đường..."
-            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px" />
+        <div class="input-group">
+          <label>Địa chỉ nhận hàng chi tiết</label>
+          <input type="text" id="profile-address" placeholder="Số nhà, tên đường..." />
         </div>
 
-        <button
-          id="btn-save-info"
-          style="
-            width: 100%;
-            padding: 12px;
-            background: #df2027;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-          ">
-          LƯU THÔNG TIN
-        </button>
-      </div>
-    </div>
+        <button type="submit" id="btn-save-info" class="btn-save">LƯU THÔNG TIN</button>
+      </form>
 
-    <div id="notificationBox" class="notification-popup">
-      <p id="notificationText"></p>
+      <button class="btn-logout" id="btn-logout">Đăng xuất tài khoản</button>
     </div>
 
     <script type="module" src="js/profile.js"></script>

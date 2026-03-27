@@ -1,19 +1,136 @@
-<div class="menu-container">
-  <h2>THỰC ĐƠN TỔNG HỢP</h2>
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Circle K Việt Nam - Thức ăn & Thức uống Tổng hợp</title>
+    <link rel="icon" type="image/png" href="/img/images.png" />
 
-  <section id="food-section">
-    <h3>
-      <i class="fas fa-pizza-slice"></i>
-      Thức ăn
-    </h3>
-  </section>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/menu.css" />
+    <link rel="stylesheet" href="css/products.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  </head>
+  <body>
+    <div class="top-bar">
+      <div class="top-bar-content">
+        <div class="top-links">
+          <a href="#">Giới thiệu</a>
+          |
+          <a href="#">Cơ hội nghề nghiệp</a>
+          |
+          <a href="#">Tin tức & Sự kiện</a>
+          |
+          <a href="#">Liên hệ</a>
+        </div>
+        <div class="top-lang">
+          <img src="https://flagcdn.com/w20/vn.png" alt="VN" />
+          <span>Tiếng Việt</span>
+        </div>
+      </div>
+    </div>
 
-  <hr />
+    <header>
+      <div class="main-header">
+        <div class="logo">
+          <a href="index.html">
+            <img src="img/images1.png" alt="Circle K Logo" />
+          </a>
+        </div>
 
-  <section id="drink-section">
-    <h3>
-      <i class="fas fa-glass-whiskey"></i>
-      Thức uống
-    </h3>
-  </section>
-</div>
+        <nav class="main-nav">
+          <a href="stores.html" style="text-decoration: none">
+            <div class="nav-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Hệ thống Circle K</span>
+            </div>
+          </a>
+
+          <div class="nav-item">
+            <i class="fas fa-gift"></i>
+            <span>Ưu đãi đặc biệt</span>
+          </div>
+
+          <div class="nav-item dropdown-menu">
+            <i class="fas fa-hamburger"></i>
+            <span>Thức ăn & Thức uống</span>
+            <div class="dropdown-subs">
+              <a href="food.html">
+                <i class="fas fa-pizza-slice"></i>
+                Thức ăn
+              </a>
+              <a href="drink.html">
+                <i class="fas fa-glass-whiskey"></i>
+                Thức uống
+              </a>
+              <a href="menu.html">
+                <i class="fas fa-list"></i>
+                Tất cả Menu
+              </a>
+            </div>
+          </div>
+
+          <div class="nav-item">
+            <i class="fas fa-concierge-bell"></i>
+            <span>Sản phẩm & Dịch vụ</span>
+          </div>
+
+          <div id="auth-zone">
+            <a href="indexlogin.html" id="login-btn" class="nav-item" style="text-decoration: none">
+              <i class="fas fa-user-circle"></i>
+              <span>Đăng nhập</span>
+            </a>
+
+            <div id="user-profile-header" class="dropdown-user" style="display: none">
+              <div
+                class="avatar-wrapper"
+                id="user-avatar-circle"
+                style="display: flex; align-items: center; gap: 8px; cursor: pointer">
+                <div
+                  class="avatar-trigger"
+                  style="
+                    background: #ffb800;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                    color: #fff;
+                  ">
+                  <span id="user-initial">P</span>
+                </div>
+                <span id="user-name-text" style="color: white; font-size: 13px; font-weight: 500">Tài khoản</span>
+                <i class="fas fa-caret-down" style="color: white; font-size: 10px; margin-left: 5px"></i>
+              </div>
+
+              <div class="dropdown-content" id="myDropdown">
+                <a href="admin.html" id="admin-link" style="display: none; color: #df2027; font-weight: bold">
+                  <i class="fas fa-tasks"></i>
+                  Quản lý kho
+                </a>
+                <a href="indexprofile.html">
+                  <i class="fas fa-user"></i>
+                  Thông tin cá nhân
+                </a>
+                <a href="#" id="btn-logout-header">
+                  <i class="fas fa-sign-out-alt"></i>
+                  Đăng xuất
+                </a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <section class="product-display">
+      <h2 id="category-title" style="text-align: center; margin: 40px 0; color: #df2027">MENU TỔNG HỢP</h2>
+      <div id="product-list" class="product-grid"></div>
+    </section>
+
+    <script type="module" src="js/script.js"></script>
+    <script type="module" src="js/display-products.js"></script>
+  </body>
+</html>

@@ -10,10 +10,14 @@
   <body>
     <div class="admin-wrapper">
       <nav class="sidebar">
-        <div class="sidebar-header">
-          <img src="img/logo.png" alt="Circle K" width="50" />
-          <span>ADMIN PANEL</span>
-        </div>
+        <a
+          href="index.html"
+          class="sidebar-header"
+          style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px; padding: 20px">
+          <img src="/img/images1.png" alt="Circle K" width="50" />
+          <span style="font-weight: bold; letter-spacing: 1px; color: white">ADMIN PANEL</span>
+        </a>
+
         <ul class="nav-links">
           <li class="active">
             <a href="#">
@@ -79,7 +83,8 @@
               <th>Hình ảnh</th>
               <th>Sản phẩm</th>
               <th>Loại</th>
-              <th>Tồn kho hiện tại</th>
+              <th>Tồn kho</th>
+              <th>Giá bán</th>
               <th>Đơn vị</th>
               <th>Hành động</th>
             </tr>
@@ -98,33 +103,55 @@
         </h3>
         <form id="add-product-form">
           <div class="form-group">
-            <label>Mã sản phẩm:</label>
-            <input type="text" id="p-id" placeholder="VD: #001" required />
+            <label>Mã sản phẩm (Tự động):</label>
+            <input
+              type="text"
+              id="p-id"
+              readonly
+              style="background-color: #f0f0f0; cursor: not-allowed; font-weight: bold; color: #df2027" />
           </div>
+
           <div class="form-group">
             <label>Tên sản phẩm:</label>
-            <input type="text" id="p-name" placeholder="Tên sản phẩm" required />
+            <input type="text" id="p-name" placeholder="VD: Bánh mì que" required />
           </div>
+
           <div class="form-group">
             <label>Loại:</label>
             <select id="p-type" required>
               <option value="" disabled selected>Chọn loại sản phẩm</option>
               <option value="Thức ăn">Thức ăn</option>
-              <option value="Nước uống">Nước uống</option>
+              <option value="Thức uống">Thức uống</option>
               <option value="Văn phòng phẩm">Văn phòng phẩm</option>
             </select>
           </div>
+
           <div class="form-group">
-            <label>Số lượng:</label>
-            <input type="number" id="p-stock" placeholder="Số lượng tồn ban đầu" required />
+            <label>Giá bán (VNĐ):</label>
+            <input type="text" id="p-price" placeholder="VD: 200,000" required />
           </div>
+
+          <div class="form-group">
+            <label>Số lượng tồn:</label>
+            <input type="number" id="p-stock" placeholder="Số lượng hiện có" required />
+          </div>
+
           <div class="form-group">
             <label>Đơn vị:</label>
-            <input type="text" id="p-unit" placeholder="Ly, Tô, Cái..." required />
+            <select id="p-unit" required>
+              <option value="cái">Cái</option>
+              <option value="chai">Chai</option>
+              <option value="lon">Lon</option>
+              <option value="phần">Phần</option>
+            </select>
           </div>
+
           <div class="form-group">
-            <label>Hình ảnh sản phẩm:</label>
+            <label>Hình ảnh sản phẩm (Từ máy):</label>
             <input type="file" id="p-image" accept="image/*" />
+            <div id="image-preview" style="margin-top: 10px; display: none">
+              <img src="" alt="Preview" style="max-width: 100px; border-radius: 8px" />
+            </div>
           </div>
 
           <button type="submit" class="btn-save">LƯU VÀO KHO</button>
