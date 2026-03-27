@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lịch sử Nhập Xuất - Circle K Admin</title>
+    <link rel="stylesheet" href="css/stylehistory.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  </head>
+  <body>
+    <div class="admin-sidebar">
+      <div class="sidebar-brand">CIRCLE K ADMIN</div>
+      <a href="admin.html" class="sidebar-link">
+        <i class="fas fa-box"></i>
+        Quản lý kho
+      </a>
+      <a href="history.html" class="sidebar-link active">
+        <i class="fas fa-history"></i>
+        Lịch sử nhập xuất
+      </a>
+      <hr style="border: 0.5px solid #4b545c; margin: 10px 20px" />
+      <a href="index.html" class="sidebar-link">
+        <i class="fas fa-home"></i>
+        Quay lại Web
+      </a>
+    </div>
+
+    <main class="admin-content">
+      <div class="history-container">
+        <div class="card-header">
+          <h2>
+            <i class="fas fa-history" style="color: #df2027"></i>
+            Lịch Sử Nhập/Xuất Kho Realtime
+          </h2>
+          <p>Dữ liệu được cập nhật tự động khi có biến động kho</p>
+        </div>
+
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Thời gian</th>
+              <th>Sản phẩm</th>
+              <th>Chi nhánh</th>
+              <th>Số lượng</th>
+              <th>Hành động</th>
+              <th>Người thực hiện</th>
+            </tr>
+          </thead>
+          <tbody id="history-content"></tbody>
+        </table>
+      </div>
+    </main>
+
+    <script type="module" src="js/history.js"></script>
+  </body>
+</html>

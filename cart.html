@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Giỏ hàng - Circle K Clone</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/cart.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  </head>
+  <body>
+    <header>
+      <div class="main-header">
+        <div class="logo">
+          <a href="index.html"><img src="/img/images1.png" alt="Logo" /></a>
+        </div>
+        <nav class="main-nav">
+          <a href="index.html" class="nav-item">
+            <i class="fas fa-arrow-left"></i>
+            Tiếp tục mua hàng
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="cart-page">
+      <div class="container">
+        <h1>Giỏ hàng của bạn</h1>
+        <div class="cart-container">
+          <div id="cart-list" class="cart-list">
+            <p class="loading">Đang tải giỏ hàng...</p>
+          </div>
+
+          <div class="cart-summary">
+            <h3>Tóm tắt đơn hàng</h3>
+            <div class="summary-item">
+              <span>Tạm tính:</span>
+              <span id="subtotal">0đ</span>
+            </div>
+            <div class="summary-item">
+              <span>Phí vận chuyển:</span>
+              <span>Miễn phí</span>
+            </div>
+            <hr />
+            <div class="summary-item total">
+              <span>Tổng cộng:</span>
+              <span id="final-total">0đ</span>
+            </div>
+            <button class="btn-checkout" onclick="alert('Tính năng thanh toán đang phát triển!')">THANH TOÁN</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="js/cart-logic.js"></script>
+  </body>
+</html>

@@ -1,0 +1,155 @@
+/* Thêm vào đầu file để căn giữa nội dung */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.cart-page h1 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+/* Tinh chỉnh nút Tăng/Giảm số lượng */
+.item-qty button {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  background: #f8f8f8;
+  border-radius: 4px;
+  transition: 0.2s;
+  font-weight: bold;
+}
+
+.item-qty button:hover {
+  background: #df2027;
+  color: white;
+  border-color: #df2027;
+}
+
+.item-qty span {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Tinh chỉnh tổng tiền món ăn */
+.item-total-price {
+  min-width: 100px;
+  text-align: right;
+  color: #333;
+}
+
+/* Nút thanh toán xịn hơn */
+.btn-checkout:hover {
+  background: #b3191e;
+  box-shadow: 0 4px 12px rgba(223, 32, 39, 0.3);
+}
+
+/* Responsive cho điện thoại */
+@media (max-width: 768px) {
+  .cart-container {
+    grid-template-columns: 1fr;
+  }
+  .cart-item {
+    flex-wrap: wrap;
+  }
+}
+.cart-page {
+  padding: 50px 0;
+  background: #f9f9f9;
+  min-height: 80vh;
+}
+.cart-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.cart-list {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+.cart-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+.item-info {
+  flex: 1;
+}
+.item-info h4 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+.item-price {
+  color: #df2027;
+  font-weight: bold;
+}
+
+.item-qty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.item-qty button {
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+.btn-remove {
+  color: #999;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-remove:hover {
+  color: #df2027;
+}
+
+.cart-summary {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  height: fit-content;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.total {
+  font-size: 20px;
+  font-weight: bold;
+  color: #df2027;
+  margin-top: 10px;
+}
+
+.btn-checkout {
+  width: 100%;
+  padding: 15px;
+  background: #df2027;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+}

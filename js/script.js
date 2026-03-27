@@ -180,3 +180,79 @@ document.querySelectorAll(".dropdown-subs a").forEach((link) => {
     window.location.href = this.getAttribute("href");
   });
 });
+// Hàm này dùng để lấy số lượng món từ Firebase và hiện lên icon
+async function syncCartBadge(user) {
+  const cartBadge = document.getElementById("cart-count");
+  if (!cartBadge) return; // Nếu trang đó không có icon giỏ hàng thì thôi
+
+  try {
+    const cartRef = doc(db, "carts", user.uid);
+    const cartSnap = await getDoc(cartRef);
+
+    if (cartSnap.exists()) {
+      const items = cartSnap.data().items || [];
+      // Tính tổng số lượng (hoặc chỉ tính số loại món tùy Phước)
+      const totalQty = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      cartBadge.innerText = totalQty;
+    } else {
+      cartBadge.innerText = "0";
+    }
+  } catch (error) {
+    console.error("Lỗi đồng bộ Badge:", error);
+  }
+}
+
+// LẮNG NGHE TRẠNG THÁI ĐĂNG NHẬP
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // Mỗi khi chuyển trang, nếu đã đăng nhập thì tự đi lấy số lượng giỏ hàng
+    syncCartBadge(user);
+  } else {
+    const cartBadge = document.getElementById("cart-count");
+    if (cartBadge) cartBadge.innerText = "0";
+  }
+});
+// Map ID cửa hàng sang Tên hiển thị (Phải khớp với ID trong file Profile của Phước)
+const storeMapping = {
+  ngt: "Nguyễn Gia Trí",
+  nvt: "Nguyễn Văn Thương",
+  dbp: "Điện Biên Phủ",
+  nhc: "Nguyễn Hữu Cảnh",
+};
+
+onAuthStateChanged(auth, async (user) => {
+  const storeDisplayName = document.getElementById("display-store-name");
+
+  if (user) {
+    try {
+      // 1. Truy cập vào Profile của người dùng
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        // 2. Lấy ID store từ field 'nearestStore' mà Phước đã lưu
+        const storeId = data.nearestStore || "ngt";
+
+        // 3. Lưu ID này vào localStorage để hàm loadProducts dùng để lọc sản phẩm
+        localStorage.setItem("selected_store", storeId);
+
+        // 4. Hiển thị tên tiếng Việt lên Header
+        if (storeDisplayName) {
+          storeDisplayName.innerText = storeMapping[storeId] || "Nguyễn Gia Trí";
+        }
+      }
+    } catch (error) {
+      console.error("Lỗi đồng bộ Store:", error);
+    }
+  } else {
+    // Nếu khách chưa đăng nhập, mặc định chọn 1 kho
+    localStorage.setItem("selected_store", "ngt");
+    if (storeDisplayName) storeDisplayName.innerText = "Nguyễn Gia Trí";
+  }
+
+  // Cuối cùng, gọi hàm load sản phẩm (đã có sẵn của Phước)
+  if (typeof loadProducts === "function") {
+    loadProducts();
+  }
+});

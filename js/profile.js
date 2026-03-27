@@ -116,6 +116,10 @@ document.getElementById("profile-form").addEventListener("submit", async (e) => 
 
   try {
     await setDoc(doc(db, "users", user.uid), userData, { merge: true });
+
+    // THÊM DÒNG NÀY: Cập nhật local ngay khi lưu thành công
+    localStorage.setItem("selected_store", userData.nearestStore);
+
     alert("Thông tin hồ sơ đã được lưu thành công!");
   } catch (error) {
     alert("Lỗi: " + error.message);

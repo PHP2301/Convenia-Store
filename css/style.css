@@ -81,44 +81,46 @@ header {
   border-radius: 4px;
 }
 
+/* Đảm bảo thanh menu chính luôn thẳng hàng dọc */
 .main-nav {
   display: flex;
-  align-items: center;
+  align-items: center; /* Canh giữa tất cả các mục theo chiều dọc */
+  gap: 20px;
 }
 
 /* ==========================================================================
    4. DROPDOWN SYSTEM (FIXED HOVER & CLICK)
    ========================================================================== */
+/* Tìm đoạn .nav-item và thay thế bằng cái này */
+/* Tinh chỉnh riêng cho từng mục menu (Thức ăn, Sản phẩm...) */
 .nav-item {
-  padding: 10px 18px;
-  color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
-  cursor: pointer;
-  transition: 0.3s;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
-  position: relative; /* Gốc để menu con bám vào */
+  justify-content: center;
+  color: white;
+  text-align: center;
 }
-
 /* Tạo vùng đệm tàng hình cho mục có Menu con */
 .nav-item.dropdown-menu {
   padding-bottom: 25px;
   margin-bottom: -25px;
 }
 
+/* Hiệu ứng hover khung đen */
 .nav-item:hover {
-  background: #b3191f;
+  background-color: rgba(0, 0, 0, 0.2); /* Đen mờ vừa phải, không quá đậm */
+  transform: translateY(-2px); /* Nhích nhẹ lên trên khi hover cho sinh động */
 }
+/* Đảm bảo icon và span bên trong không bị lệch */
 .nav-item i {
-  font-size: 18px;
-  margin-bottom: 4px;
+  font-size: 20px;
+  margin-bottom: 5px;
 }
 .nav-item span {
-  font-size: 11px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap; /* Không cho chữ xuống dòng làm lệch khung */
 }
 
 /* Menu con */
@@ -359,4 +361,53 @@ header {
   .top-bar-content {
     justify-content: center;
   }
+}
+/* Container bao quanh giỏ hàng */
+.cart-wrapper-link {
+  display: flex;
+  align-items: center;
+  margin-right: 25px; /* Tăng khoảng cách bên phải để dịch giỏ hàng sang trái */
+  text-decoration: none;
+}
+
+.cart-circle-icon {
+  position: relative;
+  background: #df2027; /* Màu đỏ đậm chuẩn Circle K */
+  color: white;
+  width: 52px; /* To hơn một chút so với trước */
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px; /* Icon giỏ hàng to rõ */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng khi di chuột vào */
+.cart-circle-icon:hover {
+  transform: scale(1.1);
+  background: #b3191e; /* Đỏ đậm hơn khi hover */
+}
+
+/* Badge số lượng (Số 33 trong ảnh của bạn) */
+#cart-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ffb800; /* Màu vàng cam */
+  color: #000;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #df2027; /* Viền trùng màu nền nút để trông liền mạch */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hide-node {
+  display: none !important;
 }

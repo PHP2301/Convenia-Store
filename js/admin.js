@@ -4,6 +4,7 @@ import {
   collection,
   addDoc,
   getDocs,
+  getDoc,
   query,
   where,
   serverTimestamp,
@@ -18,6 +19,7 @@ import {
   getDownloadURL,
   deleteObject,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
@@ -31,6 +33,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const auth = getAuth(app);
 
 const modal = document.getElementById("product-modal");
 const openModalBtn = document.getElementById("openModalBtn");
@@ -42,6 +45,13 @@ const modalTitle = document.querySelector(".modal-content h3");
 const priceInput = document.getElementById("p-price");
 
 let currentEditId = null;
+
+// Kiểm tra quyền Admin (Chỉ Phước mới vào được)
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "indexlogin.html";
+  }
+});
 
 // --- 1. HÀM TỰ ĐỘNG TẠO MÃ PID ---
 async function updateAutoPID() {
@@ -78,15 +88,11 @@ async function compressImage(file) {
   });
 }
 
-// --- 3. ĐỊNH DẠNG GIÁ TIỀN KHI GÕ ---
+// --- 3. ĐỊNH DẠNG GIÁ TIỀN ---
 if (priceInput) {
   priceInput.addEventListener("input", function (e) {
     let value = e.target.value.replace(/\D/g, "");
-    if (value !== "") {
-      e.target.value = Number(value).toLocaleString("en-US");
-    } else {
-      e.target.value = "";
-    }
+    e.target.value = value !== "" ? Number(value).toLocaleString("en-US") : "";
   });
 }
 
@@ -94,7 +100,7 @@ if (priceInput) {
 if (openModalBtn) {
   openModalBtn.onclick = () => {
     currentEditId = null;
-    modalTitle.innerHTML = '<i class="fas fa-cart-plus"></i> THÊM SẢN PHẨM';
+    modalTitle.innerHTML = '<i class="fas fa-cart-plus"></i> THÊM SẢN PHẨM MỚI';
     productForm.reset();
     updateAutoPID();
     modal.style.display = "block";
@@ -108,45 +114,22 @@ if (closeBtn) {
   };
 }
 
-// Đóng khi click ra ngoài hoặc nhấn Esc
-window.onclick = (e) => {
-  if (e.target === modal) {
-    modal.style.display = "none";
-    productForm.reset();
-  }
-};
-
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && modal.style.display === "block") {
-    modal.style.display = "none";
-    productForm.reset();
-  }
-});
-
 // --- 5. HÀM ĐỔ DỮ LIỆU ĐỂ SỬA ---
 window.openEditModal = (docId, data) => {
   currentEditId = docId;
   modalTitle.innerHTML = '<i class="fas fa-edit"></i> CHỈNH SỬA SẢN PHẨM';
-
   document.getElementById("p-id").value = data.pid;
   document.getElementById("p-name").value = data.name;
   document.getElementById("p-type").value = data.type;
   document.getElementById("p-stock").value = data.stock;
   document.getElementById("p-unit").value = data.unit;
-
-  // Định dạng lại giá tiền có dấu phẩy khi hiển thị trong modal sửa
-  if (data.price) {
-    priceInput.value = Number(data.price).toLocaleString("en-US");
-  } else {
-    priceInput.value = 0;
-  }
-
+  priceInput.value = data.price ? Number(data.price).toLocaleString("en-US") : 0;
   modal.style.display = "block";
 };
 
 // --- 6. HÀM XỬ LÝ XÓA ---
-window.deleteProduct = async (docId, imageUrl) => {
-  if (confirm("Xóa sản phẩm này?")) {
+window.deleteProduct = async (docId, imageUrl, pName) => {
+  if (confirm(`Bạn có chắc muốn xóa [${pName}] khỏi kho không?`)) {
     try {
       await deleteDoc(doc(db, "inventory", docId));
       if (imageUrl && imageUrl.includes("firebase")) {
@@ -154,7 +137,18 @@ window.deleteProduct = async (docId, imageUrl) => {
           await deleteObject(ref(storage, imageUrl));
         } catch (e) {}
       }
-      alert("Đã xóa thành công!");
+
+      // Ghi log hành động xóa
+      await addDoc(collection(db, "inventory_logs"), {
+        productName: pName,
+        quantity: 0,
+        type: "Xóa sản phẩm",
+        branch: branchFilter.value,
+        userName: auth.currentUser.email,
+        timestamp: serverTimestamp(),
+      });
+
+      alert("Đã xóa và ghi lịch sử!");
       loadInventory();
     } catch (error) {
       alert("Lỗi: " + error.message);
@@ -165,33 +159,27 @@ window.deleteProduct = async (docId, imageUrl) => {
 // --- 7. LOAD DỮ LIỆU ---
 async function loadInventory() {
   const selectedBranch = branchFilter.value;
-  inventoryList.innerHTML = `<tr><td colspan="8" style="text-align:center">Đang tải...</td></tr>`;
+  inventoryList.innerHTML = `<tr><td colspan="8" style="text-align:center">Đang quét kho...</td></tr>`;
   try {
     const q = query(collection(db, "inventory"), where("branch", "==", selectedBranch));
     const snap = await getDocs(q);
     inventoryList.innerHTML = "";
-
     snap.forEach((docSnap) => {
       const item = docSnap.data();
       const docId = docSnap.id;
-      const imgUrl = item.imageUrl || "https://via.placeholder.com/50";
-
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${item.pid}</td>
-        <td style="text-align:center"><img src="${imgUrl}" style="width:45px;height:45px;object-fit:cover;border-radius:4px;"></td>
+        <td style="text-align:center"><img src="${item.imageUrl || ""}" style="width:40px;height:40px;border-radius:4px;"></td>
         <td>${item.name}</td>
         <td>${item.type}</td>
-        <td class="stock-cell">${item.stock}</td>
-        <td class="price-cell">${Number(item.price || 0).toLocaleString()}đ</td>
+        <td style="font-weight:bold">${item.stock}</td>
+        <td>${Number(item.price || 0).toLocaleString()}đ</td>
         <td>${item.unit}</td>
         <td>
-            <div class="action-buttons">
-                <button class="btn-edit-row" onclick="openEditModal('${docId}', ${JSON.stringify(item).replace(/"/g, "&quot;")})" style="background:#4CAF50; color:white; border:none; padding:5px; border-radius:4px; cursor:pointer;"><i class="fas fa-edit"></i></button>
-                <button class="btn-delete-row" onclick="deleteProduct('${docId}', '${item.imageUrl || ""}')" style="background:#ff4d4d; color:white; border:none; padding:5px; border-radius:4px; cursor:pointer; margin-left:5px;"><i class="fas fa-trash"></i></button>
-            </div>
-        </td>
-      `;
+            <button onclick="openEditModal('${docId}', ${JSON.stringify(item).replace(/"/g, "&quot;")})" class="btn-edit-row"><i class="fas fa-edit"></i></button>
+            <button onclick="deleteProduct('${docId}', '${item.imageUrl}', '${item.name}')" class="btn-delete-row"><i class="fas fa-trash"></i></button>
+        </td>`;
       inventoryList.appendChild(row);
     });
   } catch (e) {
@@ -199,16 +187,23 @@ async function loadInventory() {
   }
 }
 
-// --- 8. XỬ LÝ LƯU (THÊM & SỬA) ---
+// --- 8. XỬ LÝ LƯU (THÊM & SỬA) + GHI LOG REALTIME ---
 productForm.onsubmit = async (e) => {
   e.preventDefault();
   const submitBtn = productForm.querySelector(".btn-save");
   const file = document.getElementById("p-image").files[0];
+  const user = auth.currentUser;
 
   submitBtn.disabled = true;
-  submitBtn.innerText = "ĐANG XỬ LÝ...";
+  submitBtn.innerText = "ĐANG LƯU...";
 
   try {
+    let oldStock = 0;
+    if (currentEditId) {
+      const oldDoc = await getDoc(doc(db, "inventory", currentEditId));
+      if (oldDoc.exists()) oldStock = oldDoc.data().stock || 0;
+    }
+
     let imageUrl = "";
     if (file) {
       const compressedFile = await compressImage(file);
@@ -217,32 +212,51 @@ productForm.onsubmit = async (e) => {
       imageUrl = await getDownloadURL(snapshot.ref);
     }
 
-    // LẤY GIÁ TRỊ GIÁ TIỀN: Xóa bỏ dấu phẩy trước khi chuyển thành Number
-    const rawPrice = priceInput.value.replace(/,/g, "");
-    const priceValue = Number(rawPrice) || 0;
+    const newStock = Number(document.getElementById("p-stock").value);
+    const pName = document.getElementById("p-name").value.trim();
+    const branch = branchFilter.value;
 
     const productData = {
       pid: document.getElementById("p-id").value,
-      name: document.getElementById("p-name").value.trim(),
+      name: pName,
       type: document.getElementById("p-type").value,
-      stock: Number(document.getElementById("p-stock").value),
-      price: priceValue, // Lưu con số "sạch" vào kho
+      stock: newStock,
+      price: Number(priceInput.value.replace(/,/g, "")) || 0,
       unit: document.getElementById("p-unit").value,
-      branch: branchFilter.value,
+      branch: branch,
       updatedAt: serverTimestamp(),
     };
-
     if (imageUrl) productData.imageUrl = imageUrl;
 
     if (currentEditId) {
       await updateDoc(doc(db, "inventory", currentEditId), productData);
-      alert("Cập nhật thành công!");
+      // Ghi log nếu có thay đổi số lượng
+      if (newStock !== oldStock) {
+        const diff = newStock - oldStock;
+        await addDoc(collection(db, "inventory_logs"), {
+          productName: pName,
+          quantity: Math.abs(diff),
+          type: diff > 0 ? "Nhập kho" : "Xuất kho",
+          branch: branch,
+          userName: user.email,
+          timestamp: serverTimestamp(),
+        });
+      }
     } else {
       productData.createdAt = serverTimestamp();
       await addDoc(collection(db, "inventory"), productData);
-      alert("Thêm vào kho thành công!");
+      // Ghi log nhập mới
+      await addDoc(collection(db, "inventory_logs"), {
+        productName: pName,
+        quantity: newStock,
+        type: "Nhập kho",
+        branch: branch,
+        userName: user.email,
+        timestamp: serverTimestamp(),
+      });
     }
 
+    alert("Thao tác thành công!");
     modal.style.display = "none";
     productForm.reset();
     loadInventory();
