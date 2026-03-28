@@ -168,18 +168,28 @@ async function loadInventory() {
       const item = docSnap.data();
       const docId = docSnap.id;
       const row = document.createElement("tr");
+      // Tìm trong hàm loadInventory, đoạn render các nút hành động:
       row.innerHTML = `
-        <td>${item.pid}</td>
-        <td style="text-align:center"><img src="${item.imageUrl || ""}" style="width:40px;height:40px;border-radius:4px;"></td>
-        <td>${item.name}</td>
-        <td>${item.type}</td>
-        <td style="font-weight:bold">${item.stock}</td>
-        <td>${Number(item.price || 0).toLocaleString()}đ</td>
-        <td>${item.unit}</td>
-        <td>
-            <button onclick="openEditModal('${docId}', ${JSON.stringify(item).replace(/"/g, "&quot;")})" class="btn-edit-row"><i class="fas fa-edit"></i></button>
-            <button onclick="deleteProduct('${docId}', '${item.imageUrl}', '${item.name}')" class="btn-delete-row"><i class="fas fa-trash"></i></button>
-        </td>`;
+    <td>${item.pid}</td>
+    <td style="text-align:center"><img src="${item.imageUrl || ""}" style="width:40px;height:40px;border-radius:4px;"></td>
+    <td>${item.name}</td>
+    <td>${item.type}</td>
+    <td style="font-weight:bold">${item.stock}</td>
+    <td>${Number(item.price || 0).toLocaleString()}đ</td>
+    <td>${item.unit}</td>
+    <td>
+        <div class="action-buttons">
+            <button onclick="openEditModal('${docId}', ${JSON.stringify(item).replace(/"/g, "&quot;")})" 
+                    class="btn-edit-row" title="Chỉnh sửa">
+                <i class="fas fa-edit"></i>
+            </div>
+            
+            <button onclick="deleteProduct('${docId}', '${item.imageUrl}', '${item.name}')" 
+                    class="btn-delete-row" title="Xóa sản phẩm">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </td>`;
       inventoryList.appendChild(row);
     });
   } catch (e) {

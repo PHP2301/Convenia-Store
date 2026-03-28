@@ -433,3 +433,39 @@ input[type="file"] {
   height: auto;
   aspect-ratio: 16 / 9; /* Giữ tỉ lệ chuẩn video/ảnh */
 }
+/* Container chứa 2 nút */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Style chung cho nút trong bảng */
+.btn-edit-row,
+.btn-delete-row {
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  transition: 0.3s;
+  font-size: 14px;
+}
+
+/* Màu Xanh cho nút Sửa */
+.btn-edit-row {
+  background-color: #28a745; /* Màu xanh lá Success */
+}
+.btn-edit-row:hover {
+  background-color: #218838;
+  transform: scale(1.1);
+}
+
+/* Màu Đỏ cho nút Xóa */
+.btn-delete-row {
+  background-color: #dc3545; /* Màu đỏ Danger */
+}
+.btn-delete-row:hover {
+  background-color: #c82333;
+  transform: scale(1.1);
+}
