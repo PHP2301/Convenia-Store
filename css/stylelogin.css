@@ -417,3 +417,50 @@ body {
   height: auto;
   aspect-ratio: 16 / 9; /* Giữ tỉ lệ chuẩn video/ảnh */
 }
+
+/* CSS Bổ sung cho Tooltip và Validation */
+.input-group {
+  position: relative;
+}
+
+.psw-tooltip {
+  display: none;
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 100%;
+  top: 100%;
+  margin-top: 5px;
+}
+
+.psw-tooltip p {
+  margin: 5px 0;
+  font-size: 13px;
+  transition: 0.3s;
+}
+
+.valid {
+  color: #28a745;
+  font-weight: 500;
+}
+.valid::before {
+  content: "✔ ";
+}
+
+.invalid {
+  color: #df2027;
+}
+.invalid::before {
+  content: "✖ ";
+}
+
+#match-error {
+  display: none;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: bold;
+}

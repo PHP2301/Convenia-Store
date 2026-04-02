@@ -66,7 +66,7 @@ async function handleUserRoleAndRedirect(userId) {
     if (userDoc.exists()) {
       const userData = userDoc.data();
       if (userData.role === "admin") {
-        showNotify("Chào Admin Phước! Đang vào hệ thống quản lý...", "success");
+        showNotify("Chào Admin! Đang vào hệ thống quản lý...", "success");
         setTimeout(() => {
           location.href = "admin.html"; // Chuyển đến trang quản lý
         }, 1500);

@@ -18,7 +18,7 @@
     <div class="main-container">
       <div class="form-section">
         <div id="authContent" style="width: 100%; display: flex; flex-direction: column; align-items: center">
-          <img src="/img/images1.png" alt="Circle K Logo" class="form-logo" id="formLogo" style="display: none" />
+          <img src="img/images1.png" alt="Circle K Logo" class="form-logo" id="formLogo" style="display: none" />
           <h2 id="authTitle">Đăng nhập</h2>
           <form id="authForm">
             <div class="input-group">
@@ -31,6 +31,13 @@
               <label>Mật khẩu</label>
               <i class="fas fa-lock"></i>
               <input type="password" id="authPassword" placeholder="Ít nhất 6 ký tự (chữ & số)" required />
+
+              <div id="psw-tooltip" class="psw-tooltip">
+                <p id="check-letter" class="invalid">Có ít nhất 1 chữ cái (a-z)</p>
+                <p id="check-number" class="invalid">Có ít nhất 1 chữ số (0-9)</p>
+                <p id="check-length" class="invalid">Độ dài tối thiểu 6 ký tự</p>
+              </div>
+
               <div id="passwordStrength" class="strength-meter"></div>
             </div>
 
@@ -38,6 +45,7 @@
               <label>Nhập lại mật khẩu</label>
               <i class="fas fa-check-double"></i>
               <input type="password" id="reAuthPassword" placeholder="********" />
+              <span id="match-error" style="color: #df2027">Mật khẩu không trùng khớp!</span>
             </div>
 
             <div id="registerOTPSection" class="otp-slide-wrapper" style="display: none">
@@ -82,14 +90,12 @@
 
         <div id="forgotSection" style="display: none; width: 100%; flex-direction: column; align-items: center">
           <h2 style="text-align: center">Khôi phục mật khẩu</h2>
-
           <div id="stepEmail" style="width: 100%; max-width: 320px">
             <div class="input-group">
               <label>Email đăng ký</label>
               <input type="email" id="forgotEmail" placeholder="Nhập email của bạn" />
             </div>
           </div>
-
           <div id="stepOTP" style="display: none; width: 100%; text-align: center">
             <p style="color: #df2027; font-size: 13px; margin-bottom: 10px">Nhập mã OTP đã gửi đến Email</p>
             <div class="otp-input-container">
@@ -102,7 +108,6 @@
             </div>
             <input type="hidden" id="forgotOTPInput" />
           </div>
-
           <div id="resetPasswordSection" style="display: none; width: 100%; max-width: 320px">
             <div class="input-group">
               <label>Mật khẩu mới</label>
@@ -113,7 +118,6 @@
               <input type="password" id="confirmNewPassword" placeholder="Nhập lại mật khẩu mới" />
             </div>
           </div>
-
           <div style="width: 100%; max-width: 320px">
             <button type="button" id="btnForgotAction" class="btn-submit" onclick="handleForgotAction()">
               GỬI MÃ OTP
@@ -126,7 +130,7 @@
       <div class="welcome-section">
         <a href="index.html">
           <img
-            src="/img/images1.png"
+            src="img/images1.png"
             alt="Circle K Logo"
             style="width: 100px; margin-bottom: 20px; background: white; padding: 5px; border-radius: 5px" />
         </a>
@@ -137,12 +141,10 @@
       </div>
     </div>
 
-    <div id="notificationBox" class="notification-popup">
-      <p id="notificationText"></p>
-    </div>
+    <div id="notificationBox" class="notification-popup"><p id="notificationText"></p></div>
 
     <script>
-      // --- XỬ LÝ NHẢY Ô OTP CHO CẢ 2 FORM ---
+      // 1. XỬ LÝ NHẢY Ô OTP
       function setupOTP(selector, hiddenId) {
         const fields = document.querySelectorAll(selector);
         const hiddenInput = document.getElementById(hiddenId);
@@ -162,28 +164,65 @@
       setupOTP(".reg-otp", "regOTPInput");
       setupOTP(".f-otp", "forgotOTPInput");
 
-      // --- ĐIỀU KHIỂN UI ---
+      // 2. ĐIỀU KHIỂN UI CHUYỂN FORM
       window.toggleForgot = function (show) {
         document.getElementById("authContent").style.display = show ? "none" : "flex";
         document.getElementById("forgotSection").style.display = show ? "block" : "none";
       };
 
-      // Đưa các hàm điều hướng vào window để JS Module gọi được
       window.switchToLogin = function () {
         window.location.hash = "";
         toggleForgot(false);
       };
 
-      // Sức mạnh mật khẩu
-      document.getElementById("authPassword").addEventListener("input", function () {
+      // 3. LOGIC KIỂM TRA MẬT KHẨU & TOOLTIP
+      const pswInput = document.getElementById("authPassword");
+      const rePswInput = document.getElementById("reAuthPassword");
+      const tooltip = document.getElementById("psw-tooltip");
+      const matchError = document.getElementById("match-error");
+
+      // Hiện/Ẩn Tooltip
+      pswInput.addEventListener("focus", () => (tooltip.style.display = "block"));
+      pswInput.addEventListener("blur", () => {
+        setTimeout(() => (tooltip.style.display = "none"), 200);
+      });
+
+      pswInput.addEventListener("input", function () {
         const val = this.value;
         const meter = document.getElementById("passwordStrength");
+
+        // Cập nhật Tooltip
         const hasLetter = /[a-zA-Z]/.test(val);
         const hasNumber = /[0-9]/.test(val);
+        const isLongEnough = val.length >= 6;
+
+        document.getElementById("check-letter").className = hasLetter ? "valid" : "invalid";
+        document.getElementById("check-number").className = hasNumber ? "valid" : "invalid";
+        document.getElementById("check-length").className = isLongEnough ? "valid" : "invalid";
+
+        // Cập nhật thanh sức mạnh (Meter)
         if (val.length === 0) meter.className = "strength-meter";
-        else if (val.length < 6 || !hasLetter || !hasNumber) meter.className = "strength-meter strength-weak";
+        else if (!isLongEnough || !hasLetter || !hasNumber) meter.className = "strength-meter strength-weak";
         else meter.className = "strength-meter strength-strong";
+
+        checkMatch();
       });
+
+      // Kiểm tra mật khẩu khớp nhau
+      rePswInput.addEventListener("input", checkMatch);
+
+      function checkMatch() {
+        if (rePswInput.value !== pswInput.value && rePswInput.value !== "") {
+          matchError.style.display = "block";
+          rePswInput.style.border = "2px solid #df2027";
+        } else if (rePswInput.value === pswInput.value && rePswInput.value !== "") {
+          matchError.style.display = "none";
+          rePswInput.style.border = "2px solid #28a745";
+        } else {
+          matchError.style.display = "none";
+          rePswInput.style.border = "1px solid #ddd";
+        }
+      }
     </script>
 
     <script type="module" src="js/auth.js"></script>

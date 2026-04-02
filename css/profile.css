@@ -245,3 +245,177 @@ body {
   height: auto;
   aspect-ratio: 16 / 9; /* Giữ tỉ lệ chuẩn video/ảnh */
 }
+.btn-history-toggle {
+  width: 100%;
+  padding: 15px;
+  background-color: #fff;
+  border: 2px solid #df2027;
+  color: #df2027;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.3s;
+  margin-bottom: 10px;
+}
+
+.btn-history-toggle:hover {
+  background-color: #df2027;
+  color: #fff;
+}
+
+.history-content {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fdfdfd;
+  max-height: 400px;
+  overflow-y: auto; /* Cho phép cuộn nếu nhiều hóa đơn quá */
+}
+/* Container chính chia 2 cột */
+.profile-layout-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 30px; /* Khoảng cách giữa 2 khung */
+  padding: 50px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Khung thông tin bên trái
+.profile-main-card {
+  width: 450px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Khung lịch sử bên phải */
+.history-aside {
+  width: 500px;
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideInRight 0.5s ease-out; /* Hiệu ứng bay từ phải sang */
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+/* CSS BỔ SUNG ĐỂ CHIA 2 CỘT */
+body {
+  background-color: #f4f7f6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.profile-layout {
+  display: flex;
+  gap: 30px;
+  max-width: 1100px;
+  width: 100%;
+  padding: 20px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* Cột trái: Giữ nguyên style profile-card */
+.profile-card {
+  flex: 0 0 450px; /* Độ rộng cố định cho khung thông tin */
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Cột phải: Khung lịch sử hóa đơn */
+.history-aside {
+  flex: 1; /* Tự động giãn rộng */
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-height: 80vh;
+  overflow-y: auto;
+  display: none; /* Mặc định ẩn, hiện khi bấm nút */
+  animation: fadeInRight 0.5s ease;
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.history-aside h2 {
+  color: #df2027;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+  margin-top: 0;
+  text-align: left;
+}
+
+.btn-history-toggle {
+  width: 100%;
+  padding: 12px;
+  background: #fff;
+  border: 2px solid #df2027;
+  color: #df2027;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+  transition: 0.3s;
+}
+
+.btn-history-toggle:hover {
+  background: #df2027;
+  color: #fff;
+}
+
+/* Style cho từng card hóa đơn trong lịch sử */
+.bill-item {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  text-align: left;
+  background: #fafafa;
+}
+
+.back-home {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}

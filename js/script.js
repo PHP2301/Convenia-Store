@@ -191,7 +191,7 @@ async function syncCartBadge(user) {
 
     if (cartSnap.exists()) {
       const items = cartSnap.data().items || [];
-      // Tính tổng số lượng (hoặc chỉ tính số loại món tùy Phước)
+      // Tính tổng số lượng (hoặc chỉ tính số loại món tùy)
       const totalQty = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
       cartBadge.innerText = totalQty;
     } else {
@@ -212,7 +212,7 @@ onAuthStateChanged(auth, (user) => {
     if (cartBadge) cartBadge.innerText = "0";
   }
 });
-// Map ID cửa hàng sang Tên hiển thị (Phải khớp với ID trong file Profile của Phước)
+// Map ID cửa hàng sang Tên hiển thị (Phải khớp với ID trong file Profile của )
 const storeMapping = {
   ngt: "Nguyễn Gia Trí",
   nvt: "Nguyễn Văn Thương",
@@ -231,7 +231,7 @@ onAuthStateChanged(auth, async (user) => {
 
       if (docSnap.exists()) {
         const data = docSnap.data();
-        // 2. Lấy ID store từ field 'nearestStore' mà Phước đã lưu
+        // 2. Lấy ID store từ field 'nearestStore' mà  đã lưu
         const storeId = data.nearestStore || "ngt";
 
         // 3. Lưu ID này vào localStorage để hàm loadProducts dùng để lọc sản phẩm
@@ -251,8 +251,25 @@ onAuthStateChanged(auth, async (user) => {
     if (storeDisplayName) storeDisplayName.innerText = "Nguyễn Gia Trí";
   }
 
-  // Cuối cùng, gọi hàm load sản phẩm (đã có sẵn của Phước)
+  // Cuối cùng, gọi hàm load sản phẩm (đã có sẵn của )
   if (typeof loadProducts === "function") {
     loadProducts();
   }
 });
+// Thêm đoạn này vào cuối file js/script.js
+window.filterCategories = function () {
+  const searchValue = document.getElementById("category-search").value.toLowerCase();
+  const cards = document.querySelectorAll(".card-link");
+
+  cards.forEach((card) => {
+    // Lấy từ khóa từ data-name và tiêu đề h3
+    const keywords = card.getAttribute("data-name") ? card.getAttribute("data-name").toLowerCase() : "";
+    const title = card.querySelector("h3").innerText.toLowerCase();
+
+    if (keywords.includes(searchValue) || title.includes(searchValue)) {
+      card.style.display = "block"; // Hiện lại
+    } else {
+      card.style.display = "none"; // Ẩn đi
+    }
+  });
+};

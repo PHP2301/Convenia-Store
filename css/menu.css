@@ -330,3 +330,6 @@
   height: auto;
   aspect-ratio: 16 / 9; /* Giữ tỉ lệ chuẩn video/ảnh */
 }
+.product-item {
+  transition: opacity 0.3s ease;
+}

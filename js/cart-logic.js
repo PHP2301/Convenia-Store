@@ -1,5 +1,12 @@
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  getDoc,
+  updateDoc,
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -75,7 +82,6 @@ function updateTotals(total) {
   document.getElementById("final-total").innerText = total.toLocaleString() + "đ";
 }
 
-// Hàm cập nhật số lượng
 window.updateQty = async (index, change) => {
   const user = auth.currentUser;
   const cartRef = doc(db, "carts", user.uid);
@@ -83,14 +89,13 @@ window.updateQty = async (index, change) => {
   let items = cartSnap.data().items;
 
   let newQty = (items[index].quantity || 1) + change;
-  if (newQty < 1) return; // Không cho giảm dưới 1
+  if (newQty < 1) return;
 
   items[index].quantity = newQty;
   await updateDoc(cartRef, { items: items });
-  renderCart(user.uid); // Vẽ lại giỏ hàng
+  renderCart(user.uid);
 };
 
-// Hàm xóa sản phẩm
 window.removeItem = async (index) => {
   if (!confirm("Bạn có chắc muốn xóa món này?")) return;
   const user = auth.currentUser;
@@ -102,3 +107,84 @@ window.removeItem = async (index) => {
   await updateDoc(cartRef, { items: items });
   renderCart(user.uid);
 };
+
+// --- LOGIC THANH TOÁN ĐÃ ĐƯỢC CẬP NHẬT ---
+const btnCheckout = document.getElementById("btn-checkout-action");
+
+if (btnCheckout) {
+  btnCheckout.addEventListener("click", async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Vui lòng đăng nhập để tiến hành thanh toán!");
+      window.location.href = "indexlogin.html";
+      return;
+    }
+
+    const statusLabel = document.getElementById("checkout-status");
+    statusLabel.style.display = "block";
+    btnCheckout.disabled = true;
+
+    try {
+      // 1. KIỂM TRA THÔNG TIN HỒ SƠ NGƯỜI DÙNG
+      const userDocRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userDocRef);
+
+      if (!userSnap.exists()) {
+        alert("Bạn cần cập nhật thông tin cá nhân (Họ tên, SĐT) trước khi thanh toán!");
+        window.location.href = "indexprofile.html";
+        return;
+      }
+
+      const userData = userSnap.data();
+      // Chặn nếu thiếu thông tin cơ bản
+      if (!userData.fullname || !userData.phone || !userData.address) {
+        alert("Thông tin nhận hàng còn thiếu (Họ tên, SĐT hoặc Địa chỉ). Vui lòng cập nhật hồ sơ!");
+        window.location.href = "indexprofile.html";
+        return;
+      }
+
+      // 2. Lấy dữ liệu giỏ hàng hiện tại
+      const cartRef = doc(db, "carts", user.uid);
+      const cartSnap = await getDoc(cartRef);
+
+      if (!cartSnap.exists() || cartSnap.data().items.length === 0) {
+        alert("Giỏ hàng của bạn đang trống!");
+        statusLabel.style.display = "none";
+        btnCheckout.disabled = false;
+        return;
+      }
+
+      const cartData = cartSnap.data();
+      const total = cartData.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+      // 3. Tạo đối tượng Hóa đơn (Bill)
+      const newOrder = {
+        userId: user.uid,
+        userName: userData.fullname, // Lưu tên người mua vào bill
+        userPhone: userData.phone, // Lưu SĐT vào bill
+        orderId: "CK" + Date.now().toString().slice(-6),
+        items: cartData.items,
+        totalAmount: total,
+        date: new Date().toISOString(),
+        status: "Hoàn tất",
+      };
+
+      // 4. Ghi vào Collection "orders" trên Firestore
+      await addDoc(collection(db, "orders"), newOrder);
+
+      // 5. Xóa sạch giỏ hàng sau khi thanh toán
+      await updateDoc(cartRef, { items: [] });
+
+      // 6. Thông báo và chuyển hướng
+      setTimeout(() => {
+        alert(`🎉 Thanh toán thành công! Mã đơn: ${newOrder.orderId}`);
+        window.location.href = "indexprofile.html";
+      }, 1500);
+    } catch (error) {
+      console.error("Lỗi thanh toán:", error);
+      alert("Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại!");
+      statusLabel.style.display = "none";
+      btnCheckout.disabled = false;
+    }
+  });
+}

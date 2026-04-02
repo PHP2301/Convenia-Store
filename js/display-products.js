@@ -43,13 +43,13 @@ onAuthStateChanged(auth, async (user) => {
       if (userSnap.exists()) {
         const userData = userSnap.data();
 
-        // Lấy trực tiếp ID cửa hàng (ví dụ: 'ngt', 'nvt') từ Profile Phước đã lưu
+        // Lấy trực tiếp ID cửa hàng (ví dụ: 'ngt', 'nvt') từ Profile đã lưu
         const savedStoreId = userData.nearestStore || "ngt";
 
         localStorage.setItem("selected_store", savedStoreId);
         console.log("Hệ thống nhận diện cửa hàng từ Profile:", savedStoreId);
 
-        // Hiển thị tên cửa hàng lên Header (nếu Phước có element id này)
+        // Hiển thị tên cửa hàng lên Header (nếu có element id này)
         const storeLabel = document.getElementById("display-store-name");
         if (storeLabel) storeLabel.innerText = storeNames[savedStoreId] || "Nguyễn Gia Trí";
       }
@@ -129,7 +129,7 @@ async function loadProducts() {
 window.handleAddToCart = async (btn, id, name, price, imageUrl) => {
   const user = auth.currentUser;
   if (!user) {
-    alert("Phước ơi, bạn cần đăng nhập để mua hàng nhé!");
+    alert("Bạn ơi, bạn cần đăng nhập để mua hàng nhé!");
     window.location.href = "indexlogin.html";
     return;
   }
@@ -205,5 +205,47 @@ window.onclick = (e) => {
   if (e.target === modal) {
     modal.style.display = "none";
     document.getElementById("add-product-form").reset();
+  }
+};
+window.searchGlobal = function () {
+  const input = document.getElementById("menu-search").value.toLowerCase();
+  const products = document.querySelectorAll(".product-item");
+  const productList = document.getElementById("product-list");
+
+  // Biến đếm số sản phẩm thực sự đang hiện
+  let hasVisibleProduct = false;
+
+  products.forEach((product) => {
+    const nameTag = product.querySelector("h3");
+    if (!nameTag) return;
+
+    const name = nameTag.innerText.toLowerCase();
+
+    if (name.includes(input)) {
+      product.style.display = "block"; // Hiện sản phẩm
+      hasVisibleProduct = true; // Đánh dấu là đã tìm thấy ít nhất 1 món
+    } else {
+      product.style.display = "none"; // Ẩn sản phẩm không khớp
+    }
+  });
+
+  // Xử lý dòng thông báo "Không tìm thấy"
+  let oldMsg = document.getElementById("no-results");
+
+  if (hasVisibleProduct || input === "") {
+    // Nếu tìm thấy HOẶC ô tìm kiếm trống -> Xóa dòng thông báo lỗi
+    if (oldMsg) oldMsg.remove();
+  } else {
+    // Nếu KHÔNG tìm thấy món nào VÀ chưa có thông báo lỗi trên màn hình -> Tạo mới
+    if (!oldMsg) {
+      const msg = document.createElement("p");
+      msg.id = "no-results";
+      msg.style.cssText = "grid-column: 1/-1; text-align: center; padding: 20px; color: #666; font-style: italic;";
+      msg.innerText = `Không tìm thấy sản phẩm nào khớp với "${input}"`;
+      productList.appendChild(msg);
+    } else {
+      // Nếu đã có thông báo rồi thì chỉ cần cập nhật lại nội dung chữ gõ vào
+      oldMsg.innerText = `Không tìm thấy sản phẩm nào khớp với "${input}"`;
+    }
   }
 };

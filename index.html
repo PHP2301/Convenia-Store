@@ -13,7 +13,7 @@
       <div class="main-header">
         <div class="logo">
           <a href="index.html">
-            <img src="./img/images1.png" alt="Circle K Logo" />
+            <img src="img/images1.png" alt="Circle K Logo" width="120" height="55" />
           </a>
         </div>
 
@@ -25,11 +25,6 @@
               <span>Hệ thống Circle K</span>
             </div>
           </a>
-
-          <div class="nav-item">
-            <i class="fas fa-gift"></i>
-            <span>Ưu đãi đặc biệt</span>
-          </div>
 
           <div class="nav-item dropdown-menu">
             <i class="fas fa-hamburger"></i>
@@ -129,25 +124,39 @@
 
     <section class="services">
       <h2>DANH MỤC SẢN PHẨM</h2>
-      <div class="service-container">
-        <a href="menu.html?type=Thức ăn" class="card-link">
+
+      <div class="search-container">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            id="category-search"
+            placeholder="Bạn muốn tìm món gì (Mì trộn, Cafe...)..."
+            onkeyup="filterCategories()" />
+        </div>
+      </div>
+
+      <div class="service-container" id="category-list">
+        <a href="food.html" class="card-link" data-name="thức ăn nhanh mì trộn bánh bao hotdog">
           <div class="card">
             <i class="fas fa-utensils"></i>
             <h3>Thức ăn nhanh</h3>
           </div>
         </a>
 
-        <a href="menu.html?type=Thức uống" class="card-link">
+        <a href="drink.html" class="card-link" data-name="đồ uống thức uống cafe trà sữa nước ngọt">
           <div class="card">
             <i class="fas fa-coffee"></i>
             <h3>Đồ uống</h3>
           </div>
         </a>
 
-        <div class="card">
-          <i class="fas fa-wifi"></i>
-          <h3>Tiện ích 24/7</h3>
-        </div>
+        <a href="#" class="card-link" data-name="tiện ích 24/7 thanh toán hóa đơn rút tiền">
+          <div class="card">
+            <i class="fas fa-wifi"></i>
+            <h3>Tiện ích 24/7</h3>
+          </div>
+        </a>
       </div>
     </section>
 

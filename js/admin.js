@@ -46,7 +46,7 @@ const priceInput = document.getElementById("p-price");
 
 let currentEditId = null;
 
-// Kiểm tra quyền Admin (Chỉ Phước mới vào được)
+// Kiểm tra quyền Admin
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "indexlogin.html";

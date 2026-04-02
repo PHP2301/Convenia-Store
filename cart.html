@@ -47,7 +47,14 @@
               <span>Tổng cộng:</span>
               <span id="final-total">0đ</span>
             </div>
-            <button class="btn-checkout" onclick="alert('Tính năng thanh toán đang phát triển!')">THANH TOÁN</button>
+            <button id="btn-checkout-action" class="btn-checkout">THANH TOÁN NGAY</button>
+
+            <div
+              id="checkout-status"
+              style="display: none; text-align: center; margin-top: 10px; color: #df2027; font-weight: bold">
+              <i class="fas fa-spinner fa-spin"></i>
+              Đang xử lý đơn hàng...
+            </div>
           </div>
         </div>
       </div>

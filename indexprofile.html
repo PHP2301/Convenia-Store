@@ -14,49 +14,108 @@
       Về trang chủ
     </a>
 
-    <div class="profile-card">
-      <div class="user-avatar-large" id="big-initial">?</div>
-      <h3 id="display-email">Đang tải...</h3>
-      <p style="color: #888; font-size: 0.8rem; margin-bottom: 25px">Hồ sơ thành viên Circle K</p>
-
-      <form id="profile-form">
-        <div class="input-group">
-          <label>Họ và tên</label>
-          <input type="text" id="profile-fullname" placeholder="Nhập họ tên" required />
+    <div class="profile-layout">
+      <div class="profile-card">
+        <div
+          class="user-avatar-large"
+          id="big-initial"
+          style="
+            background: #df2027;
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 15px;
+          ">
+          ?
         </div>
+        <h3 id="display-email">Đang tải...</h3>
+        <p style="color: #888; font-size: 0.8rem; margin-bottom: 25px">Hồ sơ thành viên Circle K</p>
 
-        <div class="input-group">
-          <label>Số điện thoại</label>
-          <input type="tel" id="profile-phone" placeholder="Nhập số điện thoại" required />
-        </div>
-
-        <div class="input-group">
-          <label>Cửa hàng Circle K gần nhất</label>
-          <div class="location-wrapper">
-            <input type="text" id="user-location-display" placeholder="Nhấn nút để tìm store..." readonly />
-            <button type="button" id="btn-get-location" class="btn-location" title="Lấy vị trí hiện tại">
-              <i class="fas fa-location-crosshairs"></i>
-            </button>
+        <form id="profile-form">
+          <div class="input-group">
+            <label>Họ và tên</label>
+            <input type="text" id="profile-fullname" placeholder="Nhập họ tên" required />
+          </div>
+          <div class="input-group">
+            <label>Số điện thoại</label>
+            <input type="tel" id="profile-phone" placeholder="Nhập số điện thoại" required />
+          </div>
+          <div class="input-group">
+            <label>Cửa hàng Circle K gần nhất</label>
+            <div class="location-wrapper" style="display: flex; gap: 5px; margin-bottom: 5px">
+              <input
+                type="text"
+                id="user-location-display"
+                placeholder="Nhấn nút để tìm store..."
+                readonly
+                style="flex: 1" />
+              <button
+                type="button"
+                id="btn-get-location"
+                style="background: #28a745; color: white; border: none; border-radius: 5px; padding: 0 15px">
+                <i class="fas fa-location-crosshairs"></i>
+              </button>
+            </div>
+            <select id="nearest-store-select" style="width: 100%; padding: 10px; border-radius: 5px">
+              <option value="" disabled selected>-- Chọn chi nhánh --</option>
+              <option value="ngt">Nguyễn Gia Trí</option>
+              <option value="nvt">Nguyễn Văn Thương</option>
+              <option value="dbp">Điện Biên Phủ</option>
+              <option value="nhc">Nguyễn Hữu Cảnh</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Địa chỉ nhận hàng chi tiết</label>
+            <input type="text" id="profile-address" placeholder="Số nhà, tên đường..." />
           </div>
 
-          <select id="nearest-store-select">
-            <option value="" disabled selected>-- Chọn chi nhánh --</option>
-            <option value="ngt">Nguyễn Gia Trí</option>
-            <option value="nvt">Nguyễn Văn Thương</option>
-            <option value="dbp">Điện Biên Phủ</option>
-            <option value="nhc">Nguyễn Hữu Cảnh</option>
-          </select>
+          <button type="button" id="btn-show-history" class="btn-history-toggle">
+            <span>
+              <i class="fas fa-history"></i>
+              Xem lịch sử mua hàng
+            </span>
+            <i class="fas fa-chevron-right" id="arrow-icon"></i>
+          </button>
+
+          <button
+            type="submit"
+            id="btn-save-info"
+            style="
+              width: 100%;
+              padding: 12px;
+              background: #df2027;
+              color: white;
+              border: none;
+              border-radius: 10px;
+              font-weight: bold;
+              cursor: pointer;
+              margin-bottom: 10px;
+            ">
+            LƯU THÔNG TIN
+          </button>
+        </form>
+        <button
+          class="btn-logout"
+          id="btn-logout"
+          style="width: 100%; padding: 10px; background: #f1f1f1; border: none; border-radius: 10px; cursor: pointer">
+          Đăng xuất tài khoản
+        </button>
+      </div>
+
+      <div id="history-aside" class="history-aside">
+        <h2 style="color: #df2027; border-bottom: 2px solid #eee; padding-bottom: 10px">
+          <i class="fas fa-receipt"></i>
+          Lịch sử hóa đơn
+        </h2>
+        <div id="bill-history-list">
+          <p style="text-align: center; color: #888">Đang tải dữ liệu...</p>
         </div>
-
-        <div class="input-group">
-          <label>Địa chỉ nhận hàng chi tiết</label>
-          <input type="text" id="profile-address" placeholder="Số nhà, tên đường..." />
-        </div>
-
-        <button type="submit" id="btn-save-info" class="btn-save">LƯU THÔNG TIN</button>
-      </form>
-
-      <button class="btn-logout" id="btn-logout">Đăng xuất tài khoản</button>
+      </div>
     </div>
 
     <script type="module" src="js/profile.js"></script>
