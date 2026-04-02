@@ -1,4 +1,6 @@
-/* --- GIAO DIỆN CHÍNH --- */
+/* ==========================================================================
+   1. BIẾN HỆ THỐNG VÀ RESET
+   ========================================================================== */
 :root {
   --primary-red: #df2027;
   --dark-red: #b3191f;
@@ -24,14 +26,17 @@ body {
   min-height: 100vh;
 }
 
-/* Sidebar */
+/* ==========================================================================
+   2. SIDEBAR
+   ========================================================================== */
 .sidebar {
   width: 260px;
   background: #2c3e50;
   color: white;
   padding: 20px 0;
-  position: fixed; /* Giữ sidebar cố định */
+  position: fixed;
   height: 100vh;
+  z-index: 1000;
 }
 
 .sidebar-header {
@@ -41,11 +46,14 @@ body {
   gap: 10px;
   border-bottom: 1px solid #34495e;
   margin-bottom: 20px;
+  text-decoration: none;
+  color: inherit;
 }
 
 .sidebar-header span {
   font-weight: bold;
   letter-spacing: 1px;
+  color: white;
 }
 
 .nav-links {
@@ -70,11 +78,13 @@ body {
   gap: 15px;
 }
 
-/* Main Content */
+/* ==========================================================================
+   3. MAIN CONTENT VÀ TOP BAR
+   ========================================================================== */
 .main-content {
   flex: 1;
   padding: 30px;
-  margin-left: 260px; /* Chừa chỗ cho sidebar cố định */
+  margin-left: 260px;
 }
 
 .top-bar {
@@ -132,7 +142,9 @@ body {
   box-shadow: 0 4px 12px rgba(223, 32, 39, 0.3);
 }
 
-/* Table Style */
+/* ==========================================================================
+   4. BẢNG DỮ LIỆU (INVENTORY TABLE)
+   ========================================================================== */
 .inventory-table {
   width: 100%;
   border-collapse: collapse;
@@ -157,7 +169,6 @@ body {
   vertical-align: middle;
 }
 
-/* Ảnh sản phẩm trong bảng */
 .inventory-table img {
   width: 50px;
   height: 50px;
@@ -167,10 +178,10 @@ body {
   background: #fff;
 }
 
-/* Giá tiền và số lượng */
 .price-cell {
   font-weight: 700;
   color: var(--primary-red);
+  white-space: nowrap;
 }
 
 .stock-cell {
@@ -178,19 +189,54 @@ body {
   color: var(--success-green);
 }
 
-/* Nút Sửa/Xóa trong hàng */
-.btn-edit-row,
-.btn-delete-row {
-  width: 35px;
-  height: 35px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.2s;
-  color: white;
+/* Các cột căn giữa */
+.inventory-table th:nth-child(2),
+.inventory-table td:nth-child(2),
+.inventory-table th:last-child,
+.inventory-table td:last-child {
+  text-align: center;
 }
 
-/* --- MODAL STYLE --- */
+/* Nút Sửa/Xóa */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-edit-row,
+.btn-delete-row {
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  transition: 0.3s;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-edit-row {
+  background-color: #28a745;
+}
+.btn-edit-row:hover {
+  background-color: #218838;
+  transform: scale(1.1);
+}
+
+.btn-delete-row {
+  background-color: #dc3545;
+}
+.btn-delete-row:hover {
+  background-color: #c82333;
+  transform: scale(1.1);
+}
+
+/* ==========================================================================
+   5. MODAL CỬA SỔ CHỈNH SỬA
+   ========================================================================== */
 .modal {
   display: none;
   position: fixed;
@@ -205,7 +251,7 @@ body {
 
 .modal-content {
   background: white;
-  margin: 5% auto; /* Đẩy lên cao hơn một chút */
+  margin: 5% auto;
   padding: 30px;
   border-radius: 15px;
   width: 500px;
@@ -256,25 +302,10 @@ body {
   transition: 0.3s;
 }
 
-/* Style cho input ID bị khóa */
 input[readonly] {
   background: #f5f5f5;
   color: #888;
   border-style: dashed;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  border-color: var(--primary-red);
-  box-shadow: 0 0 0 3px rgba(223, 32, 39, 0.1);
-}
-
-/* Input file */
-input[type="file"] {
-  padding: 10px !important;
-  background: #fdfdfd;
-  border: 2px dashed #ccc !important;
-  cursor: pointer;
 }
 
 .btn-save {
@@ -291,49 +322,17 @@ input[type="file"] {
   transition: 0.3s;
 }
 
-.btn-save:hover {
-  background: var(--dark-red);
-  letter-spacing: 1px;
-}
-
-/* Tinh chỉnh cột Hành động */
-.action-buttons {
-  display: flex;
-  gap: 8px;
-}
-/* Đảm bảo các cột có độ rộng hợp lý */
-.inventory-table th,
-.inventory-table td {
-  text-align: left;
-  padding: 12px 15px;
-}
-
-/* Căn giữa riêng cột Ảnh và cột Hành động */
-.inventory-table th:nth-child(2),
-.inventory-table td:nth-child(2),
-.inventory-table th:last-child,
-.inventory-table td:last-child {
-  text-align: center;
-}
-
-.price-cell {
-  color: #df2027;
-  font-weight: bold;
-  white-space: nowrap; /* Không cho giá bị xuống dòng */
-}
-
-.action-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-}
 /* ==========================================================================
-   7. RESPONSIVE (ĐÃ SỬA LỖI MẤT NÚT)
+   6. RESPONSIVE (MÁY TÍNH BẢNG & ĐIỆN THOẠI)
    ========================================================================== */
 
-/* --- Khi xem trên Máy tính bảng & Điện thoại (Dưới 992px) --- */
+/* --- Tablet/Mobile chung (Dưới 992px) --- */
 @media (max-width: 992px) {
-  /* KHÔNG dùng display: none ở đây nữa, mà chuyển sang dàn hàng ngang */
+  .main-header {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
   .main-nav {
     display: flex;
     gap: 10px;
@@ -343,129 +342,175 @@ input[type="file"] {
     border-top: 1px solid rgba(255, 255, 255, 0.2);
     padding-top: 10px;
   }
-
-  .main-header {
-    flex-wrap: wrap; /* Cho phép menu nhảy xuống dòng nếu quá chật */
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .top-bar-content {
-    justify-content: center;
-  }
 }
 
-/* --- Khi xem trên Điện thoại nhỏ (Dưới 768px) --- */
+/* --- Mobile Card View (Dưới 768px) --- */
 @media (max-width: 768px) {
-  /* Thu nhỏ Logo để nhường chỗ cho các nút */
+  /* Thu nhỏ Sidebar */
+  .sidebar {
+    width: 60px;
+    overflow: hidden;
+  }
+  .sidebar span,
+  .sidebar-header span {
+    display: none;
+  }
+  .main-content {
+    margin-left: 60px;
+    padding: 15px;
+  }
+
+  /* Header Mobile */
   .logo img {
     height: 40px !important;
     max-width: 90px;
   }
-
-  /* Ẩn chữ, chỉ để lại Icon cho gọn */
-  .nav-item span,
-  #user-name-text {
+  .nav-item span {
     display: none;
   }
 
-  .nav-item i {
-    font-size: 22px;
-    margin-bottom: 0;
-  }
-
-  /* Thu nhỏ nút giỏ hàng để không chiếm diện tích */
-  .cart-circle-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-  }
-
-  .cart-wrapper-link {
-    margin-right: 10px;
-  }
-
-  #cart-count {
-    width: 16px;
-    height: 16px;
-    font-size: 10px;
-  }
-
-  /* Căn chỉnh lại Header để các nút nằm cùng 1 hàng với Logo */
-  .main-header {
-    flex-wrap: nowrap; /* Ép Logo và các nút chức năng lên cùng 1 hàng */
-    justify-content: space-between;
-  }
-
-  /* Chỉ hiện các icon quan trọng nhất */
-  .main-nav {
-    display: flex;
-    margin-top: 0;
-    border-top: none;
-    padding-top: 0;
-    width: auto;
-  }
-}
-
-/* --- Tối ưu hiển thị bảng (History/Admin) --- */
-@media (max-width: 480px) {
-  .history-table,
-  table {
+  /* BIẾN TABLE THÀNH CARD */
+  .inventory-table,
+  .inventory-table thead,
+  .inventory-table tbody,
+  .inventory-table th,
+  .inventory-table td,
+  .inventory-table tr {
     display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
   }
 
-  .services h2 {
-    font-size: 1.1rem;
-    padding: 0 10px;
+  .inventory-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
   }
 
-  /* Đảm bảo Card dịch vụ không quá to */
-  .service-container {
-    grid-template-columns: 1fr;
-    padding: 0 15px;
+  .inventory-table tr {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    padding: 10px;
+  }
+
+  .inventory-table td {
+    border: none;
+    border-bottom: 1px dashed #f1f1f1;
+    position: relative;
+    padding-left: 45% !important;
+    text-align: right !important;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  /* Nhãn giả cho Card */
+  .inventory-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    width: 40%;
+    text-align: left;
+    font-weight: bold;
+    color: #666;
+    font-size: 13px;
+  }
+
+  .inventory-table img {
+    width: 60px;
+    height: 60px;
+    margin-left: auto;
+  }
+
+  .action-buttons {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .btn-edit-row,
+  .btn-delete-row {
+    flex: 1;
+    max-width: 120px;
+    padding: 10px;
   }
 }
 
-/* Fix lỗi ảnh banner bị méo trên điện thoại */
-.slides-container {
-  height: auto;
-  aspect-ratio: 16 / 9; /* Giữ tỉ lệ chuẩn video/ảnh */
+/* --- Màn hình siêu nhỏ (Dưới 480px) --- */
+@media (max-width: 480px) {
+  .inventory-table td {
+    padding-left: 40% !important;
+    font-size: 13px;
+  }
+  .slides-container {
+    aspect-ratio: 16 / 9;
+    height: auto;
+  }
 }
-/* Container chứa 2 nút */
-.action-buttons {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}
+/* ==========================================================================
+   FIX LỖI BẢNG LỊCH SỬ TRÊN MOBILE
+   ========================================================================== */
+@media screen and (max-width: 768px) {
+  /* 1. Đảm bảo Main Content không bị Sidebar đè */
+  .main-content {
+    margin-left: 60px; /* Khớp với Sidebar đã thu nhỏ */
+    padding: 15px;
+    width: calc(100% - 60px);
+  }
 
-/* Style chung cho nút trong bảng */
-.btn-edit-row,
-.btn-delete-row {
-  border: none;
-  padding: 8px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  color: white;
-  transition: 0.3s;
-  font-size: 14px;
-}
+  /* 2. Biến bảng Lịch sử thành dạng danh sách */
+  .history-table,
+  .history-table thead,
+  .history-table tbody,
+  .history-table tr,
+  .history-table td {
+    display: block;
+    width: 100%;
+  }
 
-/* Màu Xanh cho nút Sửa */
-.btn-edit-row {
-  background-color: #28a745; /* Màu xanh lá Success */
-}
-.btn-edit-row:hover {
-  background-color: #218838;
-  transform: scale(1.1);
-}
+  /* Ẩn tiêu đề bảng */
+  .history-table thead {
+    display: none;
+  }
 
-/* Màu Đỏ cho nút Xóa */
-.btn-delete-row {
-  background-color: #dc3545; /* Màu đỏ Danger */
-}
-.btn-delete-row:hover {
-  background-color: #c82333;
-  transform: scale(1.1);
+  .history-table tr {
+    background: #fff;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid #df2027; /* Tạo điểm nhấn cho mỗi dòng lịch sử */
+  }
+
+  .history-table td {
+    text-align: left !important;
+    padding: 8px 0;
+    border: none;
+    border-bottom: 1px solid #f9f9f9;
+    display: flex;
+    flex-direction: column; /* Cho tiêu đề nằm trên nội dung */
+  }
+
+  .history-table td:last-child {
+    border-bottom: none;
+  }
+
+  /* Tạo nhãn nội dung */
+  .history-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #888;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  /* Tối ưu hiển thị thời gian */
+  .history-table td[data-label="THỜI GIAN"] {
+    color: #df2027;
+    font-weight: bold;
+  }
 }

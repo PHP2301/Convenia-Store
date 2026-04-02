@@ -100,3 +100,19 @@ export async function logActivity(productName, qty, type, userName) {
 
 // Chạy khi trang sẵn sàng
 document.addEventListener("DOMContentLoaded", initRealtimeHistory);
+// Tìm hàm render bảng lịch sử của bạn
+function renderHistory(data) {
+  const list = document.getElementById("history-list"); // Hoặc ID bạn đang dùng
+  list.innerHTML = "";
+
+  data.forEach((item) => {
+    list.innerHTML += `
+            <tr>
+                <td data-label="THỜI GIAN">${item.time}</td>
+                <td data-label="SỰ KIỆN">${item.event}</td>
+                <td data-label="CHI TIẾT">${item.details}</td>
+                <td data-label="NGƯỜI THỰC HIỆN">${item.adminName}</td>
+            </tr>
+        `;
+  });
+}

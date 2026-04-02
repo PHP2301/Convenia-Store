@@ -41,11 +41,15 @@ function getDistance(lat1, lon1, lat2, lon2) {
   return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
-// 1. Tải dữ liệu người dùng
+// 1. Tải dữ liệu người dùng khi trang load
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    document.getElementById("display-email").innerText = user.email;
-    document.getElementById("big-initial").innerText = user.email.charAt(0).toUpperCase();
+    const emailDisplay = document.getElementById("display-email");
+    const initialDisplay = document.getElementById("big-initial");
+
+    if (emailDisplay) emailDisplay.innerText = user.email;
+    if (initialDisplay) initialDisplay.innerText = user.email.charAt(0).toUpperCase();
+
     const docSnap = await getDoc(doc(db, "users", user.uid));
     if (docSnap.exists()) {
       const data = docSnap.data();
@@ -59,7 +63,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// 2. Hiển thị lịch sử hóa đơn
+// 2. Hàm hiển thị lịch sử hóa đơn
 async function displayOrderHistory(uid) {
   const listContainer = document.getElementById("bill-history-list");
   if (!listContainer) return;
@@ -70,7 +74,7 @@ async function displayOrderHistory(uid) {
     let html = "";
 
     if (querySnapshot.empty) {
-      listContainer.innerHTML = "<p style='text-align:center;'>Bạn chưa có giao dịch nào.</p>";
+      listContainer.innerHTML = "<p style='text-align:center; padding: 20px;'>Bạn chưa có giao dịch nào.</p>";
       return;
     }
 
@@ -78,71 +82,106 @@ async function displayOrderHistory(uid) {
       const bill = doc.data();
       const dateStr = new Date(bill.date).toLocaleString("vi-VN");
       html += `
-                <div style="border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 15px; background: #fafafa; text-align: left;">
-                    <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">
-                        <span style="font-weight: bold; color: #df2027;">Mã đơn: ${bill.orderId}</span>
-                        <span style="font-size: 12px; color: #888;">${dateStr}</span>
-                    </div>
-                    <div style="margin: 10px 0;">
-                        ${bill.items.map((item) => `<div style="font-size: 14px;">• ${item.name} x${item.quantity}</div>`).join("")}
-                    </div>
-                    <div style="text-align: right; font-weight: bold; border-top: 1px solid #eee; padding-top: 5px;">
-                        Tổng: <span style="color: #df2027;">${bill.totalAmount.toLocaleString()}đ</span>
-                    </div>
-                </div>`;
+        <div class="bill-item-card" style="border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 15px; background: #fafafa; text-align: left;">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">
+                <span style="font-weight: bold; color: #df2027;">Mã đơn: ${bill.orderId}</span>
+                <span style="font-size: 12px; color: #888;">${dateStr}</span>
+            </div>
+            <div style="margin: 10px 0;">
+                ${bill.items.map((item) => `<div style="font-size: 14px;">• ${item.name} x${item.quantity}</div>`).join("")}
+            </div>
+            <div style="text-align: right; font-weight: bold; border-top: 1px solid #eee; padding-top: 5px;">
+                Tổng: <span style="color: #df2027;">${Number(bill.totalAmount).toLocaleString()}đ</span>
+            </div>
+        </div>`;
     });
     listContainer.innerHTML = html;
   } catch (error) {
-    console.error("Lỗi:", error);
+    console.error("Lỗi tải lịch sử:", error);
+    listContainer.innerHTML = "<p>Không thể tải lịch sử lúc này.</p>";
   }
 }
 
-// 3. Sự kiện nút bấm Lịch sử
-document.getElementById("btn-show-history").addEventListener("click", async () => {
-  const historyAside = document.getElementById("history-aside");
-  const arrow = document.getElementById("arrow-icon");
-  const user = auth.currentUser;
+// 3. Xử lý sự kiện nút bấm Lịch sử (Đã gộp và tối ưu cho Mobile)
+const btnShowHistory = document.getElementById("btn-show-history");
+const historyAside = document.getElementById("history-aside");
+const arrowIcon = document.getElementById("arrow-icon");
 
-  if (historyAside.style.display === "none" || historyAside.style.display === "") {
-    historyAside.style.display = "block";
-    arrow.className = "fas fa-chevron-left";
-    const listContainer = document.getElementById("bill-history-list");
-    if (listContainer.innerHTML.includes("Đang tải")) {
-      if (user) await displayOrderHistory(user.uid);
-    }
-  } else {
-    historyAside.style.display = "none";
-    arrow.className = "fas fa-chevron-right";
-  }
-});
+if (btnShowHistory && historyAside) {
+  btnShowHistory.addEventListener("click", async (e) => {
+    e.preventDefault(); // Tránh lỗi submit form trên Mobile
 
-// 4. Các sự kiện khác (Định vị, Lưu, Đăng xuất)
-document.getElementById("btn-get-location").addEventListener("click", () => {
-  const display = document.getElementById("user-location-display");
-  display.value = "Đang quét...";
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      let min = Infinity,
-        closest = null;
-      stores.forEach((s) => {
-        const d = getDistance(pos.coords.latitude, pos.coords.longitude, s.lat, s.lng);
-        if (d < min) {
-          min = d;
-          closest = s;
-        }
-      });
-      if (closest) {
-        document.getElementById("nearest-store-select").value = closest.id;
-        display.value = `Gần nhất: ${closest.name} (${min.toFixed(2)} km)`;
+    const isHidden = window.getComputedStyle(historyAside).display === "none";
+
+    if (isHidden) {
+      // Hiện khung lịch sử
+      historyAside.style.setProperty("display", "block", "important");
+      if (arrowIcon) arrowIcon.className = "fas fa-chevron-left";
+
+      // Cuộn xuống vùng lịch sử trên điện thoại
+      if (window.innerWidth <= 768) {
+        setTimeout(() => {
+          historyAside.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
       }
-    });
+
+      // Tải dữ liệu từ Firebase nếu chưa có
+      const listContainer = document.getElementById("bill-history-list");
+      if (listContainer && (listContainer.innerHTML.includes("Đang tải") || listContainer.innerHTML === "")) {
+        const user = auth.currentUser;
+        if (user) await displayOrderHistory(user.uid);
+      }
+    } else {
+      // Ẩn khung lịch sử
+      historyAside.style.display = "none";
+      if (arrowIcon) arrowIcon.className = "fas fa-chevron-right";
+    }
+  });
+}
+
+// 4. Các sự kiện khác
+// Lấy vị trí hiện tại
+document.getElementById("btn-get-location")?.addEventListener("click", () => {
+  const display = document.getElementById("user-location-display");
+  if (display) display.value = "Đang quét...";
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        let min = Infinity,
+          closest = null;
+        stores.forEach((s) => {
+          const d = getDistance(pos.coords.latitude, pos.coords.longitude, s.lat, s.lng);
+          if (d < min) {
+            min = d;
+            closest = s;
+          }
+        });
+        if (closest) {
+          document.getElementById("nearest-store-select").value = closest.id;
+          display.value = `Gần nhất: ${closest.name} (${min.toFixed(2)} km)`;
+        }
+      },
+      () => {
+        alert("Không thể lấy vị trí. Vui lòng bật định vị!");
+        display.value = "";
+      },
+    );
   }
 });
 
-document.getElementById("profile-form").addEventListener("submit", async (e) => {
+// Lưu thông tin hồ sơ
+document.getElementById("profile-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const user = auth.currentUser;
   if (!user) return;
+
+  const btnSave = document.getElementById("btn-save-info");
+  if (btnSave) {
+    btnSave.innerText = "ĐANG LƯU...";
+    btnSave.disabled = true;
+  }
+
   const data = {
     fullname: document.getElementById("profile-fullname").value,
     phone: document.getElementById("profile-phone").value,
@@ -150,11 +189,24 @@ document.getElementById("profile-form").addEventListener("submit", async (e) => 
     address: document.getElementById("profile-address").value,
     updatedAt: new Date(),
   };
-  await setDoc(doc(db, "users", user.uid), data, { merge: true });
-  localStorage.setItem("selected_store", data.nearestStore);
-  alert("Đã lưu hồ sơ thành công!");
+
+  try {
+    await setDoc(doc(db, "users", user.uid), data, { merge: true });
+    localStorage.setItem("selected_store", data.nearestStore);
+    alert("Đã lưu hồ sơ thành công!");
+  } catch (err) {
+    alert("Lỗi khi lưu: " + err.message);
+  } finally {
+    if (btnSave) {
+      btnSave.innerText = "LƯU THÔNG TIN";
+      btnSave.disabled = false;
+    }
+  }
 });
 
-document.getElementById("btn-logout").addEventListener("click", () => {
-  if (confirm("Xác nhận đăng xuất?")) signOut(auth).then(() => (window.location.href = "index.html"));
+// Đăng xuất
+document.getElementById("btn-logout")?.addEventListener("click", () => {
+  if (confirm("Xác nhận đăng xuất?")) {
+    signOut(auth).then(() => (window.location.href = "index.html"));
+  }
 });

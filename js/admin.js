@@ -302,3 +302,28 @@ window.onclick = (e) => {
     document.getElementById("add-product-form").reset();
   }
 };
+// Tìm hàm load hoặc render inventory và sửa đoạn vẽ HTML:
+function renderTable(data) {
+  const list = document.getElementById("inventory-list");
+  list.innerHTML = "";
+
+  data.forEach((item) => {
+    list.innerHTML += `
+            <tr>
+                <td data-label="ID">${item.id}</td>
+                <td data-label="Hình ảnh"><img src="${item.imageUrl || "img/default.png"}" alt="product"></td>
+                <td data-label="Sản phẩm"><strong>${item.name}</strong></td>
+                <td data-label="Loại">${item.type}</td>
+                <td data-label="Tồn kho" class="stock-cell">${item.stock} ${item.unit}</td>
+                <td data-label="Giá bán" class="price-cell">${Number(item.price).toLocaleString()}đ</td>
+                <td data-label="Đơn vị">${item.unit}</td>
+                <td data-label="Hành động">
+                    <div class="action-buttons">
+                        <button class="btn-edit-row" onclick="editProduct('${item.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn-delete-row" onclick="deleteProduct('${item.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `;
+  });
+}
