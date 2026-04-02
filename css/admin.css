@@ -193,17 +193,33 @@ body {
 .inventory-table th:nth-child(2),
 .inventory-table td:nth-child(2),
 .inventory-table th:last-child,
+/* Căn chỉnh lại ô Hành động */
 .inventory-table td:last-child {
   text-align: center;
+  min-width: 120px; /* Đảm bảo đủ chỗ cho 2 nút */
+}
+/* Tinh chỉnh kích thước nút để bằng nhau */
+.btn-edit-row,
+.btn-delete-row {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 /* Nút Sửa/Xóa */
 .action-buttons {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  align-items: center;
+  gap: 10px; /* Khoảng cách giữa 2 nút */
+  width: 100%;
 }
-
 .btn-edit-row,
 .btn-delete-row {
   border: none;
@@ -223,7 +239,8 @@ body {
 }
 .btn-edit-row:hover {
   background-color: #218838;
-  transform: scale(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
 }
 
 .btn-delete-row {
@@ -231,7 +248,8 @@ body {
 }
 .btn-delete-row:hover {
   background-color: #c82333;
-  transform: scale(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
 }
 
 /* ==========================================================================
@@ -513,4 +531,31 @@ input[readonly] {
     color: #df2027;
     font-weight: bold;
   }
+}
+/* Căn chỉnh cột Hành động */
+.inventory-table td:last-child {
+  text-align: center;
+  vertical-align: middle;
+  padding: 10px !important;
+}
+
+.action-buttons {
+  display: inline-flex; /* Chuyển sang inline-flex để không chiếm hết chiều ngang */
+  justify-content: center;
+  align-items: center;
+  gap: 8px; /* Khoảng cách giữa 2 nút */
+}
+
+/* Ép kích thước 2 nút bằng chằn chặn nhau */
+.btn-edit-row,
+.btn-delete-row {
+  width: 35px !important;
+  height: 35px !important;
+  min-width: 35px !important;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  margin: 0 !important; /* Xóa bỏ margin thừa gây lệch */
+  padding: 0 !important;
 }

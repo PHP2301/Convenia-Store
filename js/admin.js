@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
   getFirestore,
   collection,
@@ -30,7 +30,7 @@ const firebaseConfig = {
   appId: "1:515751444593:web:453df449a3b86f09f09bd0",
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 const storage = getStorage(app);
 const auth = getAuth(app);
@@ -48,38 +48,35 @@ let currentEditId = null;
 
 // Kiểm tra quyền Admin
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "indexlogin.html";
-  }
+  if (!user) window.location.href = "indexlogin.html";
 });
 
-// --- 1. HÀM TỰ ĐỘNG TẠO MÃ PID ---
+// 1. TỰ ĐỘNG TẠO MÃ PID
 async function updateAutoPID() {
   if (currentEditId) return;
   try {
     const snap = await getDocs(collection(db, "inventory"));
-    const count = snap.size;
-    const nextPID = `PID${(count + 1).toString().padStart(3, "0")}`;
+    const nextPID = `PID${(snap.size + 1).toString().padStart(3, "0")}`;
     document.getElementById("p-id").value = nextPID;
   } catch (e) {
-    console.error("Lỗi PID:", e);
+    console.error(e);
   }
 }
 
-// --- 2. HÀM NÉN ẢNH ---
+// 2. NÉN ẢNH
 async function compressImage(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = (event) => {
+    reader.onload = (e) => {
       const img = new Image();
-      img.src = event.target.result;
+      img.src = e.target.result;
       img.onload = () => {
         const canvas = document.createElement("canvas");
         const MAX_WIDTH = 500;
-        const scaleSize = MAX_WIDTH / img.width;
+        const scale = MAX_WIDTH / img.width;
         canvas.width = MAX_WIDTH;
-        canvas.height = img.height * scaleSize;
+        canvas.height = img.height * scale;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.8);
@@ -88,15 +85,15 @@ async function compressImage(file) {
   });
 }
 
-// --- 3. ĐỊNH DẠNG GIÁ TIỀN ---
+// 3. ĐỊNH DẠNG GIÁ
 if (priceInput) {
-  priceInput.addEventListener("input", function (e) {
-    let value = e.target.value.replace(/\D/g, "");
-    e.target.value = value !== "" ? Number(value).toLocaleString("en-US") : "";
+  priceInput.addEventListener("input", (e) => {
+    let val = e.target.value.replace(/\D/g, "");
+    e.target.value = val !== "" ? Number(val).toLocaleString("en-US") : "";
   });
 }
 
-// --- 4. ĐÓNG MỞ MODAL ---
+// 4. ĐÓNG MỞ MODAL
 if (openModalBtn) {
   openModalBtn.onclick = () => {
     currentEditId = null;
@@ -114,7 +111,7 @@ if (closeBtn) {
   };
 }
 
-// --- 5. HÀM ĐỔ DỮ LIỆU ĐỂ SỬA ---
+// 5. MỞ MODAL SỬA
 window.openEditModal = (docId, data) => {
   currentEditId = docId;
   modalTitle.innerHTML = '<i class="fas fa-edit"></i> CHỈNH SỬA SẢN PHẨM';
@@ -127,36 +124,42 @@ window.openEditModal = (docId, data) => {
   modal.style.display = "block";
 };
 
-// --- 6. HÀM XỬ LÝ XÓA ---
-window.deleteProduct = async (docId, imageUrl, pName) => {
-  if (confirm(`Bạn có chắc muốn xóa [${pName}] khỏi kho không?`)) {
-    try {
-      await deleteDoc(doc(db, "inventory", docId));
-      if (imageUrl && imageUrl.includes("firebase")) {
-        try {
-          await deleteObject(ref(storage, imageUrl));
-        } catch (e) {}
-      }
-
-      // Ghi log hành động xóa
-      await addDoc(collection(db, "inventory_logs"), {
-        productName: pName,
-        quantity: 0,
-        type: "Xóa sản phẩm",
-        branch: branchFilter.value,
-        userName: auth.currentUser.email,
-        timestamp: serverTimestamp(),
-      });
-
-      alert("Đã xóa và ghi lịch sử!");
-      loadInventory();
-    } catch (error) {
-      alert("Lỗi: " + error.message);
+// 6. XỬ LÝ XÓA VỚI TÊN SẢN PHẨM
+window.deleteProduct = function (docId, productName) {
+  Swal.fire({
+    title: "Xác nhận xóa?",
+    html: `Bạn có chắc muốn xóa sản phẩm <br><b style="color:#df2027">${productName}</b>?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#df2027",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Vâng, xóa nó!",
+    cancelButtonText: "Hủy bỏ",
+    reverseButtons: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      executeDelete(docId);
     }
-  }
+  });
 };
 
-// --- 7. LOAD DỮ LIỆU ---
+async function executeDelete(id) {
+  try {
+    await deleteDoc(doc(db, "inventory", id));
+    Swal.fire({
+      title: "Đã xóa!",
+      text: "Sản phẩm đã biến mất khỏi kho.",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    loadInventory();
+  } catch (error) {
+    Swal.fire("Lỗi!", "Không thể xóa sản phẩm này.", "error");
+  }
+}
+
+// 7. LOAD DỮ LIỆU (Cập nhật data-label và căn chỉnh nút)
 async function loadInventory() {
   const selectedBranch = branchFilter.value;
   inventoryList.innerHTML = `<tr><td colspan="8" style="text-align:center">Đang quét kho...</td></tr>`;
@@ -164,32 +167,34 @@ async function loadInventory() {
     const q = query(collection(db, "inventory"), where("branch", "==", selectedBranch));
     const snap = await getDocs(q);
     inventoryList.innerHTML = "";
+
     snap.forEach((docSnap) => {
       const item = docSnap.data();
       const docId = docSnap.id;
       const row = document.createElement("tr");
-      // Tìm trong hàm loadInventory, đoạn render các nút hành động:
+
       row.innerHTML = `
-    <td>${item.pid}</td>
-    <td style="text-align:center"><img src="${item.imageUrl || ""}" style="width:40px;height:40px;border-radius:4px;"></td>
-    <td>${item.name}</td>
-    <td>${item.type}</td>
-    <td style="font-weight:bold">${item.stock}</td>
-    <td>${Number(item.price || 0).toLocaleString()}đ</td>
-    <td>${item.unit}</td>
-    <td>
-        <div class="action-buttons">
-            <button onclick="openEditModal('${docId}', ${JSON.stringify(item).replace(/"/g, "&quot;")})" 
-                    class="btn-edit-row" title="Chỉnh sửa">
-                <i class="fas fa-edit"></i>
+        <td data-label="ID">${item.pid}</td>
+        <td data-label="Hình ảnh" style="text-align:center">
+            <img src="${item.imageUrl || "img/default.png"}" style="width:45px;height:45px;object-fit:cover;border-radius:6px;">
+        </td>
+        <td data-label="Sản phẩm"><strong>${item.name}</strong></td>
+        <td data-label="Loại">${item.type}</td>
+        <td data-label="Tồn kho" style="font-weight:bold" class="stock-cell">${item.stock} ${item.unit}</td>
+        <td data-label="Giá bán" class="price-cell">${Number(item.price || 0).toLocaleString()}đ</td>
+        <td data-label="Đơn vị">${item.unit}</td>
+        <td data-label="Hành động">
+            <div class="action-buttons">
+                <button onclick="openEditModal('${docId}', ${JSON.stringify(item).replace(/"/g, "&quot;")})" 
+                        class="btn-edit-row" title="Sửa">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteProduct('${docId}', '${item.name.replace(/'/g, "\\'")}')" 
+                        class="btn-delete-row" title="Xóa">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
-            
-            <button onclick="deleteProduct('${docId}', '${item.imageUrl}', '${item.name}')" 
-                    class="btn-delete-row" title="Xóa sản phẩm">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-    </td>`;
+        </td>`;
       inventoryList.appendChild(row);
     });
   } catch (e) {
@@ -197,7 +202,7 @@ async function loadInventory() {
   }
 }
 
-// --- 8. XỬ LÝ LƯU (THÊM & SỬA) + GHI LOG REALTIME ---
+// 8. XỬ LÝ LƯU (THÊM & SỬA)
 productForm.onsubmit = async (e) => {
   e.preventDefault();
   const submitBtn = productForm.querySelector(".btn-save");
@@ -240,7 +245,6 @@ productForm.onsubmit = async (e) => {
 
     if (currentEditId) {
       await updateDoc(doc(db, "inventory", currentEditId), productData);
-      // Ghi log nếu có thay đổi số lượng
       if (newStock !== oldStock) {
         const diff = newStock - oldStock;
         await addDoc(collection(db, "inventory_logs"), {
@@ -255,7 +259,6 @@ productForm.onsubmit = async (e) => {
     } else {
       productData.createdAt = serverTimestamp();
       await addDoc(collection(db, "inventory"), productData);
-      // Ghi log nhập mới
       await addDoc(collection(db, "inventory_logs"), {
         productName: pName,
         quantity: newStock,
@@ -266,12 +269,12 @@ productForm.onsubmit = async (e) => {
       });
     }
 
-    alert("Thao tác thành công!");
+    Swal.fire("Thành công", "Dữ liệu kho đã được cập nhật!", "success");
     modal.style.display = "none";
     productForm.reset();
     loadInventory();
   } catch (error) {
-    alert("Lỗi: " + error.message);
+    Swal.fire("Lỗi", error.message, "error");
   } finally {
     submitBtn.disabled = false;
     submitBtn.innerText = "LƯU VÀO KHO";
@@ -280,50 +283,18 @@ productForm.onsubmit = async (e) => {
 
 branchFilter.onchange = loadInventory;
 document.addEventListener("DOMContentLoaded", loadInventory);
+
+// ĐÓNG MODAL BẰNG ESC VÀ CLICK NGOÀI
 window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    // Kiểm tra nếu Modal đang hiển thị thì mới thực hiện đóng
-    const modal = document.getElementById("product-modal");
-    if (modal && modal.style.display === "block") {
-      modal.style.display = "none";
-
-      // Nếu có form bên trong thì reset luôn cho sạch dữ liệu
-      const productForm = document.getElementById("add-product-form");
-      if (productForm) productForm.reset();
-
-      console.log("Đã đóng Modal bằng phím Esc");
-    }
+  if (e.key === "Escape" && modal.style.display === "block") {
+    modal.style.display = "none";
+    productForm.reset();
   }
 });
+
 window.onclick = (e) => {
-  const modal = document.getElementById("product-modal");
   if (e.target === modal) {
     modal.style.display = "none";
-    document.getElementById("add-product-form").reset();
+    productForm.reset();
   }
 };
-// Tìm hàm load hoặc render inventory và sửa đoạn vẽ HTML:
-function renderTable(data) {
-  const list = document.getElementById("inventory-list");
-  list.innerHTML = "";
-
-  data.forEach((item) => {
-    list.innerHTML += `
-            <tr>
-                <td data-label="ID">${item.id}</td>
-                <td data-label="Hình ảnh"><img src="${item.imageUrl || "img/default.png"}" alt="product"></td>
-                <td data-label="Sản phẩm"><strong>${item.name}</strong></td>
-                <td data-label="Loại">${item.type}</td>
-                <td data-label="Tồn kho" class="stock-cell">${item.stock} ${item.unit}</td>
-                <td data-label="Giá bán" class="price-cell">${Number(item.price).toLocaleString()}đ</td>
-                <td data-label="Đơn vị">${item.unit}</td>
-                <td data-label="Hành động">
-                    <div class="action-buttons">
-                        <button class="btn-edit-row" onclick="editProduct('${item.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn-delete-row" onclick="deleteProduct('${item.id}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td>
-            </tr>
-        `;
-  });
-}
