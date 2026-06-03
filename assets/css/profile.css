@@ -171,28 +171,87 @@ body {
    4. RESPONSIVE (CHO ĐIỆN THOẠI)
    ========================================================================== */
 @media screen and (max-width: 992px) {
+  body {
+    padding-top: 30px;
+  }
+
   .profile-layout {
-    flex-direction: column; /* Ép về 1 hàng dọc */
+    flex-direction: column;
     align-items: center;
-    padding-top: 80px;
+    padding: 20px 15px;
   }
 
   .profile-card,
   .history-aside {
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: 600px !important;
     flex: none;
   }
 
   .history-aside {
-    max-height: none; /* Mobile cho giãn tự nhiên */
+    max-height: none;
     margin-top: 10px;
     animation: fadeInDown 0.4s ease-out;
   }
 
   #display-email {
     word-break: break-all;
-    font-size: 1rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  body {
+    padding-top: 15px;
+    background: #f4f7f6;
+  }
+
+  .profile-layout {
+    padding: 10px 10px;
+  }
+
+  .profile-card {
+    padding: 22px 18px;
+    border-radius: 16px;
+    max-width: 100% !important;
+  }
+
+  .history-aside {
+    max-width: 100% !important;
+    padding: 18px 15px;
+    border-radius: 16px;
+  }
+
+  .user-avatar-large {
+    width: 70px;
+    height: 70px;
+    font-size: 1.8rem;
+  }
+
+  .input-group input,
+  .input-group select {
+    font-size: 16px; /* Tránh iOS zoom */
+    padding: 13px 12px;
+    border-radius: 10px;
+  }
+
+  .btn-save,
+  .btn-history-toggle {
+    padding: 15px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  .btn-location {
+    padding: 0 12px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .back-home {
+    top: 10px;
+    left: 10px;
+    font-size: 13px;
   }
 }
 

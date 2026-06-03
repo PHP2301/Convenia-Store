@@ -6,10 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - Circle K Bình Thạnh</title>
     <link rel="icon" type="image/png" href="../assets/img/images.png" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="../assets/css/admin.css" />
   </head>
   <body>
+    <!-- Nút hamburger cho mobile -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Mở menu">
+      <i class="fas fa-bars"></i>
+    </button>
+    <!-- Overlay mờ khi sidebar mở -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <div class="admin-wrapper">
       <nav class="sidebar">
         <a
@@ -157,5 +164,19 @@
     </div>
 
     <script type="module" src="../assets/js/admin.js"></script>
+    <script>
+      // Hamburger sidebar toggle
+      const toggle = document.getElementById('sidebarToggle');
+      const overlay = document.getElementById('sidebarOverlay');
+      const sidebar = document.querySelector('.sidebar');
+      toggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+      });
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      });
+    </script>
   </body>
 </html>

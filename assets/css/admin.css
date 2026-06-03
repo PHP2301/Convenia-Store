@@ -341,8 +341,299 @@ input[readonly] {
 }
 
 /* ==========================================================================
-   6. RESPONSIVE (MÁY TÍNH BẢNG & ĐIỆN THOẠI)
+   6. RESPONSIVE MOBILE - TOÀN DIỆN
    ========================================================================== */
+
+/* --- Nút Hamburger (ẩn trên desktop) --- */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 2000;
+  background: var(--primary-red);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  align-items: center;
+  justify-content: center;
+}
+
+/* Overlay mờ khi sidebar mở trên mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+/* --- Tablet (dưới 992px) --- */
+@media (max-width: 992px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .main-content {
+    margin-left: 220px;
+    padding: 20px;
+  }
+
+  .control-panel {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+/* --- Mobile (dưới 768px) --- */
+@media (max-width: 768px) {
+  /* Sidebar: ẩn sang trái, trượt ra khi mở */
+  .sidebar {
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1500;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay.open {
+    display: block;
+  }
+
+  /* Hiện nút hamburger */
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  /* Main content chiếm toàn bộ */
+  .main-content {
+    margin-left: 0;
+    padding: 15px;
+    padding-top: 60px; /* Chỗ cho nút hamburger */
+    width: 100%;
+  }
+
+  /* Top bar: xếp dọc */
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px;
+  }
+
+  .top-bar h2 {
+    font-size: 1.2rem;
+  }
+
+  /* Control panel: xếp dọc */
+  .control-panel {
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px;
+  }
+
+  .select-box {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .select-box select {
+    width: 100%;
+    margin-left: 0;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+
+  .btn-add-product {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+    font-size: 15px;
+  }
+
+  /* ========================================
+     BẢNG → CARD VIEW (MOBILE)
+     ======================================== */
+  .inventory-table,
+  .inventory-table thead,
+  .inventory-table tbody,
+  .inventory-table th,
+  .inventory-table td,
+  .inventory-table tr {
+    display: block;
+  }
+
+  /* Ẩn tiêu đề bảng */
+  .inventory-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  /* Mỗi hàng → 1 card */
+  .inventory-table tr {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+    padding: 12px 15px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Dải màu bên trái mỗi card */
+  .inventory-table tr::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--primary-red);
+    border-radius: 4px 0 0 4px;
+  }
+
+  /* Mỗi ô → hàng ngang label : value */
+  .inventory-table td {
+    border: none;
+    border-bottom: 1px dashed #f1f1f1;
+    padding: 10px 0 10px 0 !important;
+    text-align: right !important;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .inventory-table td:last-child {
+    border-bottom: none;
+    padding-top: 12px !important;
+  }
+
+  /* Label giả từ data-label */
+  .inventory-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: #666;
+    font-size: 12px;
+    text-transform: uppercase;
+    text-align: left;
+    letter-spacing: 0.5px;
+    min-width: 100px;
+  }
+
+  .inventory-table img {
+    width: 55px;
+    height: 55px;
+    border-radius: 8px;
+  }
+
+  /* Nút hành động */
+  .action-buttons {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .btn-edit-row,
+  .btn-delete-row {
+    flex: 1;
+    max-width: 130px;
+    padding: 11px;
+    font-size: 14px;
+    border-radius: 8px;
+    width: auto !important;
+    height: auto !important;
+    min-width: unset !important;
+  }
+
+  /* Modal: toàn màn hình trên mobile */
+  .modal-content {
+    width: 95vw;
+    max-width: 95vw;
+    margin: 10px auto;
+    padding: 20px 15px;
+    border-radius: 15px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-content h3 {
+    font-size: 1.2rem;
+    margin-bottom: 18px;
+  }
+
+  .form-group input,
+  .form-group select {
+    font-size: 16px; /* Tránh iOS zoom khi focus */
+    padding: 13px 12px;
+  }
+
+  .btn-save {
+    padding: 14px;
+    font-size: 15px;
+  }
+}
+
+/* --- Mobile nhỏ (dưới 480px) --- */
+@media (max-width: 480px) {
+  .main-content {
+    padding: 12px;
+    padding-top: 58px;
+  }
+
+  .inventory-table td {
+    font-size: 13px;
+  }
+
+  .inventory-table td::before {
+    font-size: 11px;
+    min-width: 85px;
+  }
+}
+
+/* ============================================================
+   FIX: Cột Hành động và nút trên desktop
+   ============================================================ */
+.inventory-table td:last-child {
+  text-align: center;
+  vertical-align: middle;
+  padding: 10px !important;
+}
+
+.action-buttons {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-edit-row,
+.btn-delete-row {
+  width: 35px !important;
+  height: 35px !important;
+  min-width: 35px !important;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 
 /* --- Tablet/Mobile chung (Dưới 992px) --- */
 @media (max-width: 992px) {

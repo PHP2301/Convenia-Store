@@ -564,3 +564,91 @@ body {
   to { transform: scale(1); opacity: 1; }
 }
 
+/* ==========================================================================
+   RESPONSIVE MOBILE - ĐĂNG NHẬP
+   ========================================================================== */
+
+/* Tablet */
+@media (max-width: 900px) {
+  body {
+    height: auto;
+    overflow: auto;
+    padding: 20px 15px;
+    align-items: flex-start;
+  }
+
+  .main-container {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    flex-direction: column;
+    border-radius: 16px;
+  }
+
+  /* Ẩn cột ảnh bên phải trên tablet nhỏ */
+  .image-section {
+    display: none;
+  }
+
+  .form-section {
+    padding: 30px 25px;
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  body {
+    background: #df2027;
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .main-container {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0 0 24px 24px;
+    box-shadow: none;
+  }
+
+  .form-section {
+    padding: 25px 20px 35px;
+  }
+
+  .form-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .form-logo {
+    width: 65px;
+  }
+
+  .input-group input {
+    font-size: 16px; /* Tránh iOS zoom */
+    padding: 13px 15px;
+    border-radius: 10px;
+  }
+
+  .btn-submit {
+    padding: 15px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .toggle-link {
+    font-size: 13px;
+  }
+
+  /* OTP fields on mobile */
+  .otp-input-container {
+    gap: 6px;
+  }
+
+  .otp-field {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    border-radius: 8px;
+  }
+}
