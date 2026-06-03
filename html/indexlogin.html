@@ -24,14 +24,18 @@
           <form id="authForm">
             <div class="input-group">
               <label>Tên đăng nhập / Email</label>
-              <i class="fas fa-envelope"></i>
-              <input type="email" id="authEmail" placeholder="example@gmail.com" required />
+              <div class="input-wrapper">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="authEmail" placeholder="example@gmail.com" required />
+              </div>
             </div>
 
             <div class="input-group">
               <label>Mật khẩu</label>
-              <i class="fas fa-lock"></i>
-              <input type="password" id="authPassword" placeholder="Ít nhất 6 ký tự (chữ & số)" required />
+              <div class="input-wrapper">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="authPassword" placeholder="Ít nhất 6 ký tự (chữ & số)" required />
+              </div>
 
               <div id="psw-tooltip" class="psw-tooltip">
                 <p id="check-letter" class="invalid">Có ít nhất 1 chữ cái (a-z)</p>
@@ -44,8 +48,10 @@
 
             <div class="input-group" id="rePasswordGroup" style="display: none">
               <label>Nhập lại mật khẩu</label>
-              <i class="fas fa-check-double"></i>
-              <input type="password" id="reAuthPassword" placeholder="********" />
+              <div class="input-wrapper">
+                <i class="fas fa-check-double"></i>
+                <input type="password" id="reAuthPassword" placeholder="********" />
+              </div>
               <span id="match-error" style="color: #df2027">Mật khẩu không trùng khớp!</span>
             </div>
 

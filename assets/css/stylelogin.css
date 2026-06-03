@@ -88,14 +88,34 @@ body {
   outline: none;
 }
 
-.input-group i {
+/* Icon nằm trong wrapper riêng để không bị lệch */
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-wrapper i {
   position: absolute;
-  left: 15px;
-  top: 38px;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   color: #df2027;
   font-size: 14px;
+  pointer-events: none;
   z-index: 5;
 }
+
+/* Fallback: icon trực tiếp trong input-group (cách cũ) */
+.input-group > i {
+  position: absolute;
+  left: 14px;
+  bottom: 13px;
+  color: #df2027;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 5;
+}
+
 
 /* --- 3. GIAO DIỆN 6 Ô OTP (FIX LỆCH TUYỆT ĐỐI) --- */
 .otp-slide-wrapper {
