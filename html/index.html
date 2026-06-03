@@ -3,17 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Circle K Việt Nam - Clone</title>
+    <title>CK GO Việt Nam - Clone</title>
     <link rel="icon" type="image/png" href="../assets/img/images.png" />
     <link rel="stylesheet" href="../assets/css/style.css" />
+    <link rel="stylesheet" href="../assets/css/theme-lang.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script type="module" src="../assets/js/theme-lang.js"></script>
   </head>
   <body>
     <header>
       <div class="main-header">
         <div class="logo">
-          <a href="index.html">
-            <img src="../assets/img/images1.png" alt="Circle K Logo" width="120" height="55" />
+          <a href="index.html" style="display: flex; align-items: center; gap: 6px; text-decoration: none;">
+            <div style="background: #00b4d8; color: white; font-weight: bold; font-size: 22px; padding: 4px 10px; border-radius: 4px; font-family: 'Outfit', 'Segoe UI', sans-serif; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0, 180, 216, 0.2);">CK</div>
+            <span style="color: #0077b6; font-weight: bold; font-size: 18px; font-family: 'Outfit', 'Segoe UI', sans-serif; letter-spacing: 0.5px;">GO</span>
           </a>
         </div>
 
@@ -22,7 +25,7 @@
           <a href="stores.html" style="text-decoration: none">
             <div class="nav-item">
               <i class="fas fa-map-marker-alt"></i>
-              <span>Hệ thống Circle K</span>
+              <span>Hệ thống CK GO</span>
             </div>
           </a>
 
@@ -109,56 +112,119 @@
 
     <section class="hero-slider">
       <div class="slides-container">
+        <!-- Slide 1: Hot Deal -->
         <div class="slide active">
           <img
             src="https://www.circlek.com.vn/wp-content/uploads/2026/01/1920x536_1920x536_acf_cropped_1920x536_acf_cropped.jpg"
-            alt="Banner" />
-          <div class="banner-tabs">
-            <div class="tab active">HOT DEAL</div>
-            <div class="tab">TÌM CỬA HÀNG</div>
-            <div class="tab">TÌM VIỆC</div>
-          </div>
+            alt="Banner Hot Deal" />
         </div>
+        <!-- Slide 2: Dinosaur Promotion -->
+        <div class="slide">
+          <img
+            src="https://www.circlek.com.vn/wp-content/uploads/2026/05/Banner_DinoWeb_1920x536-3_1920x536_acf_cropped.png"
+            alt="Khuyến mãi Dino" />
+        </div>
+        <!-- Slide 3: Special Offers -->
+        <div class="slide">
+          <img
+            src="https://www.circlek.com.vn/wp-content/uploads/2026/05/1920-x-536_1920x536_acf_cropped.png"
+            alt="Ưu đãi đặc biệt" />
+        </div>
+      </div>
+      <!-- Dots Indicator -->
+      <div class="slider-dots">
+        <span class="dot active" onclick="currentSlide(1)"></span>
+        <span class="dot" onclick="currentSlide(2)"></span>
+        <span class="dot" onclick="currentSlide(3)"></span>
       </div>
     </section>
 
-    <section class="services">
-      <h2>DANH MỤC SẢN PHẨM</h2>
-
-      <div class="search-container">
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input
-            type="text"
-            id="category-search"
-            placeholder="Bạn muốn tìm món gì (Mì trộn, Cafe...)..."
-            onkeyup="filterCategories()" />
+    <!-- FLASH SALE SECTION -->
+    <section class="flash-sale-section">
+      <div class="flash-sale-header">
+        <div class="flash-sale-title">
+          <i class="fas fa-bolt"></i>
+          <span>FLASH SALE CHỚP NHOÁNG</span>
+        </div>
+        <div class="countdown-container">
+          <span class="countdown-label">Kết thúc trong:</span>
+          <div id="countdown-timer">
+            <span class="time-box" id="hours">02</span>
+            <span class="time-separator">:</span>
+            <span class="time-box" id="minutes">45</span>
+            <span class="time-separator">:</span>
+            <span class="time-box" id="seconds">00</span>
+          </div>
         </div>
       </div>
 
-      <div class="service-container" id="category-list">
-        <a href="food.html" class="card-link" data-name="thức ăn nhanh mì trộn bánh bao hotdog">
-          <div class="card">
-            <i class="fas fa-utensils"></i>
-            <h3>Thức ăn nhanh</h3>
-          </div>
-        </a>
-
-        <a href="drink.html" class="card-link" data-name="đồ uống thức uống cafe trà sữa nước ngọt">
-          <div class="card">
-            <i class="fas fa-coffee"></i>
-            <h3>Đồ uống</h3>
-          </div>
-        </a>
-
-        <a href="#" class="card-link" data-name="tiện ích 24/7 thanh toán hóa đơn rút tiền">
-          <div class="card">
-            <i class="fas fa-wifi"></i>
-            <h3>Tiện ích 24/7</h3>
-          </div>
-        </a>
+      <div class="flash-sale-products" id="flash-sale-products">
+        <p style="grid-column: 1/-1; text-align: center; color: #ccc; font-size: 1.1rem; padding: 20px 0;">
+          Đang tải sản phẩm khuyến mãi từ hệ thống...
+        </p>
       </div>
     </section>
+
+    <footer class="main-footer">
+      <div class="footer-top">
+        <div class="footer-newsletter">
+          <input type="email" placeholder="Email" id="newsletter-email" />
+          <button type="button" id="btn-newsletter">Gửi</button>
+        </div>
+      </div>
+      
+      <div class="footer-middle">
+        <div class="footer-nav-brand">
+          <div class="footer-brand">
+            <span class="brand-ck">CK</span><span class="brand-go">GO</span>
+          </div>
+          <ul class="footer-main-menu">
+            <li><a href="stores.html">HỆ THỐNG CỬA HÀNG</a></li>
+            <li><a href="index.html#flash-sale">ƯU ĐÃI ĐẶC BIỆT</a></li>
+            <li><a href="menu.html">THỨC ĂN & THỨC UỐNG</a></li>
+            <li><a href="menu.html">SẢN PHẨM & DỊCH VỤ</a></li>
+          </ul>
+        </div>
+        <div class="footer-socials">
+          <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-sub-menu">
+        <a href="#">Giới Thiệu</a> | 
+        <a href="#">Cơ Hội Nghề Nghiệp</a> | 
+        <a href="#">Tin Tức & Sự Kiện</a> | 
+        <a href="#">Liên Hệ</a> | 
+        <a href="#">Điều Khoản Sử Dụng</a> | 
+        <a href="#">Chính Sách</a> | 
+        <a href="#">Hóa Đơn Đỏ</a>
+      </div>
+
+      <hr class="footer-divider" />
+
+      <div class="footer-bottom">
+        <div class="footer-info-left">
+          <p><strong>CK Convenience Store Vietnam - Chuỗi cửa hàng tiện lợi - Mở cửa 24/7</strong></p>
+          <p>Copyright &copy; 2016 CK Convenience Store Vietnam</p>
+          <p>Tel: +84 (28) 3620 9017</p>
+          <p class="text-highlight">Phòng Chăm sóc khách hàng: 1900.3110</p>
+          <p class="text-highlight">Email: info@ckstores.com.vn</p>
+        </div>
+        <div class="footer-info-right">
+          <p>CÔNG TY TNHH BÁN LẺ CK VIỆT NAM - Giấy CNĐKDN: 0306182043</p>
+          <p>Ngày cấp: 10/11/2008. Nơi cấp: Sở Kế hoạch - Đầu tư Tp. Hồ Chí Minh</p>
+          <p><strong>Địa chỉ:</strong> 160 Bùi Thị Xuân, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh, Việt Nam.</p>
+        </div>
+      </div>
+
+      <div class="footer-badges">
+        <div class="duns-badge">
+          <i class="fas fa-shield-alt"></i>
+          <span>DUNS&reg; REGISTERED</span>
+        </div>
+      </div>
+    </footer>
 
     <script type="module" src="../assets/js/script.js"></script>
     <script type="module" src="../assets/js/display-products.js"></script>

@@ -2,8 +2,8 @@
    1. BIẾN HỆ THỐNG VÀ RESET
    ========================================================================== */
 :root {
-  --primary-red: #df2027;
-  --dark-red: #b3191f;
+  --primary-red: #00b4d8;
+  --dark-red: #0077b6;
   --bg-light: #f4f7f6;
   --text-dark: #333;
   --success-green: #27ae60;
@@ -635,24 +635,6 @@ input[readonly] {
 }
 
 
-/* --- Tablet/Mobile chung (Dưới 992px) --- */
-@media (max-width: 992px) {
-  .main-header {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-  }
-  .main-nav {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-    width: 100%;
-    justify-content: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    padding-top: 10px;
-  }
-}
-
 /* --- Mobile Card View (Dưới 768px) --- */
 @media (max-width: 768px) {
   /* Thu nhỏ Sidebar */
@@ -667,15 +649,6 @@ input[readonly] {
   .main-content {
     margin-left: 60px;
     padding: 15px;
-  }
-
-  /* Header Mobile */
-  .logo img {
-    height: 40px !important;
-    max-width: 90px;
-  }
-  .nav-item span {
-    display: none;
   }
 
   /* BIẾN TABLE THÀNH CARD */
@@ -754,10 +727,6 @@ input[readonly] {
     padding-left: 40% !important;
     font-size: 13px;
   }
-  .slides-container {
-    aspect-ratio: 16 / 9;
-    height: auto;
-  }
 }
 /* ==========================================================================
    FIX LỖI BẢNG LỊCH SỬ TRÊN MOBILE
@@ -791,7 +760,7 @@ input[readonly] {
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border-left: 4px solid #df2027; /* Tạo điểm nhấn cho mỗi dòng lịch sử */
+    border-left: 4px solid #00b4d8; /* Tạo điểm nhấn cho mỗi dòng lịch sử */
   }
 
   .history-table td {
@@ -819,7 +788,7 @@ input[readonly] {
 
   /* Tối ưu hiển thị thời gian */
   .history-table td[data-label="THỜI GIAN"] {
-    color: #df2027;
+    color: #00b4d8;
     font-weight: bold;
   }
 }

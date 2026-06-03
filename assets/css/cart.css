@@ -24,9 +24,9 @@
 }
 
 .item-qty button:hover {
-  background: #df2027;
+  background: #00b4d8;
   color: white;
-  border-color: #df2027;
+  border-color: #00b4d8;
 }
 
 .item-qty span {
@@ -44,7 +44,7 @@
 
 /* Nút thanh toán xịn hơn */
 .btn-checkout:hover {
-  background: #b3191e;
+  background: #0077b6;
   box-shadow: 0 4px 12px rgba(223, 32, 39, 0.3);
 }
 
@@ -184,7 +184,7 @@
   color: #333;
 }
 .item-price {
-  color: #df2027;
+  color: #00b4d8;
   font-weight: bold;
 }
 
@@ -207,7 +207,7 @@
   transition: 0.3s;
 }
 .btn-remove:hover {
-  color: #df2027;
+  color: #00b4d8;
 }
 
 .cart-summary {
@@ -225,14 +225,14 @@
 .total {
   font-size: 20px;
   font-weight: bold;
-  color: #df2027;
+  color: #00b4d8;
   margin-top: 10px;
 }
 
 .btn-checkout {
   width: 100%;
   padding: 15px;
-  background: #df2027;
+  background: #00b4d8;
   color: white;
   border: none;
   border-radius: 5px;
@@ -246,32 +246,7 @@
 
 
 
-/* --- Tối ưu hiển thị bảng (History/Admin) --- */
-@media (max-width: 480px) {
-  .history-table,
-  table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
 
-  .services h2 {
-    font-size: 1.1rem;
-    padding: 0 10px;
-  }
-
-  /* Đảm bảo Card dịch vụ không quá to */
-  .service-container {
-    grid-template-columns: 1fr;
-    padding: 0 15px;
-  }
-}
-
-/* Fix lỗi ảnh banner bị méo trên điện thoại */
-.slides-container {
-  height: auto;
-  aspect-ratio: 16 / 9; /* Giữ tỉ lệ chuẩn video/ảnh */
-}
 
 /* --- 2FA Modal Styling --- */
 .tfa-modal-overlay {
@@ -300,7 +275,7 @@
 }
 
 .tfa-modal-header {
-  background-color: #df2027;
+  background-color: #00b4d8;
   color: #fff;
   padding: 15px 20px;
   display: flex;
@@ -336,8 +311,8 @@
 }
 
 .tfa-otp-field {
-  color: #df2027;
-  border-color: #df2027;
+  color: #00b4d8;
+  border-color: #00b4d8;
 }
 
 .otp-input-container {

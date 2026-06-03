@@ -193,6 +193,30 @@ export async function getDoc(docRef) {
         data: () => null,
       };
     }
+  } else if (docRef.collection === "settings") {
+    try {
+      const data = await apiFetch(`/api/settings/${docRef.id}`);
+      if (data.exists) {
+        let val = data.value;
+        try {
+          val = JSON.parse(data.value);
+        } catch (err) {}
+        return {
+          exists: () => true,
+          data: () => val
+        };
+      } else {
+        return {
+          exists: () => false,
+          data: () => null
+        };
+      }
+    } catch (e) {
+      return {
+        exists: () => false,
+        data: () => null,
+      };
+    }
   }
   return {
     exists: () => false,
@@ -268,6 +292,12 @@ export async function setDoc(docRef, data, options = {}) {
     await apiFetch("/api/orders", {
       method: "POST",
       body: JSON.stringify(orderData),
+    });
+    return true;
+  } else if (docRef.collection === "settings") {
+    await apiFetch(`/api/settings/${docRef.id}`, {
+      method: "POST",
+      body: JSON.stringify({ value: JSON.stringify(data) }),
     });
     return true;
   }

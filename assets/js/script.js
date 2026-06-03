@@ -5,6 +5,9 @@ import {
   getDoc,
   setDoc,
   collection,
+  query,
+  where,
+  getDocs,
   addDoc,
   serverTimestamp,
   getAuth,
@@ -127,7 +130,21 @@ function showSlides(n) {
   if (n < 1) slideIndex = slides.length;
   slides.forEach((s) => s.classList.remove("active"));
   slides[slideIndex - 1].classList.add("active");
+
+  // Cập nhật trạng thái active của các dots
+  const dots = document.querySelectorAll(".slider-dots .dot");
+  if (dots.length > 0) {
+    dots.forEach((d) => d.classList.remove("active"));
+    if (dots[slideIndex - 1]) {
+      dots[slideIndex - 1].classList.add("active");
+    }
+  }
 }
+
+window.currentSlide = function(n) {
+  slideIndex = n;
+  showSlides(slideIndex);
+};
 
 setInterval(() => {
   slideIndex++;
@@ -257,6 +274,7 @@ onAuthStateChanged(auth, async (user) => {
   if (typeof loadProducts === "function") {
     loadProducts();
   }
+  loadFlashSaleProducts();
 });
 // Thêm đoạn này vào cuối file js/script.js
 window.filterCategories = function () {
@@ -275,3 +293,135 @@ window.filterCategories = function () {
     }
   });
 };
+
+// --- 6. HÀM ĐẾM NGƯỢC THỜI GIAN FLASH SALE ---
+async function startCountdown() {
+  const hoursEl = document.getElementById("hours");
+  const minutesEl = document.getElementById("minutes");
+  const secondsEl = document.getElementById("seconds");
+
+  if (!hoursEl || !minutesEl || !secondsEl) return;
+
+  const flashSaleRef = doc(db, "settings", "flash_sale");
+  let targetTime;
+
+  try {
+    const docSnap = await getDoc(flashSaleRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      targetTime = parseInt(data.endTime);
+      // Nếu thời gian cũ đã qua, reset lại chu kỳ mới 3 tiếng
+      if (Date.now() > targetTime) {
+        targetTime = Date.now() + 3 * 60 * 60 * 1000;
+        await setDoc(flashSaleRef, { endTime: targetTime });
+      }
+    } else {
+      // Thiết lập ban đầu nếu chưa có trong Database
+      targetTime = Date.now() + 2 * 60 * 60 * 1000 + 45 * 60 * 1000; // 2 giờ 45 phút từ hiện tại
+      await setDoc(flashSaleRef, { endTime: targetTime });
+    }
+  } catch (err) {
+    console.error("Lỗi khi kết nối bộ đếm ngược DB, fallback sang cục bộ:", err);
+    targetTime = Date.now() + 2 * 60 * 60 * 1000 + 45 * 60 * 1000;
+  }
+
+  function updateTimer() {
+    const timeLeft = targetTime - Date.now();
+    if (timeLeft <= 0) {
+      hoursEl.innerText = "00";
+      minutesEl.innerText = "00";
+      secondsEl.innerText = "00";
+      return;
+    }
+
+    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+    hoursEl.innerText = String(hours).padStart(2, "0");
+    minutesEl.innerText = String(minutes).padStart(2, "0");
+    secondsEl.innerText = String(seconds).padStart(2, "0");
+  }
+
+  updateTimer();
+  setInterval(updateTimer, 1000);
+}
+
+// --- 7. TẢI SẢN PHẨM KHUYẾN MÃI FLASH SALE TỪ DATABASE ---
+async function loadFlashSaleProducts() {
+  const container = document.getElementById("flash-sale-products");
+  if (!container) return;
+
+  const currentBranch = localStorage.getItem("selected_store") || "ngt";
+
+  try {
+    const colRef = collection(db, "inventory");
+    const q = query(colRef, where("branch", "==", currentBranch));
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #ccc; padding: 20px 0;">Không tìm thấy sản phẩm khuyến mãi tại chi nhánh này.</p>`;
+      return;
+    }
+
+    // Chuyển snap thành mảng và lọc các sản phẩm có giá trị thực tế
+    const products = [];
+    snap.forEach((doc) => {
+      const data = doc.data();
+      if (data.price && data.price > 0 && data.price < 100000) {
+        products.push({ id: doc.id, ...data });
+      }
+    });
+
+    if (products.length === 0) {
+      container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #ccc; padding: 20px 0;">Không tìm thấy sản phẩm phù hợp khuyến mãi.</p>`;
+      return;
+    }
+
+    // Chọn tối đa 4 sản phẩm
+    const saleProducts = products.slice(0, 4);
+    container.innerHTML = "";
+
+    saleProducts.forEach((p, idx) => {
+      // Giảm giá 20%
+      const discount = 20;
+      const salePrice = Math.round((p.price * (1 - discount / 100)) / 1000) * 1000;
+      const originalPrice = p.price;
+      const img = p.imageUrl || "../assets/img/default.png";
+      const name = p.name || "Sản phẩm khuyến mãi";
+
+      // Chỉ số ngẫu nhiên / tính toán thanh tiến trình
+      const soldCount = 10 + (idx * 7) % 15;
+      const totalStock = 30;
+      const progressWidth = (soldCount / totalStock) * 100;
+      
+      container.innerHTML += `
+        <div class="flash-product-card">
+          <span class="discount-badge">-${discount}%</span>
+          <div class="product-img-wrapper">
+            <img src="${img}" alt="${name}" />
+          </div>
+          <h3>${name}</h3>
+          <div class="product-pricing">
+            <span class="sale-price">${Number(salePrice).toLocaleString()}đ</span>
+            <span class="old-price">${Number(originalPrice).toLocaleString()}đ</span>
+          </div>
+          <div class="stock-progress">
+            <div class="progress-bar" style="width: ${progressWidth}%;"></div>
+            <span class="progress-text">${soldCount >= 20 ? "Sắp cháy hàng" : `Đã bán ${soldCount}`}</span>
+          </div>
+          <button class="btn-buy-flash" onclick="handleAddToCart(this, '${p.id}', '${name}', ${salePrice}, '${img}')">
+            Mua ngay
+          </button>
+        </div>
+      `;
+    });
+  } catch (error) {
+    console.error("Lỗi khi tải sản phẩm Flash Sale:", error);
+    container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: red; padding: 20px 0;">Không thể tải sản phẩm khuyến mãi. Vui lòng thử lại sau.</p>`;
+  }
+}
+
+// Khởi chạy các bộ đếm ngược và tải sản phẩm khi load trang
+startCountdown();
+loadFlashSaleProducts();

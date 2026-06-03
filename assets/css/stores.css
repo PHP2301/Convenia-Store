@@ -26,7 +26,7 @@
   display: flex;
   align-items: center;
   background: #fff;
-  border: 1px solid #df2027; /* Viền đỏ Circle K */
+  border: 1px solid #00b4d8; /* Viền đỏ Circle K */
   border-radius: 25px;
   padding: 2px 5px 2px 15px;
   height: 45px;
@@ -40,7 +40,7 @@
 }
 
 .search-container-store button {
-  background: #df2027;
+  background: #00b4d8;
   border: none;
   color: white;
   width: 36px;
@@ -51,7 +51,7 @@
 }
 
 .search-container-store button:hover {
-  background: #b3191f;
+  background: #0077b6;
 }
 
 /* --- 3. Danh sách Store Card --- */
@@ -69,11 +69,11 @@
 
 .store-card:hover {
   background: #fffafa;
-  border-left: 5px solid #df2027;
+  border-left: 5px solid #00b4d8;
 }
 
 .store-card h4 {
-  color: #df2027;
+  color: #00b4d8;
   font-size: 16px;
   margin-bottom: 8px;
   text-transform: uppercase;
@@ -87,7 +87,7 @@
 
 .store-card i {
   width: 20px;
-  color: #df2027;
+  color: #00b4d8;
 }
 
 /* --- 4. Cột Bản đồ --- */
@@ -154,8 +154,8 @@
 }
 /* Thêm vào cuối file stores.css */
 .store-card.active {
-  background: #fff5f5;
-  border-left: 5px solid #df2027;
+  background: #e0f7fa;
+  border-left: 5px solid #00b4d8;
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
 }
 
@@ -183,34 +183,9 @@
 }
 
 .back-home a:hover {
-  color: #df2027; /* Đổi sang màu đỏ khi rê chuột vào */
+  color: #00b4d8; /* Đổi sang màu đỏ khi rê chuột vào */
   transform: translateX(-5px); /* Hiệu ứng nhích nhẹ sang trái */
 }
 
 
-/* --- Tối ưu hiển thị bảng (History/Admin) --- */
-@media (max-width: 480px) {
-  .history-table,
-  table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
 
-  .services h2 {
-    font-size: 1.1rem;
-    padding: 0 10px;
-  }
-
-  /* Đảm bảo Card dịch vụ không quá to */
-  .service-container {
-    grid-template-columns: 1fr;
-    padding: 0 15px;
-  }
-}
-
-/* Fix lỗi ảnh banner bị méo trên điện thoại */
-.slides-container {
-  height: auto;
-  aspect-ratio: 16 / 9; /* Giữ tỉ lệ chuẩn video/ảnh */
-}

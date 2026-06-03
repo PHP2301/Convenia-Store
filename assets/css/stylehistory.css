@@ -1,5 +1,5 @@
 :root {
-  --primary-color: #df2027; /* Đỏ Circle K */
+  --primary-color: #00b4d8; /* Đỏ Circle K */
   --sidebar-width: 250px;
   --bg-light: #f8f9fa;
 }
@@ -107,85 +107,6 @@ body {
 tr:hover {
   background-color: #fcfcfc;
 }
-/* ==========================================================================
-   7. RESPONSIVE (ĐÃ SỬA LỖI MẤT NÚT)
-   ========================================================================== */
-
-/* --- Khi xem trên Máy tính bảng & Điện thoại (Dưới 992px) --- */
-@media (max-width: 992px) {
-  /* KHÔNG dùng display: none ở đây nữa, mà chuyển sang dàn hàng ngang */
-  .main-nav {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-    width: 100%;
-    justify-content: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    padding-top: 10px;
-  }
-
-  .main-header {
-    flex-wrap: wrap; /* Cho phép menu nhảy xuống dòng nếu quá chật */
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .top-bar-content {
-    justify-content: center;
-  }
-}
-
-/* --- Khi xem trên Điện thoại nhỏ (Dưới 768px) --- */
-@media (max-width: 768px) {
-  /* Thu nhỏ Logo để nhường chỗ cho các nút */
-  .logo img {
-    height: 40px !important;
-    max-width: 90px;
-  }
-
-  /* Ẩn chữ, chỉ để lại Icon cho gọn */
-  .nav-item span,
-  #user-name-text {
-    display: none;
-  }
-
-  .nav-item i {
-    font-size: 22px;
-    margin-bottom: 0;
-  }
-
-  /* Thu nhỏ nút giỏ hàng để không chiếm diện tích */
-  .cart-circle-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-  }
-
-  .cart-wrapper-link {
-    margin-right: 10px;
-  }
-
-  #cart-count {
-    width: 16px;
-    height: 16px;
-    font-size: 10px;
-  }
-
-  /* Căn chỉnh lại Header để các nút nằm cùng 1 hàng với Logo */
-  .main-header {
-    flex-wrap: nowrap; /* Ép Logo và các nút chức năng lên cùng 1 hàng */
-    justify-content: space-between;
-  }
-
-  /* Chỉ hiện các icon quan trọng nhất */
-  .main-nav {
-    display: flex;
-    margin-top: 0;
-    border-top: none;
-    padding-top: 0;
-    width: auto;
-  }
-}
 
 /* ==========================================================================
    7. RESPONSIVE (ĐÃ SỬA LỖI MẤT NÚT)
@@ -283,7 +204,7 @@ tr:hover {
     position: static; /* Không dùng absolute để tránh đè chữ */
     font-size: 11px;
     text-transform: uppercase;
-    color: #df2027; /* Màu đỏ làm nổi bật tiêu đề */
+    color: #00b4d8; /* Màu đỏ làm nổi bật tiêu đề */
     font-weight: bold;
     display: block;
     letter-spacing: 0.5px;

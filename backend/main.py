@@ -27,6 +27,11 @@ app.add_middleware(
 @app.on_event("startup")
 def startup_event():
     init_db_pool()
+    # Create site_settings table if it doesn't exist
+    execute_query(
+        "CREATE TABLE IF NOT EXISTS site_settings (key VARCHAR(255) PRIMARY KEY, value TEXT NOT NULL)"
+    )
+
 
 # --- PYDANTIC SCHEMAS ---
 
@@ -92,6 +97,9 @@ class InventoryLogSchema(BaseModel):
     type: str
     userName: str
     branch: str
+
+class SettingSchema(BaseModel):
+    value: str
 
 # --- AUTH ENDPOINTS ---
 
@@ -351,6 +359,27 @@ def update_cart(user_id: str, data: CartUpdate):
         (user_id, items_json)
     )
     return {"status": "success", "message": "Giỏ hàng được cập nhật thành công!"}
+
+# --- SETTINGS ENDPOINTS ---
+
+@app.get("/api/settings/{key}")
+def get_setting(key: str):
+    row = execute_query(
+        "SELECT value FROM site_settings WHERE key = %s",
+        (key,),
+        fetch=True
+    )
+    if not row:
+        return {"exists": False, "key": key, "value": None}
+    return {"exists": True, "key": key, "value": row[0]["value"]}
+
+@app.post("/api/settings/{key}")
+def set_setting(key: str, data: SettingSchema):
+    execute_query(
+        "INSERT INTO site_settings (key, value) VALUES (%s, %s) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+        (key, data.value)
+    )
+    return {"status": "success"}
 
 # --- FILE UPLOAD ENDPOINT ---
 
