@@ -3,11 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Circle K Việt Nam - Thức ăn & Thức uống Tổng hợp</title>
-    <link rel="icon" type="image/png" href="./img/images.png" />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/menu.css" />
-    <link rel="stylesheet" href="css/products.css" />
+    <title>Circle K Việt Nam - Thức ăn & Thức uống</title>
+    <link rel="icon" type="image/png" href="../assets/img/images.png" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+    <link rel="stylesheet" href="../assets/css/products.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   </head>
   <body>
@@ -15,15 +14,11 @@
       <div class="main-header">
         <div class="logo">
           <a href="index.html">
-            <img src="./img/images1.png" alt="Circle K Logo" />
+            <img src="../assets/img/images1.png" alt="Circle K Logo" />
           </a>
         </div>
 
         <nav class="main-nav">
-          <div class="header-search">
-            <input type="text" id="menu-search" placeholder="Tìm sản phẩm..." onkeyup="searchGlobal()" />
-            <button><i class="fas fa-search"></i></button>
-          </div>
           <a href="stores.html" style="text-decoration: none">
             <div class="nav-item">
               <i class="fas fa-map-marker-alt"></i>
@@ -40,15 +35,15 @@
             <i class="fas fa-hamburger"></i>
             <span>Thức ăn & Thức uống</span>
             <div class="dropdown-subs">
-              <a href="menu.html?type=Thức ăn">
+              <a href="food.html">
                 <i class="fas fa-pizza-slice"></i>
                 Thức ăn
               </a>
-              <a href="menu.html?type=Thức uống">
+              <a href="drink.html">
                 <i class="fas fa-glass-whiskey"></i>
                 Thức uống
               </a>
-              <a href="menu.html?type=all">
+              <a href="menu.html">
                 <i class="fas fa-list"></i>
                 Tất cả Menu
               </a>
@@ -117,11 +112,11 @@
     </header>
 
     <section class="product-display">
-      <h2 id="category-title" style="text-align: center; margin: 40px 0; color: #df2027">MENU TỔNG HỢP</h2>
+      <h2 id="category-title">DANH MỤC</h2>
       <div id="product-list" class="product-grid"></div>
     </section>
 
-    <script type="module" src="js/script.js"></script>
-    <script type="module" src="js/display-products.js"></script>
+    <script type="module" src="../assets/js/script.js"></script>
+    <script type="module" src="../assets/js/display-products.js"></script>
   </body>
 </html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Giỏ hàng - Circle K Clone</title>
+    <link rel="icon" type="image/png" href="../assets/img/images.png" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+    <link rel="stylesheet" href="../assets/css/cart.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="main-header">
+        <div class="logo">
+          <a href="index.html"><img src="../assets/img/images1.png" alt="Logo" /></a>
+        </div>
+        <nav class="main-nav">
+          <a href="index.html" class="nav-item">
+            <i class="fas fa-arrow-left"></i>
+            Tiếp tục mua hàng
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="cart-page">
+      <div class="container">
+        <h1>Giỏ hàng của bạn</h1>
+        <div class="cart-container">
+          <div id="cart-list" class="cart-list">
+            <p class="loading">Đang tải giỏ hàng...</p>
+          </div>
+
+          <div class="cart-summary">
+            <h3>Tóm tắt đơn hàng</h3>
+            <div class="summary-item">
+              <span>Tạm tính:</span>
+              <span id="subtotal">0đ</span>
+            </div>
+            <div class="summary-item">
+              <span>Phí vận chuyển:</span>
+              <span>Miễn phí</span>
+            </div>
+            <hr />
+            <div class="summary-item total">
+              <span>Tổng cộng:</span>
+              <span id="final-total">0đ</span>
+            </div>
+            <button id="btn-checkout-action" class="btn-checkout">THANH TOÁN NGAY</button>
+
+            <div
+              id="checkout-status"
+              style="display: none; text-align: center; margin-top: 10px; color: #df2027; font-weight: bold">
+              <i class="fas fa-spinner fa-spin"></i>
+              Đang xử lý đơn hàng...
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal Xác Thực Email OTP Cho Thanh Toán -->
+    <div id="checkoutTfaModal" class="tfa-modal-overlay" style="display: none;">
+      <div class="tfa-modal-container">
+        <div class="tfa-modal-header">
+          <h3>Xác thực thanh toán (Email OTP)</h3>
+          <button type="button" class="tfa-close-btn" id="btnCancelCheckout2FA">&times;</button>
+        </div>
+        <div class="tfa-modal-body">
+          <p class="tfa-instruction" id="tfaCheckoutInstruction">Nhập mã OTP 6 chữ số đã được gửi đến email của bạn để xác nhận giao dịch:</p>
+          <div class="otp-input-container">
+            <input type="text" class="otp-field checkout-otp-field" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-field checkout-otp-field" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-field checkout-otp-field" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-field checkout-otp-field" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-field checkout-otp-field" maxlength="1" inputmode="numeric" />
+            <input type="text" class="otp-field checkout-otp-field" maxlength="1" inputmode="numeric" />
+          </div>
+          <input type="hidden" id="checkoutOTPInput" />
+          <button type="button" id="btnVerifyCheckout2FA" class="btn-checkout" style="margin-top: 20px;">Xác nhận thanh toán</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="../assets/js/cart-logic.js"></script>
+  </body>
+</html>

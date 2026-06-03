@@ -3,10 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Circle K Việt Nam - Thức ăn & Thức uống</title>
-    <link rel="icon" type="image/png" href="./img/images.png" />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/products.css" />
+    <title>Circle K Việt Nam - Clone</title>
+    <link rel="icon" type="image/png" href="../assets/img/images.png" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   </head>
   <body>
@@ -14,11 +13,12 @@
       <div class="main-header">
         <div class="logo">
           <a href="index.html">
-            <img src="./img/images1.png" alt="Circle K Logo" />
+            <img src="../assets/img/images1.png" alt="Circle K Logo" width="120" height="55" />
           </a>
         </div>
 
         <nav class="main-nav">
+          <div class="nav-item dropdown-store"></div>
           <a href="stores.html" style="text-decoration: none">
             <div class="nav-item">
               <i class="fas fa-map-marker-alt"></i>
@@ -26,24 +26,19 @@
             </div>
           </a>
 
-          <div class="nav-item">
-            <i class="fas fa-gift"></i>
-            <span>Ưu đãi đặc biệt</span>
-          </div>
-
           <div class="nav-item dropdown-menu">
             <i class="fas fa-hamburger"></i>
             <span>Thức ăn & Thức uống</span>
             <div class="dropdown-subs">
-              <a href="food.html">
+              <a href="menu.html?type=Thức ăn">
                 <i class="fas fa-pizza-slice"></i>
                 Thức ăn
               </a>
-              <a href="drink.html">
+              <a href="menu.html?type=Thức uống ">
                 <i class="fas fa-glass-whiskey"></i>
                 Thức uống
               </a>
-              <a href="menu.html">
+              <a href="menu.html?type=all">
                 <i class="fas fa-list"></i>
                 Tất cả Menu
               </a>
@@ -87,6 +82,7 @@
                   ">
                   <span id="user-initial">P</span>
                 </div>
+
                 <span id="user-name-text" style="color: white; font-size: 13px; font-weight: 500">Tài khoản</span>
                 <i class="fas fa-caret-down" style="color: white; font-size: 10px; margin-left: 5px"></i>
               </div>
@@ -111,12 +107,60 @@
       </div>
     </header>
 
-    <section class="product-display">
-      <h2 id="category-title">DANH MỤC</h2>
-      <div id="product-list" class="product-grid"></div>
+    <section class="hero-slider">
+      <div class="slides-container">
+        <div class="slide active">
+          <img
+            src="https://www.circlek.com.vn/wp-content/uploads/2026/01/1920x536_1920x536_acf_cropped_1920x536_acf_cropped.jpg"
+            alt="Banner" />
+          <div class="banner-tabs">
+            <div class="tab active">HOT DEAL</div>
+            <div class="tab">TÌM CỬA HÀNG</div>
+            <div class="tab">TÌM VIỆC</div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <script type="module" src="js/script.js"></script>
-    <script type="module" src="js/display-products.js"></script>
+    <section class="services">
+      <h2>DANH MỤC SẢN PHẨM</h2>
+
+      <div class="search-container">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            id="category-search"
+            placeholder="Bạn muốn tìm món gì (Mì trộn, Cafe...)..."
+            onkeyup="filterCategories()" />
+        </div>
+      </div>
+
+      <div class="service-container" id="category-list">
+        <a href="food.html" class="card-link" data-name="thức ăn nhanh mì trộn bánh bao hotdog">
+          <div class="card">
+            <i class="fas fa-utensils"></i>
+            <h3>Thức ăn nhanh</h3>
+          </div>
+        </a>
+
+        <a href="drink.html" class="card-link" data-name="đồ uống thức uống cafe trà sữa nước ngọt">
+          <div class="card">
+            <i class="fas fa-coffee"></i>
+            <h3>Đồ uống</h3>
+          </div>
+        </a>
+
+        <a href="#" class="card-link" data-name="tiện ích 24/7 thanh toán hóa đơn rút tiền">
+          <div class="card">
+            <i class="fas fa-wifi"></i>
+            <h3>Tiện ích 24/7</h3>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <script type="module" src="../assets/js/script.js"></script>
+    <script type="module" src="../assets/js/display-products.js"></script>
   </body>
 </html>

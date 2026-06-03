@@ -44,20 +44,44 @@ function getDistance(lat1, lon1, lat2, lon2) {
 // 1. Tải dữ liệu người dùng khi trang load
 onAuthStateChanged(auth, async (user) => {
   if (user) {
+    // Kiểm tra 2FA
+    try {
+      const docSnap = await getDoc(doc(db, "users", user.uid));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.tfa_secret) {
+          const isVerified = sessionStorage.getItem("tfa_verified_" + user.uid) === "true";
+          if (!isVerified) {
+            await signOut(auth);
+            window.location.href = "indexlogin.html";
+            return;
+          }
+        }
+        document.getElementById("profile-fullname").value = data.fullname || "";
+        document.getElementById("profile-phone").value = data.phone || "";
+        document.getElementById("profile-address").value = data.address || "";
+        if (data.nearestStore) document.getElementById("nearest-store-select").value = data.nearestStore;
+
+        // Hiển thị trạng thái FIDO2
+        if (data.has_fido) {
+          const statusText = document.getElementById("fido-status-text");
+          if (statusText) {
+            statusText.style.display = "block";
+            statusText.innerText = "Thiết bị này đã kích hoạt FIDO2 thành công!";
+            statusText.style.color = "#28a745";
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi xác thực 2FA:", err);
+    }
+
     const emailDisplay = document.getElementById("display-email");
     const initialDisplay = document.getElementById("big-initial");
 
     if (emailDisplay) emailDisplay.innerText = user.email;
     if (initialDisplay) initialDisplay.innerText = user.email.charAt(0).toUpperCase();
 
-    const docSnap = await getDoc(doc(db, "users", user.uid));
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      document.getElementById("profile-fullname").value = data.fullname || "";
-      document.getElementById("profile-phone").value = data.phone || "";
-      document.getElementById("profile-address").value = data.address || "";
-      if (data.nearestStore) document.getElementById("nearest-store-select").value = data.nearestStore;
-    }
   } else {
     window.location.href = "indexlogin.html";
   }
@@ -210,3 +234,96 @@ document.getElementById("btn-logout")?.addEventListener("click", () => {
     signOut(auth).then(() => (window.location.href = "index.html"));
   }
 });
+
+// --- FIDO2 WEBAUTHN REGISTRATION ---
+function bufferToBase64url(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+}
+
+async function registerFIDO() {
+  const user = auth.currentUser;
+  if (!user) return alert("Vui lòng đăng nhập!");
+
+  try {
+    const statusText = document.getElementById("fido-status-text");
+    if (statusText) {
+      statusText.style.display = "block";
+      statusText.innerText = "Đang kích hoạt Windows Hello / Touch ID...";
+      statusText.style.color = "#888";
+    }
+
+    // 1. Tạo challenge ngẫu nhiên
+    const challenge = new Uint8Array(32);
+    window.crypto.getRandomValues(challenge);
+
+    // 2. Tạo User ID dưới dạng ArrayBuffer từ UID
+    const userIdBuffer = new TextEncoder().encode(user.uid);
+
+    const registrationOptions = {
+      publicKey: {
+        challenge: challenge,
+        rp: {
+          name: "Circle K",
+          id: window.location.hostname
+        },
+        user: {
+          id: userIdBuffer,
+          name: user.email,
+          displayName: user.email
+        },
+        pubKeyCredParams: [
+          { type: "public-key", alg: -7 }, // ES256
+          { type: "public-key", alg: -257 } // RS256
+        ],
+        timeout: 60000,
+        authenticatorSelection: {
+          authenticatorAttachment: "platform",
+          userVerification: "required",
+          residentKey: "required"
+        }
+      }
+    };
+
+    const credential = await navigator.credentials.create(registrationOptions);
+    const credentialId = bufferToBase64url(credential.rawId);
+
+    // Sinh mật khẩu FIDO ngẫu nhiên nếu chưa có
+    const userDocRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userDocRef);
+    let fidoPassword = "";
+    if (userSnap.exists() && userSnap.data().fido_password) {
+      fidoPassword = userSnap.data().fido_password;
+    } else {
+      fidoPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
+
+    await setDoc(userDocRef, {
+      fido_credential_id: credentialId,
+      fido_password: fidoPassword,
+      has_fido: true
+    }, { merge: true });
+
+    if (statusText) {
+      statusText.innerText = "Thiết bị này đã kích hoạt FIDO2 thành công!";
+      statusText.style.color = "#28a745";
+    }
+    alert("Đã kết nối Windows Hello / Touch ID thành công!");
+  } catch (err) {
+    console.error("Lỗi FIDO2:", err);
+    const statusText = document.getElementById("fido-status-text");
+    if (statusText) {
+      statusText.innerText = "Kích hoạt sinh trắc học thất bại hoặc bị hủy.";
+      statusText.style.color = "#df2027";
+    }
+  }
+}
+
+document.getElementById("btn-register-fido")?.addEventListener("click", registerFIDO);

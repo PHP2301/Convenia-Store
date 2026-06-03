@@ -22,6 +22,11 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// Initialize EmailJS
+emailjs.init("utKMKTgKkf6gww2x1");
+const SERVICE_ID = "service_t02hi6m";
+const TEMP_OTP = "template_haxy54r";
+
 onAuthStateChanged(auth, (user) => {
   if (user) {
     renderCart(user.uid);
@@ -157,6 +162,41 @@ if (btnCheckout) {
       const cartData = cartSnap.data();
       const total = cartData.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+      // --- FIDO2 (WINDOWS HELLO / TOUCH ID) MFA STEP-UP XÁC THỰC THANH TOÁN ---
+      if (userData.has_fido && userData.fido_credential_id) {
+        statusLabel.innerText = "Đang yêu cầu xác thực sinh trắc học (FIDO2) trên thiết bị...";
+        try {
+          const challenge = new Uint8Array(32);
+          window.crypto.getRandomValues(challenge);
+
+          const credentialIdBuffer = base64urlToBuffer(userData.fido_credential_id);
+
+          await navigator.credentials.get({
+            publicKey: {
+              challenge: challenge,
+              rpId: window.location.hostname,
+              timeout: 60000,
+              userVerification: "required",
+              allowCredentials: [{
+                type: "public-key",
+                id: credentialIdBuffer
+              }]
+            }
+          });
+          // Nếu xác thực thành công, tiếp tục đơn hàng
+        } catch (fidoErr) {
+          console.error("Lỗi xác thực sinh trắc học:", fidoErr);
+          alert("Xác thực vân tay/khuôn mặt thất bại hoặc bị hủy. Giao dịch bị khóa!");
+          statusLabel.style.display = "none";
+          btnCheckout.disabled = false;
+          return;
+        }
+      } else {
+        alert("Giao dịch yêu cầu Xác thực đa yếu tố cấp cao (MFA Step-up). Vui lòng vào trang Hồ sơ để liên kết thiết bị bảo mật (FIDO2) trước!");
+        window.location.href = "indexprofile.html";
+        return;
+      }
+
       // 3. Tạo đối tượng Hóa đơn (Bill)
       const newOrder = {
         userId: user.uid,
@@ -188,3 +228,87 @@ if (btnCheckout) {
     }
   });
 }
+
+// --- HÀM HIỂN THỊ VÀ XỬ LÝ MODAL EMAIL OTP KHI THANH TOÁN ---
+function showCheckoutEmailOTPModal(correctOTP, email) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("checkoutTfaModal");
+    const cancelBtn = document.getElementById("btnCancelCheckout2FA");
+    const verifyBtn = document.getElementById("btnVerifyCheckout2FA");
+    const hiddenInput = document.getElementById("checkoutOTPInput");
+    const fields = document.querySelectorAll(".checkout-otp-field");
+
+    // Reset các ô nhập
+    fields.forEach(f => f.value = "");
+    hiddenInput.value = "";
+    modal.style.display = "flex";
+    fields[0].focus();
+
+    const handleInput = (e, index) => {
+      e.target.value = e.target.value.replace(/[^0-9]/g, "");
+      if (e.target.value.length >= 1 && index < fields.length - 1) {
+        fields[index + 1].focus();
+      }
+      let code = "";
+      fields.forEach((f) => (code += f.value));
+      hiddenInput.value = code;
+    };
+
+    const handleKeyDown = (e, index) => {
+      if (e.key === "Backspace" && !e.target.value && index > 0) {
+        fields[index - 1].focus();
+      }
+    };
+
+    const listeners = [];
+    fields.forEach((field, index) => {
+      const inputHandler = (e) => handleInput(e, index);
+      const keyHandler = (e) => handleKeyDown(e, index);
+      field.addEventListener("input", inputHandler);
+      field.addEventListener("keydown", keyHandler);
+      listeners.push({ field, inputHandler, keyHandler });
+    });
+
+    const cleanup = () => {
+      listeners.forEach(({ field, inputHandler, keyHandler }) => {
+        field.removeEventListener("input", inputHandler);
+        field.removeEventListener("keydown", keyHandler);
+      });
+      modal.style.display = "none";
+    };
+
+    cancelBtn.onclick = () => {
+      cleanup();
+      resolve(false);
+    };
+
+    verifyBtn.onclick = () => {
+      const code = hiddenInput.value;
+      if (code.length !== 6) {
+        alert("Vui lòng nhập đủ 6 chữ số!");
+        return;
+      }
+
+      if (code === correctOTP) {
+        cleanup();
+        resolve(true);
+      } else {
+        alert("Mã OTP từ Email không chính xác! Vui lòng kiểm tra lại.");
+      }
+    };
+  });
+}
+
+function base64urlToBuffer(base64url) {
+  let base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4) {
+    base64 += "=";
+  }
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+

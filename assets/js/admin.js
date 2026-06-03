@@ -46,9 +46,29 @@ const priceInput = document.getElementById("p-price");
 
 let currentEditId = null;
 
-// Kiểm tra quyền Admin
-onAuthStateChanged(auth, (user) => {
-  if (!user) window.location.href = "indexlogin.html";
+// Kiểm tra quyền Admin và 2FA
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "indexlogin.html";
+    return;
+  }
+  
+  try {
+    const userDocSnap = await getDoc(doc(db, "users", user.uid));
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
+      if (userData.tfa_secret) {
+        const isVerified = sessionStorage.getItem("tfa_verified_" + user.uid) === "true";
+        if (!isVerified) {
+          // Chưa xác thực 2FA, đăng xuất và quay lại trang login
+          await auth.signOut();
+          window.location.href = "indexlogin.html";
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Lỗi xác thực 2FA:", err);
+  }
 });
 
 // 1. TỰ ĐỘNG TẠO MÃ PID
