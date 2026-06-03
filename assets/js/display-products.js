@@ -112,8 +112,8 @@ async function loadProducts() {
                 </div>`;
     });
   } catch (error) {
-    console.error("Lỗi Firebase:", error);
-    productList.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: red;">Lỗi tải dữ liệu. Hãy đảm bảo bạn đã tạo Index trên Firebase Console.</p>`;
+    console.error("Lỗi kết nối API:", error);
+    productList.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: red;">Lỗi tải dữ liệu. Vui lòng kiểm tra kết nối với máy chủ API.</p>`;
   }
 }
 
