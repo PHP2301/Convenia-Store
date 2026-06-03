@@ -58,7 +58,8 @@ onAuthStateChanged(auth, async (user) => {
     if (userDocSnap.exists()) {
       const userData = userDocSnap.data();
       if (userData.tfa_secret) {
-        const isVerified = sessionStorage.getItem("tfa_verified_" + user.uid) === "true";
+        const isVerified = sessionStorage.getItem("tfa_verified_" + user.uid) === "true" ||
+                           localStorage.getItem("tfa_verified_" + user.uid) === "true";
         if (!isVerified) {
           // Chưa xác thực 2FA, đăng xuất và quay lại trang login
           await auth.signOut();

@@ -285,6 +285,15 @@ function generateBase32Secret() {
 async function handle2FAFlow(userId, email) {
   try {
     const userDoc = await getDoc(doc(db, "users", userId));
+    
+    // Tự động bỏ qua OTP nếu thiết bị đã được Ghi nhớ từ trước
+    const isAlreadyVerified = sessionStorage.getItem("tfa_verified_" + userId) === "true" ||
+                              localStorage.getItem("tfa_verified_" + userId) === "true";
+    if (isAlreadyVerified) {
+      handleUserRoleAndRedirect(userId);
+      return;
+    }
+
     const modal = document.getElementById("tfaModal");
     const setupSection = document.getElementById("tfaSetupSection");
     const verifySection = document.getElementById("tfaVerifySection");
@@ -380,7 +389,15 @@ async function handle2FAFlow(userId, email) {
         if (isFirstTimeSetup) {
           await setDoc(doc(db, "users", userId), { tfa_secret: secret }, { merge: true });
         }
-        sessionStorage.setItem("tfa_verified_" + userId, "true");
+        
+        // Kiểm tra nút Ghi nhớ
+        const rememberCheck = document.getElementById("rememberMeCheck");
+        if (rememberCheck && rememberCheck.checked) {
+          localStorage.setItem("tfa_verified_" + userId, "true");
+        } else {
+          sessionStorage.setItem("tfa_verified_" + userId, "true");
+        }
+        
         modal.style.display = "none";
         handleUserRoleAndRedirect(userId);
       } else {

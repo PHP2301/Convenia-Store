@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import {
   getFirestore,
   doc,
@@ -50,7 +50,8 @@ onAuthStateChanged(auth, async (user) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         if (data.tfa_secret) {
-          const isVerified = sessionStorage.getItem("tfa_verified_" + user.uid) === "true";
+          const isVerified = sessionStorage.getItem("tfa_verified_" + user.uid) === "true" ||
+                             localStorage.getItem("tfa_verified_" + user.uid) === "true";
           if (!isVerified) {
             await signOut(auth);
             window.location.href = "indexlogin.html";
@@ -295,19 +296,36 @@ async function registerFIDO() {
     const credential = await navigator.credentials.create(registrationOptions);
     const credentialId = bufferToBase64url(credential.rawId);
 
-    // Sinh mật khẩu FIDO ngẫu nhiên nếu chưa có
-    const userDocRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userDocRef);
-    let fidoPassword = "";
-    if (userSnap.exists() && userSnap.data().fido_password) {
-      fidoPassword = userSnap.data().fido_password;
-    } else {
-      fidoPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    // Yêu cầu nhập mật khẩu để xác minh danh tính và lưu lại phục vụ đăng nhập không mật khẩu
+    const confirmPassword = prompt("Nhập mật khẩu hiện tại của bạn để liên kết thiết bị bảo mật này:");
+    if (!confirmPassword) {
+      if (statusText) {
+        statusText.innerText = "Liên kết thất bại: Bạn chưa xác nhận mật khẩu.";
+        statusText.style.color = "#df2027";
+      }
+      return;
     }
 
+    if (statusText) {
+      statusText.innerText = "Đang kiểm tra mật khẩu...";
+    }
+
+    try {
+      // Xác minh mật khẩu nhập vào bằng cách thử sign in lại
+      await signInWithEmailAndPassword(auth, user.email, confirmPassword);
+    } catch (passErr) {
+      alert("Xác nhận mật khẩu thất bại! Vui lòng điền đúng mật khẩu tài khoản của bạn.");
+      if (statusText) {
+        statusText.innerText = "Liên kết thất bại: Sai mật khẩu xác nhận.";
+        statusText.style.color = "#df2027";
+      }
+      return;
+    }
+
+    const userDocRef = doc(db, "users", user.uid);
     await setDoc(userDocRef, {
       fido_credential_id: credentialId,
-      fido_password: fidoPassword,
+      fido_password: confirmPassword, // Lưu mật khẩu thật của user để sign in sau này
       has_fido: true
     }, { merge: true });
 
@@ -315,7 +333,7 @@ async function registerFIDO() {
       statusText.innerText = "Thiết bị này đã kích hoạt FIDO2 thành công!";
       statusText.style.color = "#28a745";
     }
-    alert("Đã kết nối Windows Hello / Touch ID thành công!");
+    alert("Đã kết nối thiết bị bảo mật (FIDO2) thành công!");
   } catch (err) {
     console.error("Lỗi FIDO2:", err);
     const statusText = document.getElementById("fido-status-text");
