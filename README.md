@@ -1,6 +1,6 @@
-# 🏪 Circle K Clone - Hệ thống Web và Tính năng Bảo mật Nâng cao (FIDO2 & 2FA)
+# 🏪 Convenia - Hệ thống Web Cửa hàng Tiện lợi & Tính năng Bảo mật Nâng cao (FIDO2 & 2FA)
 
-Dự án phát triển giao diện web mua sắm Circle K kết hợp hệ thống xác thực bảo mật đa yếu tố nâng cao. Dự án sử dụng Firebase làm nền tảng lưu trữ và quản lý, tích hợp đăng nhập không mật khẩu (Passwordless) và xác thực giao dịch qua FIDO2/WebAuthn.
+Dự án phát triển giao diện web mua sắm Convenia (tên ban đầu lấy ví dụ là Circle K) kết hợp hệ thống xác thực bảo mật đa yếu tố nâng cao. Dự án sử dụng PostgreSQL và FastAPI làm nền tảng lưu trữ và quản lý, tích hợp đăng nhập không mật khẩu (Passwordless) và xác thực giao dịch qua FIDO2/WebAuthn.
 
 ---
 
@@ -21,15 +21,15 @@ Dự án phát triển giao diện web mua sắm Circle K kết hợp hệ thố
 ### 4. Ghi Nhớ Thiết Bị (Remember Me)
 - Hỗ trợ bỏ qua bước nhập OTP 2FA cho các lần đăng nhập tiếp theo trên cùng trình duyệt nếu người dùng tích chọn "Ghi nhớ".
 
-### 5. Di Cư Cơ Sở Dữ Liệu (Firebase sang PostgreSQL)
-- Bộ công cụ di trú SQL giúp chuyển đổi hoàn toàn dữ liệu Firebase cũ sang hệ quản trị cơ sở dữ liệu quan hệ PostgreSQL phục vụ mở rộng hệ thống.
+### 5. Cơ Sở Dữ Liệu Quan Hệ Hiện Đại
+- Chuyển đổi toàn diện dữ liệu cũ sang hệ quản trị cơ sở dữ liệu quan hệ PostgreSQL/Supabase hỗ trợ các cột số tiền cực lớn và quan hệ ràng buộc chặt chẽ.
 
 ---
 
 ## 📁 Cấu Trúc Thư Mục Dự Án
 
 ```
-CircleK-Website/
+CircleK-Website/ (Convenia)
 ├── backend/                    # Mã nguồn Backend FastAPI (Python)
 │   ├── main.py                 # File chạy ứng dụng FastAPI & định nghĩa API
 │   ├── database.py             # Quản lý Connection Pool kết nối PostgreSQL
@@ -54,6 +54,7 @@ CircleK-Website/
 │   ├── history.html            # Trang lịch sử đơn hàng
 │   └── admin.html              # Trang quản lý dành cho Admin
 ├── index.html                  # File chuyển hướng tự động ở thư mục gốc (cho Vercel)
+├── Procfile                    # File định cấu hình chạy Uvicorn trên hosting cloud
 └── README.md                   # Tài liệu hướng dẫn sử dụng dự án
 ```
 
@@ -64,7 +65,7 @@ CircleK-Website/
 ### 1. Thiết lập Cơ sở dữ liệu PostgreSQL
 1. Mở PostgreSQL client (hoặc pgAdmin / psql) của bạn.
 2. Tạo một cơ sở dữ liệu mới (ví dụ: `circlek`).
-3. Thực thi nội dung tệp SQL di trú tại [data/circlek_db_migration.sql](file:///c:/Users/ACER/Documents/CK/CircleK-Website/data/circlek_db_migration.sql) để tạo bảng và nhập toàn bộ dữ liệu mẫu ban đầu:
+3. Thực thi nội dung tệp SQL di trú tại [data/circlek_db_migration.sql](data/circlek_db_migration.sql) để tạo bảng và nhập toàn bộ dữ liệu mẫu ban đầu:
    ```bash
    psql -U postgres -d circlek -f data/circlek_db_migration.sql
    ```
@@ -89,6 +90,36 @@ CircleK-Website/
 ### 3. Chạy Trang Web Giao Diện (Frontend)
 - Sử dụng tiện ích **Live Server** trên VS Code để chạy thư mục dự án.
 - Đảm bảo môi trường chạy ở địa chỉ mặc định `http://localhost:5500` hoặc `http://127.0.0.1:5500` để các tính năng WebAuthn FIDO2 sinh trắc học và CORS hoạt động chính xác.
+
+---
+
+## 🌐 Hướng Dẫn Deploy Lên Cloud (Online Miễn Phí)
+
+Hệ thống được thiết kế tối ưu hóa để triển khai trực tuyến hoàn toàn miễn phí trên các dịch vụ đám mây tốt nhất hiện nay:
+
+### 1. Database Cloud (Supabase)
+1. Tạo tài khoản miễn phí trên [Supabase.com](https://supabase.com/).
+2. Tạo một dự án mới (chọn khu vực Singapore để có độ trễ tốt nhất).
+3. Vào mục **SQL Editor** của dự án -> Chọn **New Query** -> Dán toàn bộ nội dung trong tệp [circlek_db_migration.sql](data/circlek_db_migration.sql) rồi nhấn **Run** để thiết lập cấu trúc bảng và nhập dữ liệu.
+4. Truy cập **Project Settings** -> **Database** -> Nhấp nút **Connect** ở góc trên bên phải -> Chọn tab **Transaction** (sử dụng cổng `6543`) và sao chép chuỗi kết nối **URI**.
+
+### 2. Backend Cloud (Render)
+1. Tạo tài khoản và đăng nhập trên [Render.com](https://render.com/) bằng GitHub.
+2. Tạo mới một **Web Service** -> Chọn kết nối với repository GitHub của dự án này.
+3. Cấu hình thông tin dịch vụ:
+   - **Language:** Chọn `Python`
+   - **Region:** Chọn `Singapore (Southeast Asia)`
+   - **Build Command:** `pip install -r backend/requirements.txt`
+   - **Start Command:** `python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+4. Vào mục **Environment** -> Chọn **Add Environment Variable** để cấu hình database:
+   - **Key:** `DATABASE_URL`
+   - **Value:** Điền chuỗi kết nối **Transaction Pooler** đã copy từ Supabase (lưu ý thay thế mật khẩu của bạn vào; mã hóa các ký tự đặc biệt ví dụ `@` đổi thành `%40`).
+5. Click **Deploy Web Service** và lấy đường dẫn URL API chạy online (dạng: `https://convenia-website.onrender.com`).
+
+### 3. Frontend Cloud (Vercel)
+1. Tạo tài khoản trên [Vercel.com](https://vercel.com/) và import repository GitHub của bạn vào.
+2. Vercel sẽ tự động phát hiện ứng dụng web tĩnh của bạn và triển khai chỉ trong vài giây.
+3. Mọi cập nhật code đẩy lên GitHub sẽ được tự động đồng bộ và deploy lại trên Vercel.
 
 ---
 
