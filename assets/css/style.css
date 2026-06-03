@@ -352,143 +352,187 @@ header {
 }
 
 /* ==========================================================================
-   7. RESPONSIVE
+   7. RESPONSIVE - MOBILE FIRST (CẢI THIỆN HOÀN TOÀN)
    ========================================================================== */
+
+/* --- Tablet (dưới 992px) --- */
 @media (max-width: 992px) {
   .main-nav {
-    display: none;
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    width: 100%;
+    justify-content: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 8px;
   }
+
+  .main-header {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
   .top-bar-content {
     justify-content: center;
+    font-size: 11px;
   }
 }
-/* Container bao quanh giỏ hàng */
-.cart-wrapper-link {
-  display: flex;
-  align-items: center;
-  margin-right: 25px; /* Tăng khoảng cách bên phải để dịch giỏ hàng sang trái */
-  text-decoration: none;
-}
 
-.cart-circle-icon {
-  position: relative;
-  background: #df2027; /* Màu đỏ đậm chuẩn Circle K */
-  color: white;
-  width: 52px; /* To hơn một chút so với trước */
-  height: 52px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px; /* Icon giỏ hàng to rõ */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-}
-
-/* Hiệu ứng khi di chuột vào */
-.cart-circle-icon:hover {
-  transform: scale(1.1);
-  background: #b3191e; /* Đỏ đậm hơn khi hover */
-}
-
-/* Badge số lượng (Số 33 trong ảnh của bạn) */
-#cart-count {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  background: #ffb800; /* Màu vàng cam */
-  color: #000;
-  font-size: 12px;
-  font-weight: bold;
-  min-width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid #df2027; /* Viền trùng màu nền nút để trông liền mạch */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.hide-node {
-  display: none !important;
-}
-/* --- Khi xem trên Điện thoại nhỏ (Dưới 768px) --- */
+/* --- Mobile (dưới 768px) --- */
 @media (max-width: 768px) {
-  /* Thu nhỏ Logo để nhường chỗ cho các nút */
-  .logo img {
-    height: 40px !important;
-    max-width: 90px;
+  /* Header */
+  header {
+    padding: 8px 4%;
   }
 
-  /* Ẩn chữ, chỉ để lại Icon cho gọn */
-  .nav-item span,
-  #user-name-text {
-    display: none;
-  }
-
-  .nav-item i {
-    font-size: 22px;
-    margin-bottom: 0;
-  }
-
-  /* Thu nhỏ nút giỏ hàng để không chiếm diện tích */
-  .cart-circle-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-  }
-
-  .cart-wrapper-link {
-    margin-right: 10px;
-  }
-
-  #cart-count {
-    width: 16px;
-    height: 16px;
-    font-size: 10px;
-  }
-
-  /* Căn chỉnh lại Header để các nút nằm cùng 1 hàng với Logo */
   .main-header {
-    flex-wrap: nowrap; /* Ép Logo và các nút chức năng lên cùng 1 hàng */
+    flex-wrap: nowrap;
     justify-content: space-between;
+    align-items: center;
   }
 
-  /* Chỉ hiện các icon quan trọng nhất */
+  .logo img {
+    height: 38px !important;
+    max-width: 80px;
+  }
+
+  /* Nav - chỉ icon, không chữ */
   .main-nav {
     display: flex;
     margin-top: 0;
     border-top: none;
     padding-top: 0;
     width: auto;
+    gap: 4px;
+  }
+
+  .nav-item {
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+
+  .nav-item span,
+  #user-name-text,
+  .store-info-header {
+    display: none !important;
+  }
+
+  .nav-item i {
+    font-size: 20px;
+    margin-bottom: 0;
+  }
+
+  /* Giỏ hàng */
+  .cart-circle-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 17px;
+  }
+
+  .cart-wrapper-link {
+    margin-right: 8px;
+  }
+
+  #cart-count {
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    min-width: 16px;
+  }
+
+  /* Thanh tìm kiếm */
+  .header-search {
+    display: none;
+  }
+
+  /* Banner */
+  .hero-slider {
+    width: 100%;
+    border-radius: 0;
+    margin: 0;
+  }
+
+  .slides-container {
+    aspect-ratio: 16 / 9;
+  }
+
+  /* Services */
+  .services {
+    padding: 30px 4%;
+  }
+
+  .services h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+
+  .service-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .card {
+    padding: 20px 12px;
+  }
+
+  .card i {
+    font-size: 28px;
+  }
+
+  .card h3 {
+    font-size: 14px;
   }
 }
 
-/* --- Tối ưu hiển thị bảng (History/Admin) --- */
+/* --- Mobile nhỏ (dưới 480px) --- */
 @media (max-width: 480px) {
+  header {
+    padding: 6px 3%;
+  }
+
+  .logo img {
+    height: 34px !important;
+  }
+
+  .nav-item i {
+    font-size: 18px;
+  }
+
+  .cart-circle-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
+  }
+
+  .service-container {
+    grid-template-columns: 1fr;
+    padding: 0;
+  }
+
   .history-table,
   table {
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    font-size: 12px;
   }
 
-  .services h2 {
-    font-size: 1.1rem;
-    padding: 0 10px;
-  }
-
-  /* Đảm bảo Card dịch vụ không quá to */
-  .service-container {
-    grid-template-columns: 1fr;
-    padding: 0 15px;
+  /* Ẩn top bar trên màn nhỏ */
+  .top-bar {
+    display: none;
   }
 }
 
-/* Fix lỗi ảnh banner bị méo trên điện thoại */
+/* Fix ảnh banner méo */
 .slides-container {
   height: auto;
-  aspect-ratio: 16 / 9; /* Giữ tỉ lệ chuẩn video/ảnh */
+  aspect-ratio: 16 / 9;
 }
+
+/* ==========================================================================
+   8. THANH TÌM KIẾM TRONG HEADER
+   ========================================================================== */
 .search-container {
   max-width: 600px;
   margin: 0 auto 30px;
@@ -523,14 +567,13 @@ header {
   color: #333;
 }
 
-/* Hiệu ứng ẩn card khi không khớp tìm kiếm */
 .card-link.hidden {
   display: none;
 }
-/* Thanh tìm kiếm trên Header */
+
 .header-search {
   display: flex;
-  flex: 1; /* Cho phép thanh tìm kiếm giãn ra chiếm không gian giữa */
+  flex: 1;
   max-width: 400px;
   margin: 0 30px;
   background: white;
@@ -548,7 +591,7 @@ header {
 }
 
 .header-search button {
-  background: #ffb800; /* Màu vàng cam của Circle K */
+  background: #ffb800;
   border: none;
   padding: 0 15px;
   color: #df2027;
@@ -560,9 +603,59 @@ header {
   background: #f1f1f1;
 }
 
-/* Ẩn thanh tìm kiếm trên mobile để tránh bị chật */
 @media (max-width: 768px) {
   .header-search {
     display: none;
   }
 }
+
+/* Cart wrapper (dùng chung) */
+.cart-wrapper-link {
+  display: flex;
+  align-items: center;
+  margin-right: 25px;
+  text-decoration: none;
+}
+
+.cart-circle-icon {
+  position: relative;
+  background: #df2027;
+  color: white;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.cart-circle-icon:hover {
+  transform: scale(1.1);
+  background: #b3191e;
+}
+
+#cart-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ffb800;
+  color: #000;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #df2027;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hide-node {
+  display: none !important;
+}
+
+

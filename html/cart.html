@@ -48,7 +48,7 @@
               <span>Tổng cộng:</span>
               <span id="final-total">0đ</span>
             </div>
-            <button id="btn-checkout-action" class="btn-checkout">THANH TOÁN NGAY</button>
+            <button id="btn-vietqr-action" class="btn-checkout">THANH TOÁN VỚI VIE TQR</button>
 
             <div
               id="checkout-status"
@@ -80,6 +80,33 @@
           </div>
           <input type="hidden" id="checkoutOTPInput" />
           <button type="button" id="btnVerifyCheckout2FA" class="btn-checkout" style="margin-top: 20px;">Xác nhận thanh toán</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Chuyển Khoản Ngân Hàng VietQR -->
+    <div id="vietqrPaymentModal" class="tfa-modal-overlay" style="display: none;">
+      <div class="tfa-modal-container" style="max-width: 450px; text-align: center;">
+        <div class="tfa-modal-header">
+          <h3>Thanh toán chuyển khoản VietQR</h3>
+          <button type="button" class="tfa-close-btn" id="btnCancelVietQR">&times;</button>
+        </div>
+        <div class="tfa-modal-body" style="padding: 20px;">
+          <p style="margin-bottom: 15px; color: #555;">Vui lòng quét mã QR dưới đây bằng app Ngân hàng để thanh toán:</p>
+          
+          <div style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: inline-block; margin-bottom: 15px;">
+            <img id="vietqrImage" src="" alt="VietQR Payment" style="max-width: 100%; height: auto; display: block; border-radius: 4px;" />
+          </div>
+
+          <div style="text-align: left; background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px;">
+            <div style="margin-bottom: 5px;"><strong>Ngân hàng:</strong> Vietcombank</div>
+            <div style="margin-bottom: 5px;"><strong>Số tài khoản:</strong> 1034870787</div>
+            <div style="margin-bottom: 5px;"><strong>Chủ tài khoản:</strong> PHAM HUU PHUOC</div>
+            <div style="margin-bottom: 5px;"><strong>Số tiền:</strong> <span id="vietqrTotal" style="color: #df2027; font-weight: bold;">0đ</span></div>
+            <div><strong>Nội dung CK:</strong> <span id="vietqrMemo" style="color: #007bff; font-weight: bold;">CK123456</span></div>
+          </div>
+
+          <button type="button" id="btnConfirmVietQR" class="btn-checkout" style="width: 100%;">Tôi đã chuyển khoản thành công</button>
         </div>
       </div>
     </div>

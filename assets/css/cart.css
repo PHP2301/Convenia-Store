@@ -52,9 +52,96 @@
 @media (max-width: 768px) {
   .cart-container {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
+
   .cart-item {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .cart-item img {
+    width: 65px;
+    height: 65px;
+    flex-shrink: 0;
+  }
+
+  .item-info h4 {
+    font-size: 14px;
+  }
+
+  .item-qty {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .item-qty button {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .item-total-price {
+    min-width: 70px;
+    font-size: 13px;
+  }
+
+  .cart-page {
+    padding: 20px 0 80px; /* Khoảng trống dưới để tránh bị modal che */
+  }
+
+  .cart-list {
+    padding: 15px;
+  }
+
+  .cart-summary {
+    padding: 18px;
+    position: sticky;
+    bottom: 0;
+    border-radius: 15px 15px 0 0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    margin: 0 -15px;
+  }
+
+  .btn-checkout {
+    padding: 14px;
+    font-size: 15px;
+    border-radius: 10px;
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-page h1 {
+    font-size: 18px;
+    padding: 0 15px;
+  }
+
+  .cart-item img {
+    width: 55px;
+    height: 55px;
+  }
+
+  .item-info h4 {
+    font-size: 13px;
+  }
+
+  .otp-field {
+    width: 38px;
+    height: 38px;
+    font-size: 20px;
+  }
+
+  /* VietQR modal responsive */
+  .tfa-modal-container {
+    width: 95vw;
+    max-width: 95vw;
+    border-radius: 12px;
+  }
+
+  .tfa-modal-header h3 {
+    font-size: 1rem;
   }
 }
 .cart-page {

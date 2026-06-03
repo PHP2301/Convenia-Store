@@ -134,18 +134,71 @@
 
 /* Responsive cho Tablet & Mobile */
 @media (max-width: 768px) {
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    padding: 10px;
+  .product-display {
+    padding: 20px 3%;
   }
 
   #category-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 0;
   }
 
   .product-item {
-    padding: 15px;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .img-container {
+    height: 140px;
+  }
+
+  .product-item h3 {
+    font-size: 0.9rem;
+    height: 2.4rem;
+    margin: 4px 0 8px;
+  }
+
+  .price-tag {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+
+  .btn-add-cart {
+    padding: 10px 8px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    gap: 8px;
+  }
+
+  .product-item {
+    padding: 10px;
+  }
+
+  .img-container {
+    height: 120px;
+  }
+
+  .product-item h3 {
+    font-size: 0.85rem;
+  }
+
+  .price-tag {
+    font-size: 1rem;
+  }
+
+  .btn-add-cart {
+    padding: 9px 6px;
+    font-size: 10px;
   }
 }
 /* Tìm đến phần h3 và price-tag trong file products.css của bạn và cập nhật: */

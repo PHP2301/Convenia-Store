@@ -108,11 +108,11 @@ window.removeItem = async (index) => {
   renderCart(user.uid);
 };
 
-// --- LOGIC THANH TOÁN ĐÃ ĐƯỢC CẬP NHẬT ---
-const btnCheckout = document.getElementById("btn-checkout-action");
+// --- LOGIC THANH TOÁN VIETQR ---
+const btnVietQR = document.getElementById("btn-vietqr-action");
 
-if (btnCheckout) {
-  btnCheckout.addEventListener("click", async () => {
+if (btnVietQR) {
+  btnVietQR.addEventListener("click", async () => {
     const user = auth.currentUser;
     if (!user) {
       alert("Vui lòng đăng nhập để tiến hành thanh toán!");
@@ -122,7 +122,7 @@ if (btnCheckout) {
 
     const statusLabel = document.getElementById("checkout-status");
     statusLabel.style.display = "block";
-    btnCheckout.disabled = true;
+    btnVietQR.disabled = true;
 
     try {
       // 1. KIỂM TRA THÔNG TIN HỒ SƠ NGƯỜI DÙNG
@@ -136,7 +136,6 @@ if (btnCheckout) {
       }
 
       const userData = userSnap.data();
-      // Chặn nếu thiếu thông tin cơ bản
       if (!userData.fullname || !userData.phone || !userData.address) {
         alert("Thông tin nhận hàng còn thiếu (Họ tên, SĐT hoặc Địa chỉ). Vui lòng cập nhật hồ sơ!");
         window.location.href = "indexprofile.html";
@@ -150,78 +149,99 @@ if (btnCheckout) {
       if (!cartSnap.exists() || cartSnap.data().items.length === 0) {
         alert("Giỏ hàng của bạn đang trống!");
         statusLabel.style.display = "none";
-        btnCheckout.disabled = false;
+        btnVietQR.disabled = false;
         return;
       }
 
       const cartData = cartSnap.data();
       const total = cartData.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-      // --- FIDO2 (WINDOWS HELLO / TOUCH ID) MFA STEP-UP XÁC THỰC THANH TOÁN ---
-      if (userData.has_fido && userData.fido_credential_id) {
-        statusLabel.innerText = "Đang yêu cầu xác thực sinh trắc học (FIDO2) trên thiết bị...";
-        try {
-          const challenge = new Uint8Array(32);
-          window.crypto.getRandomValues(challenge);
-
-          const credentialIdBuffer = base64urlToBuffer(userData.fido_credential_id);
-
-          await navigator.credentials.get({
-            publicKey: {
-              challenge: challenge,
-              rpId: window.location.hostname,
-              timeout: 60000,
-              userVerification: "required",
-              allowCredentials: [{
-                type: "public-key",
-                id: credentialIdBuffer
-              }]
-            }
-          });
-          // Nếu xác thực thành công, tiếp tục đơn hàng
-        } catch (fidoErr) {
-          console.error("Lỗi xác thực sinh trắc học:", fidoErr);
-          alert("Xác thực vân tay/khuôn mặt thất bại hoặc bị hủy. Giao dịch bị khóa!");
-          statusLabel.style.display = "none";
-          btnCheckout.disabled = false;
+      // --- FIDO2 MFA STEP-UP (Chỉ áp dụng cho đơn hàng >= 1.000.000đ) ---
+      if (total >= 1000000) {
+        if (userData.has_fido && userData.fido_credential_id) {
+          statusLabel.innerText = "Đang yêu cầu xác thực sinh trắc học (FIDO2) trên thiết bị...";
+          try {
+            const challenge = new Uint8Array(32);
+            window.crypto.getRandomValues(challenge);
+            const credentialIdBuffer = base64urlToBuffer(userData.fido_credential_id);
+            await navigator.credentials.get({
+              publicKey: {
+                challenge: challenge,
+                rpId: window.location.hostname,
+                timeout: 60000,
+                userVerification: "required",
+                allowCredentials: [{ type: "public-key", id: credentialIdBuffer }]
+              }
+            });
+          } catch (fidoErr) {
+            console.error("Lỗi xác thực sinh trắc học:", fidoErr);
+            alert("Xác thực vân tay/khuôn mặt thất bại hoặc bị hủy. Giao dịch bị khóa!");
+            statusLabel.style.display = "none";
+            btnVietQR.disabled = false;
+            return;
+          }
+        } else {
+          alert("Đơn hàng từ 1.000.000đ trở lên yêu cầu Xác thực đa yếu tố cấp cao (MFA Step-up). Vui lòng vào trang Hồ sơ để liên kết thiết bị bảo mật (FIDO2) trước!");
+          window.location.href = "indexprofile.html";
           return;
         }
-      } else {
-        alert("Giao dịch yêu cầu Xác thực đa yếu tố cấp cao (MFA Step-up). Vui lòng vào trang Hồ sơ để liên kết thiết bị bảo mật (FIDO2) trước!");
-        window.location.href = "indexprofile.html";
-        return;
       }
 
-      // 3. Tạo đối tượng Hóa đơn (Bill)
-      const newOrder = {
-        userId: user.uid,
-        userName: userData.fullname, // Lưu tên người mua vào bill
-        userPhone: userData.phone, // Lưu SĐT vào bill
-        orderId: "CK" + Date.now().toString().slice(-6),
-        items: cartData.items,
-        totalAmount: total,
-        date: new Date().toISOString(),
-        status: "Hoàn tất",
+      // 3. Tạo mã đơn và hiển thị QR VietQR
+      const orderId = "CK" + Date.now().toString().slice(-6);
+      const qrUrl = `https://img.vietqr.io/image/VCB-1034870787-compact.png?amount=${total}&addInfo=${orderId}&accountName=PHAM%20HUU%20PHUOC`;
+
+      document.getElementById("vietqrImage").src = qrUrl;
+      document.getElementById("vietqrTotal").innerText = total.toLocaleString() + "đ";
+      document.getElementById("vietqrMemo").innerText = orderId;
+
+      statusLabel.style.display = "none";
+      document.getElementById("vietqrPaymentModal").style.display = "flex";
+
+      // 4. Tự động xác nhận sau 10 giây (giả lập thanh toán thành công)
+      const autoConfirmTimer = setTimeout(async () => {
+        await finalizeOrder(user, userData, cartData, cartRef, orderId, total);
+      }, 10000);
+
+      // 5. Nút "Tôi đã chuyển khoản thành công" → xác nhận ngay
+      document.getElementById("btnConfirmVietQR").onclick = async () => {
+        clearTimeout(autoConfirmTimer);
+        await finalizeOrder(user, userData, cartData, cartRef, orderId, total);
       };
 
-      // 4. Ghi vào Collection "orders" trên Firestore
-      await addDoc(collection(db, "orders"), newOrder);
+      // 6. Nút hủy
+      document.getElementById("btnCancelVietQR").onclick = () => {
+        clearTimeout(autoConfirmTimer);
+        document.getElementById("vietqrPaymentModal").style.display = "none";
+        btnVietQR.disabled = false;
+      };
 
-      // 5. Xóa sạch giỏ hàng sau khi thanh toán
-      await updateDoc(cartRef, { items: [] });
-
-      // 6. Thông báo và chuyển hướng
-      setTimeout(() => {
-        alert(`🎉 Thanh toán thành công! Mã đơn: ${newOrder.orderId}`);
-        window.location.href = "indexprofile.html";
-      }, 1500);
     } catch (error) {
       console.error("Lỗi thanh toán:", error);
       alert("Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại!");
       statusLabel.style.display = "none";
-      btnCheckout.disabled = false;
+      btnVietQR.disabled = false;
     }
   });
+}
+
+// Hàm hoàn tất đơn hàng (dùng chung cho auto-confirm và manual confirm)
+async function finalizeOrder(user, userData, cartData, cartRef, orderId, total) {
+  document.getElementById("vietqrPaymentModal").style.display = "none";
+  const newOrder = {
+    userId: user.uid,
+    userName: userData.fullname,
+    userPhone: userData.phone,
+    orderId: orderId,
+    items: cartData.items,
+    totalAmount: total,
+    date: new Date().toISOString(),
+    status: "Hoàn tất",
+  };
+  await addDoc(collection(db, "orders"), newOrder);
+  await updateDoc(cartRef, { items: [] });
+  alert(`🎉 Thanh toán thành công! Mã đơn: ${orderId}`);
+  window.location.href = "indexprofile.html";
 }
 
 // --- HÀM HIỂN THỊ VÀ XỬ LÝ MODAL EMAIL OTP KHI THANH TOÁN ---

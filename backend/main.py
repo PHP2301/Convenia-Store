@@ -337,7 +337,7 @@ def get_cart(user_id: str):
         )
         return {"items": []}
     
-    items_data = cart[0][0]
+    items_data = cart[0]["items"]
     if isinstance(items_data, str):
         return {"items": json.loads(items_data)}
     return {"items": items_data}
