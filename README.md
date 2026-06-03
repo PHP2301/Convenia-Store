@@ -22,7 +22,7 @@ Dự án phát triển giao diện web mua sắm Circle K kết hợp hệ thố
 - Hỗ trợ bỏ qua bước nhập OTP 2FA cho các lần đăng nhập tiếp theo trên cùng trình duyệt nếu người dùng tích chọn "Ghi nhớ".
 
 ### 5. Di Cư Cơ Sở Dữ Liệu (Firebase sang PostgreSQL)
-- Bộ công cụ chạy bằng Node.js giúp xuất và di chuyển dữ liệu người dùng/đơn hàng từ Firebase Firestore sang hệ quản trị cơ sở dữ liệu quan hệ PostgreSQL phục vụ mở rộng hệ thống.
+- Bộ công cụ di trú SQL giúp chuyển đổi hoàn toàn dữ liệu Firebase cũ sang hệ quản trị cơ sở dữ liệu quan hệ PostgreSQL phục vụ mở rộng hệ thống.
 
 ---
 
@@ -30,11 +30,19 @@ Dự án phát triển giao diện web mua sắm Circle K kết hợp hệ thố
 
 ```
 CircleK-Website/
+├── backend/                    # Mã nguồn Backend FastAPI (Python)
+│   ├── main.py                 # File chạy ứng dụng FastAPI & định nghĩa API
+│   ├── database.py             # Quản lý Connection Pool kết nối PostgreSQL
+│   ├── config.py               # Các biến cấu hình PostgreSQL
+│   └── requirements.txt        # Các thư viện phụ thuộc Python
+├── data/                       # Dữ liệu di trú cơ sở dữ liệu
+│   └── circlek_db_migration.sql # Dump cơ sở dữ liệu PostgreSQL đầy đủ
 ├── assets/                     # Tài nguyên tĩnh của hệ thống
-│   ├── css/                    # Các file stylesheet (stylelogin, cart, profile...)
+│   ├── css/                    # Các file stylesheet
 │   ├── js/                     # Logic xử lý client-side
+│   │   ├── api-client.js       # API Client gọi FastAPI thay thế Firebase SDK
 │   │   ├── auth.js             # Logic đăng nhập, đăng ký, 2FA, FIDO2
-│   │   ├── profile.js          # Logic cập nhật hồ sơ & đăng ký thiết bị bảo mật
+│   │   ├── profile.js          # Logic cập nhật hồ sơ & cấu hình FIDO2
 │   │   ├── cart-logic.js       # Quản lý giỏ hàng & xác thực thanh toán FIDO2
 │   │   └── admin.js            # Trang quản trị sản phẩm và kho hàng
 │   └── img/                    # Hình ảnh sản phẩm, banner quảng cáo
@@ -46,9 +54,6 @@ CircleK-Website/
 │   ├── history.html            # Trang lịch sử đơn hàng
 │   └── admin.html              # Trang quản lý dành cho Admin
 ├── index.html                  # File chuyển hướng tự động ở thư mục gốc (cho Vercel)
-├── package.json                # Cấu hình dự án Node.js để di cư dữ liệu
-├── import.js                   # Script di cư dữ liệu sang PostgreSQL
-├── .env                        # Biến môi trường kết nối database PostgreSQL
 └── README.md                   # Tài liệu hướng dẫn sử dụng dự án
 ```
 
@@ -56,30 +61,36 @@ CircleK-Website/
 
 ## 🛠️ Hướng Dẫn Cài Đặt Và Chạy Local
 
-### 1. Chạy Trang Web Giao Diện
-- Bạn có thể chạy trực tiếp bằng cách mở file `index.html` ở thư mục gốc thông qua **Live Server** trên VS Code.
-- Đảm bảo môi trường chạy ở địa chỉ `http://localhost:5500` hoặc triển khai trực tiếp lên hosting hỗ trợ HTTPS (như **Vercel**, **Netlify**) để kiểm thử được tính năng bảo mật sinh trắc học FIDO2.
+### 1. Thiết lập Cơ sở dữ liệu PostgreSQL
+1. Mở PostgreSQL client (hoặc pgAdmin / psql) của bạn.
+2. Tạo một cơ sở dữ liệu mới (ví dụ: `circlek`).
+3. Thực thi nội dung tệp SQL di trú tại [data/circlek_db_migration.sql](file:///c:/Users/ACER/Documents/CK/CircleK-Website/data/circlek_db_migration.sql) để tạo bảng và nhập toàn bộ dữ liệu mẫu ban đầu:
+   ```bash
+   psql -U postgres -d circlek -f data/circlek_db_migration.sql
+   ```
 
-### 2. Chạy Script Di Cư Database (Node.js & PostgreSQL)
-Để chạy script nhập dữ liệu từ Firebase JSON sang PostgreSQL:
-1. Cài đặt các thư viện cần thiết:
+### 2. Thiết lập và Khởi chạy FastAPI Backend (Python)
+1. Cài đặt Python 3.8+ (nếu máy tính của bạn chưa có).
+2. Tạo môi trường ảo và cài đặt các thư viện cần thiết trong thư mục dự án:
    ```bash
-   npm install
+   pip install -r backend/requirements.txt
    ```
-2. Cấu hình các thông số kết nối PostgreSQL trong file `.env`:
-   ```env
-   PGHOST=localhost
-   PGPORT=5432
-   PGUSER=postgres
-   PGPASSWORD=your_password
-   PGDATABASE=your_database
+3. Cấu hình biến môi trường kết nối database trong Command Prompt hoặc PowerShell (mặc định sẽ là localhost, user `postgres`, pass `123456`, db `postgres` nếu không cấu hình):
+   ```powershell
+   $env:DB_PASSWORD="your_postgres_password"
+   $env:DB_NAME="circlek"
    ```
-3. Khởi chạy quá trình import:
+4. Khởi chạy FastAPI API server:
    ```bash
-   npm run import
+   uvicorn backend.main:app --reload
    ```
+   API docs tự động sẽ có tại: `http://localhost:8000/docs`.
+
+### 3. Chạy Trang Web Giao Diện (Frontend)
+- Sử dụng tiện ích **Live Server** trên VS Code để chạy thư mục dự án.
+- Đảm bảo môi trường chạy ở địa chỉ mặc định `http://localhost:5500` hoặc `http://127.0.0.1:5500` để các tính năng WebAuthn FIDO2 sinh trắc học và CORS hoạt động chính xác.
 
 ---
 
 ## 📝 Bản Quyền và Phát Triển
-Dự án được xây dựng và phát triển trên nền tảng HTML5, CSS3, Javascript ES6 và Firebase SDK v10.
+Dự án được xây dựng và phát triển trên nền tảng HTML5, CSS3, Javascript ES6, FastAPI (Python) và PostgreSQL.

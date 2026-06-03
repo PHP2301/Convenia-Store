@@ -1,13 +1,9 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
+  initializeApp,
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-// --- CẬP NHẬT: Import thêm Firestore ---
-import {
   getFirestore,
   doc,
   getDoc,
@@ -16,8 +12,8 @@ import {
   collection,
   query,
   where,
-  getDocs,
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  getDocs
+} from "./api-client.js";
 
 // 1. Cấu hình Firebase
 const firebaseConfig = {

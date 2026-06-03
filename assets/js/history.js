@@ -1,14 +1,13 @@
 // 1. CHỈ KHAI BÁO IMPORT MỘT LẦN DUY NHẤT Ở ĐẦU FILE
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {
+import { initializeApp, getApps, getApp,
   getFirestore,
   collection,
   query,
   orderBy,
   onSnapshot,
-  addDoc, // Thêm vào đây
-  serverTimestamp, // Thêm vào đây
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  addDoc,
+  serverTimestamp
+} from "./api-client.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",

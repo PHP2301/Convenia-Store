@@ -1,5 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
+  initializeApp,
   getFirestore,
   doc,
   getDoc,
@@ -7,8 +7,10 @@ import {
   collection,
   addDoc,
   serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "./api-client.js";
 
 // 1. Cấu hình Firebase
 const firebaseConfig = {

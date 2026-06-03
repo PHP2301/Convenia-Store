@@ -1,6 +1,9 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import {
+  initializeApp,
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+  signInWithEmailAndPassword,
   getFirestore,
   doc,
   getDoc,
@@ -8,8 +11,8 @@ import {
   collection,
   query,
   where,
-  getDocs,
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  getDocs
+} from "./api-client.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
