@@ -151,7 +151,6 @@ export function onSnapshot(queryRef, onNext, onError) {
 
 export const serverTimestamp = () => new Date().toISOString();
 
-// Helper to check and update doc
 export async function getDoc(docRef) {
   if (docRef.collection === "users") {
     try {
@@ -172,6 +171,21 @@ export async function getDoc(docRef) {
           has_fido: data.has_fido,
           tfa_secret: data.tfa_secret,
         }),
+      };
+    } catch (e) {
+      return {
+        exists: () => false,
+        data: () => null,
+      };
+    }
+  } else if (docRef.collection === "carts") {
+    try {
+      const data = await apiFetch(`/api/carts/${docRef.id}`);
+      return {
+        exists: () => true,
+        data: () => ({
+          items: data.items || []
+        })
       };
     } catch (e) {
       return {
@@ -220,6 +234,12 @@ export async function setDoc(docRef, data, options = {}) {
       localStorage.setItem("current_user", JSON.stringify(freshProfile));
       triggerAuthStateChange(auth.currentUser);
     }
+    return true;
+  } else if (docRef.collection === "carts") {
+    await apiFetch(`/api/carts/${docRef.id}`, {
+      method: "POST",
+      body: JSON.stringify({ items: data.items || [] }),
+    });
     return true;
   } else if (docRef.collection === "subscribers") {
     await apiFetch("/api/subscribers", {

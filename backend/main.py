@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, status, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import uuid
 import logging
 from datetime import datetime
@@ -45,6 +45,9 @@ class ProfileUpdate(BaseModel):
     address: Optional[str] = None
     nearest_store: Optional[str] = None
     tfa_secret: Optional[str] = None
+
+class CartUpdate(BaseModel):
+    items: List[Dict[str, Any]]
 
 class FidoRegister(BaseModel):
     uid: str
@@ -318,6 +321,36 @@ def get_inventory_logs():
             "timestamp": log["timestamp"].isoformat() if log["timestamp"] else None
         })
     return result
+
+@app.get("/api/carts/{user_id}")
+def get_cart(user_id: str):
+    import json
+    cart = execute_query(
+        "SELECT items FROM carts WHERE user_id = %s",
+        (user_id,),
+        fetch=True
+    )
+    if not cart:
+        execute_query(
+            "INSERT INTO carts (user_id, items) VALUES (%s, '[]'::jsonb) ON CONFLICT (user_id) DO NOTHING",
+            (user_id,)
+        )
+        return {"items": []}
+    
+    items_data = cart[0][0]
+    if isinstance(items_data, str):
+        return {"items": json.loads(items_data)}
+    return {"items": items_data}
+
+@app.post("/api/carts/{user_id}")
+def update_cart(user_id: str, data: CartUpdate):
+    import json
+    items_json = json.dumps(data.items)
+    execute_query(
+        "INSERT INTO carts (user_id, items) VALUES (%s, %s::jsonb) ON CONFLICT (user_id) DO UPDATE SET items = EXCLUDED.items",
+        (user_id, items_json)
+    )
+    return {"status": "success", "message": "Giỏ hàng được cập nhật thành công!"}
 
 # --- FILE UPLOAD ENDPOINT ---
 

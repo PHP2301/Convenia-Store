@@ -4,6 +4,7 @@
 DROP TABLE IF EXISTS order_items CASCADE;
 DROP TABLE IF EXISTS orders CASCADE;
 DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS carts CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS inventory_logs CASCADE;
 
@@ -22,6 +23,12 @@ CREATE TABLE users (
     fido_password TEXT,
     has_fido BOOLEAN DEFAULT FALSE,
     tfa_secret TEXT
+);
+
+-- Create carts table
+CREATE TABLE carts (
+    user_id VARCHAR(128) PRIMARY KEY REFERENCES users(uid) ON DELETE CASCADE,
+    items JSONB NOT NULL DEFAULT '[]'::jsonb
 );
 
 -- Create products table
