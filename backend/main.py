@@ -159,7 +159,7 @@ def update_profile(uid: str, data: ProfileUpdate):
         params.append(data.tfa_secret)
         
     if not updates:
-        raise HTTPException(status_code=400, detail="Không có thông tin thay đổi!")
+        return {"status": "success", "message": "Không có thông tin thay đổi!"}
         
     params.append(uid)
     query_str = f"UPDATE users SET {', '.join(updates)} WHERE uid = %s"
