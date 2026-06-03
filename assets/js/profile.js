@@ -286,7 +286,6 @@ async function registerFIDO() {
         ],
         timeout: 60000,
         authenticatorSelection: {
-          authenticatorAttachment: "platform",
           userVerification: "required",
           residentKey: "required"
         }
