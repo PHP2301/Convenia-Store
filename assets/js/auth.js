@@ -560,8 +560,16 @@ async function loginWithFIDO() {
     // Đăng nhập bằng fidoPassword đặc chế
     const userCredential = await signInWithEmailAndPassword(auth, email, fidoPassword);
     
-    // Chuyển tiếp qua 2FA nếu tài khoản đó có bật 2FA
-    await handle2FAFlow(userCredential.user.uid, email);
+    // Tự động đánh dấu đã xác thực 2FA vì FIDO2 chính là hình thức xác thực 2 lớp cấp cao nhất
+    const rememberCheck = document.getElementById("rememberMeCheck");
+    if (rememberCheck && rememberCheck.checked) {
+      localStorage.setItem("tfa_verified_" + userCredential.user.uid, "true");
+    } else {
+      sessionStorage.setItem("tfa_verified_" + userCredential.user.uid, "true");
+    }
+    
+    // Bỏ qua nhập OTP 2FA và điều hướng vào trang chính
+    handleUserRoleAndRedirect(userCredential.user.uid);
     
   } catch (err) {
     console.error("Lỗi FIDO Login:", err);
