@@ -2,7 +2,7 @@
 
 const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
   ? "http://localhost:8000"
-  : "https://ten-backend-cua-ban.onrender.com"; // Thay thế địa chỉ này bằng URL Render của bạn sau khi deploy backend
+  : "https://convenia-website.onrender.com";
 
 // --- STATE MANAGEMENT ---
 let authStateListeners = [];
