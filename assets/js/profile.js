@@ -253,11 +253,16 @@ async function registerFIDO() {
   const user = auth.currentUser;
   if (!user) return alert("Vui lòng đăng nhập!");
 
+  if (!window.PublicKeyCredential) {
+    alert("Trình duyệt hoặc ứng dụng hiện tại (ví dụ: Zalo, Facebook, Messenger) không hỗ trợ FIDO2/WebAuthn. Vui lòng nhấn vào nút ba chấm ở góc trên cùng bên phải màn hình rồi chọn 'Mở bằng Safari' (trên iPhone) hoặc 'Mở bằng Chrome' (trên Android) để thực hiện!");
+    return;
+  }
+
   try {
     const statusText = document.getElementById("fido-status-text");
     if (statusText) {
       statusText.style.display = "block";
-      statusText.innerText = "Đang kích hoạt Windows Hello / Touch ID...";
+      statusText.innerText = "Đang kích hoạt khóa bảo mật...";
       statusText.style.color = "#888";
     }
 
@@ -337,9 +342,14 @@ async function registerFIDO() {
     console.error("Lỗi FIDO2:", err);
     const statusText = document.getElementById("fido-status-text");
     if (statusText) {
-      statusText.innerText = "Kích hoạt sinh trắc học thất bại hoặc bị hủy.";
+      if (err.name === "NotAllowedError") {
+        statusText.innerText = "Thao tác bị hủy hoặc trình duyệt không được cấp quyền sinh trắc học.";
+      } else {
+        statusText.innerText = "Lỗi kích hoạt: " + err.message;
+      }
       statusText.style.color = "#df2027";
     }
+    alert("Kích hoạt sinh trắc học thất bại. Vui lòng đảm bảo bạn đang sử dụng trình duyệt Safari hoặc Chrome gốc và thiết bị đã bật bảo mật!");
   }
 }
 
