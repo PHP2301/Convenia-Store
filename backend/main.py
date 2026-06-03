@@ -128,6 +128,11 @@ def get_profile(uid: str):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy người dùng!")
     return user[0]
 
+@app.delete("/api/auth/profile/{uid}")
+def delete_profile(uid: str):
+    execute_query("DELETE FROM users WHERE uid = %s", (uid,))
+    return {"status": "success", "message": "Xóa người dùng thành công!"}
+
 @app.put("/api/auth/profile/{uid}")
 def update_profile(uid: str, data: ProfileUpdate):
     # Dynamically build update query

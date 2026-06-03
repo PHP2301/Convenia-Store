@@ -89,7 +89,9 @@ export async function createUserWithEmailAndPassword(authInstance, email, passwo
       uid: userData.uid,
       email: userData.email,
       delete: async () => {
-        // Mock delete for checking temporary emails in auth.js
+        await apiFetch(`/api/auth/profile/${userData.uid}`, {
+          method: "DELETE",
+        });
         return true;
       }
     },
