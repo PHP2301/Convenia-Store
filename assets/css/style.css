@@ -407,14 +407,16 @@ header {
     border-top: none;
     padding-top: 0;
     width: auto;
-    gap: 2px;
+    gap: 8px;
     align-items: center;
   }
 
   /* Auth zone sát bên phải */
   #auth-zone {
-    margin-left: 4px;
-    gap: 4px;
+    margin-left: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   /* Nav item: chỉ icon */
@@ -423,6 +425,12 @@ header {
     border-radius: 8px;
     min-width: 36px;
     justify-content: center;
+  }
+
+  /* Reset hover buffers for dropdown on mobile to prevent vertical misalignment */
+  .nav-item.dropdown-menu {
+    padding-bottom: 0;
+    margin-bottom: 0;
   }
 
   .nav-item span,
@@ -445,7 +453,9 @@ header {
   }
 
   .cart-wrapper-link {
-    margin-right: 4px;
+    margin-right: 0;
+    display: flex;
+    align-items: center;
   }
 
   #cart-count {

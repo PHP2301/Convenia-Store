@@ -646,7 +646,7 @@ body {
 
   .input-group input {
     font-size: 16px; /* Tránh iOS zoom */
-    padding: 13px 15px;
+    padding: 13px 15px 13px 42px;
     border-radius: 10px;
   }
 
