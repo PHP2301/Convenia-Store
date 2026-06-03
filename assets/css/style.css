@@ -104,10 +104,8 @@ header {
   border-radius: 8px;
   transition: 0.3s;
 }
-/* Tạo vùng đệm tàng hình cho mục có Menu con */
 .nav-item.dropdown-menu {
-  padding-bottom: 25px;
-  margin-bottom: -25px;
+  position: relative;
 }
 
 /* Hiệu ứng hover khung đen */
