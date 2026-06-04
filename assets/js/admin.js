@@ -6,6 +6,7 @@ import {
   addDoc,
   getDocs,
   getDoc,
+  setDoc,
   query,
   where,
   serverTimestamp,
@@ -289,6 +290,64 @@ productForm.onsubmit = async (e) => {
 branchFilter.onchange = loadInventory;
 document.addEventListener("DOMContentLoaded", loadInventory);
 
+// --- QUẢN LÝ FLASH SALE TIMER SETTING ---
+async function loadFlashSaleTimerSetting() {
+  const timerInput = document.getElementById("flash-timer-input");
+  const timerDisplay = document.getElementById("db-timer-value");
+  if (!timerInput || !timerDisplay) return;
+
+  try {
+    const docRef = doc(db, "settings", "flash_sale");
+    const snap = await getDoc(docRef);
+    if (snap.exists() && snap.data().endTime) {
+      const endTime = parseInt(snap.data().endTime);
+      const date = new Date(endTime);
+      
+      const tzoffset = date.getTimezoneOffset() * 60000; 
+      const localISOTime = (new Date(date - tzoffset)).toISOString().slice(0, 16);
+      
+      timerInput.value = localISOTime;
+      timerDisplay.innerText = date.toLocaleString("vi-VN");
+    } else {
+      timerDisplay.innerText = "Chưa thiết lập";
+    }
+  } catch (err) {
+    console.error("Lỗi khi load cấu hình bộ đếm:", err);
+    timerDisplay.innerText = "Lỗi khi tải";
+  }
+}
+
+// Bind button save
+document.addEventListener("DOMContentLoaded", () => {
+  const saveTimerBtn = document.getElementById("btn-save-flash-timer");
+  if (saveTimerBtn) {
+    saveTimerBtn.onclick = async () => {
+      const timerInput = document.getElementById("flash-timer-input");
+      if (!timerInput || !timerInput.value) {
+        Swal.fire("Lỗi", "Vui lòng chọn ngày giờ kết thúc hợp lệ!", "error");
+        return;
+      }
+      
+      saveTimerBtn.disabled = true;
+      saveTimerBtn.innerText = "ĐANG LƯU...";
+      
+      try {
+        const selectedTime = new Date(timerInput.value).getTime();
+        await setDoc(doc(db, "settings", "flash_sale"), { endTime: selectedTime });
+        
+        Swal.fire("Thành công", "Đã cập nhật thời gian kết thúc Flash Sale!", "success");
+        loadFlashSaleTimerSetting();
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Lỗi", "Không thể lưu cấu hình: " + err.message, "error");
+      } finally {
+        saveTimerBtn.disabled = false;
+        saveTimerBtn.innerText = "LƯU THỜI GIAN";
+      }
+    };
+  }
+});
+
 // --- QUẢN LÝ TABS ---
 window.switchTab = function(tabName) {
   const invSection = document.getElementById("inventory-section");
@@ -313,6 +372,7 @@ window.switchTab = function(tabName) {
     // Đồng bộ chi nhánh
     document.getElementById("flash-branch-filter").value = branchFilter.value;
     loadFlashSaleInventory();
+    loadFlashSaleTimerSetting();
   }
 };
 

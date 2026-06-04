@@ -255,6 +255,11 @@ def create_product(data: ProductSchema):
     )
     return {"status": "success", "id": prod_id}
 
+@app.post("/api/products/clear-flash-sale")
+def clear_flash_sale():
+    execute_query("UPDATE products SET is_flash_sale = FALSE")
+    return {"status": "success", "message": "Đã xóa tất cả sản phẩm khỏi Flash Sale"}
+
 @app.put("/api/products/{prod_id}")
 def update_product(prod_id: str, data: ProductSchema):
     execute_query(

@@ -110,6 +110,23 @@
 
         <!-- PHẦN QUẢN LÝ FLASH SALE -->
         <div id="flash-sale-section" style="display: none;">
+          <!-- Bảng điều chỉnh thời gian Flash Sale -->
+          <div class="control-panel flash-timer-settings" style="margin-bottom: 20px; padding: 20px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 15px; box-sizing: border-box;">
+            <h4 style="margin: 0; color: #ffb800; display: flex; align-items: center; gap: 8px; font-size: 16px;">
+              <i class="fas fa-clock"></i> Cấu hình bộ đếm ngược Flash Sale
+            </h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; width: 100%;">
+              <div class="select-box" style="flex: 1; min-width: 250px;">
+                <label>Thời gian kết thúc Flash Sale:</label>
+                <input type="datetime-local" id="flash-timer-input" style="width: 100%; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-hover); color: var(--text-main); font-family: inherit; font-size: 14px; box-sizing: border-box;" />
+              </div>
+              <button id="btn-save-flash-timer" class="btn-add-product" style="background: #00b4d8; padding: 10px 25px; height: 42px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; color: white;">LƯU THỜI GIAN</button>
+            </div>
+            <div id="flash-timer-display" style="font-size: 14px; font-weight: bold; color: var(--text-muted);">
+              Thời gian hiện tại trên DB: <span id="db-timer-value" style="color: #ff9100;">Đang tải...</span>
+            </div>
+          </div>
+
           <div class="control-panel">
             <div class="select-box">
               <label>Chọn chi nhánh quản lý:</label>

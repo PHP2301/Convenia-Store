@@ -745,7 +745,7 @@ function translatePage(lang) {
 
   const elements = document.querySelectorAll("span, a, h1, h2, h3, h4, p, label, button, input, th, td");
   elements.forEach((el) => {
-    if (el.id === "display-store-name" || el.hasAttribute("data-no-translate")) return;
+    if (el.id === "display-store-name" || el.id === "hours" || el.id === "minutes" || el.id === "seconds" || el.hasAttribute("data-no-translate")) return;
     // 1. Dịch placeholder của input
     if (el.tagName === "INPUT" && el.placeholder) {
       let orig = el.getAttribute("data-orig-placeholder");

@@ -11,7 +11,8 @@ import {
   addDoc,
   serverTimestamp,
   onAuthStateChanged,
-  signOut
+  signOut,
+  clearAllFlashSaleProducts
 } from "./api-client.js";
 
 // --- 2. XỬ LÝ ĐĂNG NHẬP & HIỂN THỊ TÊN KHÁCH HÀNG ---
@@ -299,16 +300,15 @@ async function startCountdown() {
 
   const flashSaleRef = doc(db, "settings", "flash_sale");
   let targetTime;
+  let hasEnded = false;
 
   try {
     const docSnap = await getDoc(flashSaleRef);
     if (docSnap.exists()) {
       const data = docSnap.data();
       targetTime = parseInt(data.endTime);
-      // Nếu thời gian cũ đã qua, reset lại chu kỳ mới 3 tiếng
       if (Date.now() > targetTime) {
-        targetTime = Date.now() + 3 * 60 * 60 * 1000;
-        await setDoc(flashSaleRef, { endTime: targetTime });
+        hasEnded = true;
       }
     } else {
       // Thiết lập ban đầu nếu chưa có trong Database
@@ -320,12 +320,43 @@ async function startCountdown() {
     targetTime = Date.now() + 2 * 60 * 60 * 1000 + 45 * 60 * 1000;
   }
 
+  if (hasEnded) {
+    hoursEl.innerText = "00";
+    minutesEl.innerText = "00";
+    secondsEl.innerText = "00";
+    try {
+      await clearAllFlashSaleProducts();
+      if (typeof loadFlashSaleProducts === "function") {
+        loadFlashSaleProducts();
+      }
+    } catch (e) {
+      console.error("Lỗi dọn dẹp flash sale hết hạn:", e);
+    }
+    return;
+  }
+
+  let cleanupCalled = false;
+  async function handleFlashSaleEnd() {
+    if (cleanupCalled) return;
+    cleanupCalled = true;
+    try {
+      console.log("Flash Sale ended. Cleaning up products...");
+      await clearAllFlashSaleProducts();
+      if (typeof loadFlashSaleProducts === "function") {
+        loadFlashSaleProducts();
+      }
+    } catch (err) {
+      console.error("Lỗi khi dọn dẹp sản phẩm Flash Sale:", err);
+    }
+  }
+
   function updateTimer() {
     const timeLeft = targetTime - Date.now();
     if (timeLeft <= 0) {
       hoursEl.innerText = "00";
       minutesEl.innerText = "00";
       secondsEl.innerText = "00";
+      handleFlashSaleEnd();
       return;
     }
 

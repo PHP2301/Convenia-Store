@@ -660,3 +660,8 @@ export async function deleteObject(storageRef) {
   console.log("Mock delete object from storage:", storageRef.path);
   return true;
 }
+
+export async function clearAllFlashSaleProducts() {
+  await apiFetch("/api/products/clear-flash-sale", { method: "POST" });
+  return true;
+}
