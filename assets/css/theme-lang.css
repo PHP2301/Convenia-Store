@@ -426,25 +426,102 @@
 }
 
 /* Chân trang Footer */
-.dark-theme footer {
+.dark-theme footer,
+.dark-theme .main-footer {
   background-color: var(--bg-card) !important;
   border-top: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
 }
 
-.dark-theme .footer-col h3 {
+.dark-theme .main-footer h3,
+.dark-theme .main-footer .footer-brand span {
   color: var(--text-title) !important;
 }
 
-.dark-theme .footer-col a {
+.dark-theme .main-footer .brand-ck {
+  color: var(--text-title) !important;
+}
+
+.dark-theme .main-footer a,
+.dark-theme .main-footer p,
+.dark-theme .main-footer span,
+.dark-theme .main-footer strong {
   color: var(--text-muted) !important;
 }
 
-.dark-theme .footer-col a:hover {
+.dark-theme .main-footer a:hover {
   color: #00b4d8 !important;
+}
+
+.dark-theme .footer-newsletter {
+  border-color: var(--border-color) !important;
+}
+
+.dark-theme .footer-newsletter input {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
 }
 
 .dark-theme .footer-bottom p {
   color: var(--text-muted) !important;
+}
+
+/* Trang Giỏ Hàng & Tên Sản Phẩm */
+.dark-theme .cart-page h1,
+.dark-theme .cart-container h1,
+.dark-theme .cart-header h1,
+.dark-theme h1,
+.dark-theme h2,
+.dark-theme h3 {
+  color: var(--text-title) !important;
+}
+
+.dark-theme .item-total-price {
+  color: var(--text-main) !important;
+}
+
+.dark-theme .cart-summary h3,
+.dark-theme .cart-summary p,
+.dark-theme .cart-summary span {
+  color: var(--text-main) !important;
+}
+
+.dark-theme .cart-item {
+  background-color: var(--bg-card) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+.dark-theme .cart-item h4 {
+  color: var(--text-title) !important;
+}
+
+.dark-theme .cart-item .item-price {
+  color: var(--text-muted) !important;
+}
+
+.dark-theme .cart-item .item-qty button {
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+.dark-theme .cart-item .item-qty span {
+  color: var(--text-main) !important;
+}
+
+.dark-theme .cart-item .item-total-price {
+  color: var(--text-title) !important;
+}
+
+.dark-theme .vietqr-instruction {
+  color: var(--text-muted) !important;
+}
+
+.dark-theme .vietqr-details {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-main) !important;
 }
 
 /* Validation Tooltip */

@@ -338,18 +338,44 @@ export async function setDoc(docRef, data, options = {}) {
     });
     return true;
   } else if (docRef.collection === "inventory" || docRef.collection === "products") {
+    let mergedData = { ...data };
+    
+    // Check if we need to merge with existing doc (i.e. if some required Pydantic fields are missing)
+    if (options.merge || data.pid === undefined || data.name === undefined || data.branch === undefined) {
+      try {
+        const existing = await apiFetch(`/api/products/${docRef.id}`);
+        if (existing) {
+          mergedData = {
+            pid: existing.pid,
+            name: existing.name,
+            type: existing.type,
+            stock: existing.stock,
+            price: existing.price,
+            unit: existing.unit,
+            branch: existing.branch,
+            imageUrl: existing.image_url,
+            isFlashSale: existing.is_flash_sale,
+            discountPercent: existing.discount_percent,
+            ...data
+          };
+        }
+      } catch (err) {
+        console.warn("Could not fetch existing product for merge, proceeding with input data:", err);
+      }
+    }
+
     // Map camelCase/snake_case to snake_case for Pydantic schema
     const productData = {
-      pid: data.pid,
-      name: data.name,
-      type: data.type,
-      stock: parseInt(data.stock) || 0,
-      price: parseFloat(data.price) || 0,
-      unit: data.unit,
-      branch: data.branch,
-      image_url: data.imageUrl !== undefined ? data.imageUrl : (data.image_url || ""),
-      is_flash_sale: data.isFlashSale !== undefined ? data.isFlashSale : (data.is_flash_sale || false),
-      discount_percent: data.discountPercent !== undefined ? parseInt(data.discountPercent) : (data.discount_percent !== undefined ? parseInt(data.discount_percent) : 20),
+      pid: mergedData.pid,
+      name: mergedData.name,
+      type: mergedData.type,
+      stock: parseInt(mergedData.stock) || 0,
+      price: parseFloat(mergedData.price) || 0,
+      unit: mergedData.unit,
+      branch: mergedData.branch,
+      image_url: mergedData.imageUrl !== undefined ? mergedData.imageUrl : (mergedData.image_url || ""),
+      is_flash_sale: mergedData.isFlashSale !== undefined ? mergedData.isFlashSale : (mergedData.is_flash_sale || false),
+      discount_percent: mergedData.discountPercent !== undefined ? parseInt(mergedData.discountPercent) : (mergedData.discount_percent !== undefined ? parseInt(mergedData.discount_percent) : 20),
     };
     await apiFetch(`/api/products/${docRef.id}`, {
       method: "PUT",

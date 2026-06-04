@@ -341,3 +341,12 @@
   to { transform: scale(1); opacity: 1; }
 }
 
+.vietqr-instruction {
+  color: #555;
+}
+
+.vietqr-details {
+  background: #f8f9fa;
+  color: #333;
+}
+

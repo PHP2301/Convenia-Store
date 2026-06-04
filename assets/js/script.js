@@ -360,19 +360,7 @@ async function loadFlashSaleProducts() {
       products.push({ id: doc.id, ...doc.data() });
     });
 
-    // 2. Dự phòng (Fallback): Nếu chưa cấu hình sản phẩm nào thì tự động lấy tối đa 4 sản phẩm có giá < 100k để tránh màn hình trống
-    if (products.length === 0) {
-      const qFallback = query(colRef, where("branch", "==", currentBranch));
-      const snapFallback = await getDocs(qFallback);
-      snapFallback.forEach((doc) => {
-        const data = doc.data();
-        if (data.price && data.price > 0 && data.price < 100000) {
-          products.push({ id: doc.id, ...data, discountPercent: 20 });
-        }
-      });
-      // Giới hạn 4 sản phẩm
-      products = products.slice(0, 4);
-    }
+
 
     if (products.length === 0) {
       container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #ccc; padding: 20px 0;">Không tìm thấy sản phẩm khuyến mãi tại chi nhánh này.</p>`;
