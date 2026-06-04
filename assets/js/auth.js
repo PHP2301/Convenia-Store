@@ -1,10 +1,9 @@
 import {
-  initializeApp,
-  getAuth,
+  auth,
+  db,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
-  getFirestore,
   doc,
   getDoc,
   setDoc,
@@ -14,20 +13,6 @@ import {
   where,
   getDocs
 } from "./api-client.js";
-
-// 1. Cấu hình Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
-  authDomain: "circlek-db.firebaseapp.com",
-  projectId: "circlek-db",
-  storageBucket: "circlek-db.firebasestorage.app",
-  messagingSenderId: "515751444593",
-  appId: "1:515751444593:web:453df449a3b86f09f09bd0",
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
 
 // 2. Cấu hình EmailJS
 emailjs.init("utKMKTgKkf6gww2x1");
@@ -535,7 +520,7 @@ async function loginWithFIDO() {
 
     const credentialId = bufferToBase64url(assertion.rawId);
 
-    // Tìm user tương ứng với credentialId trong Firestore
+    // Tìm user tương ứng với credentialId trong cơ sở dữ liệu
     const q = query(collection(db, "users"), where("fido_credential_id", "==", credentialId));
     const querySnapshot = await getDocs(q);
 

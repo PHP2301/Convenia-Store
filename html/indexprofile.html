@@ -20,23 +20,15 @@
       <div class="profile-card">
         <div
           class="user-avatar-large"
-          id="big-initial"
-          style="
-            background: #df2027;
-            color: white;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto 15px;
-          ">
+          id="big-initial">
           ?
         </div>
         <h3 id="display-email">Đang tải...</h3>
         <p style="color: #888; font-size: 0.8rem; margin-bottom: 25px">Hồ sơ thành viên CK GO</p>
+        <a href="admin.html" id="admin-panel-btn" class="btn-save" style="display: none; text-decoration: none; margin-bottom: 20px; background: linear-gradient(135deg, #00b4d8, #0077b6); color: white; align-items: center; justify-content: center; gap: 8px;">
+          <i class="fas fa-user-shield"></i>
+          Vào trang quản trị
+        </a>
 
         <form id="profile-form">
           <div class="input-group">
@@ -114,17 +106,7 @@
           <button
             type="submit"
             id="btn-save-info"
-            style="
-              width: 100%;
-              padding: 12px;
-              background: #df2027;
-              color: white;
-              border: none;
-              border-radius: 10px;
-              font-weight: bold;
-              cursor: pointer;
-              margin-bottom: 10px;
-            ">
+            class="btn-save">
             LƯU THÔNG TIN
           </button>
         </form>
@@ -137,7 +119,7 @@
       </div>
 
       <div id="history-aside" class="history-aside">
-        <h2 style="color: #df2027; border-bottom: 2px solid #eee; padding-bottom: 10px">
+        <h2>
           <i class="fas fa-receipt"></i>
           Lịch sử hóa đơn
         </h2>

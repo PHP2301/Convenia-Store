@@ -1,6 +1,5 @@
-// 1. CHỈ KHAI BÁO IMPORT MỘT LẦN DUY NHẤT Ở ĐẦU FILE
-import { initializeApp, getApps, getApp,
-  getFirestore,
+import {
+  db,
   collection,
   query,
   orderBy,
@@ -8,19 +7,6 @@ import { initializeApp, getApps, getApp,
   addDoc,
   serverTimestamp
 } from "./api-client.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
-  authDomain: "circlek-db.firebaseapp.com",
-  projectId: "circlek-db",
-  storageBucket: "circlek-db.firebasestorage.app",
-  messagingSenderId: "515751444593",
-  appId: "1:515751444593:web:453df449a3b86f09f09bd0",
-};
-
-// 2. KHỞI TẠO FIREBASE
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
 
 // Map ID chi nhánh sang tên tiếng Việt
 const storeNames = {

@@ -198,6 +198,7 @@ header {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .dropdown-user {
@@ -215,6 +216,7 @@ header {
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s;
+  flex-shrink: 0;
 }
 .avatar-wrapper:hover {
   background: #00b4d8;
@@ -775,8 +777,7 @@ header {
   color: #0077b6;
 }
 
-.cart-wrapper-link::after {
-  content: "Giỏ hàng";
+.cart-text {
   font-size: 13px;
   font-weight: 500;
   color: #333333;
@@ -784,7 +785,7 @@ header {
   transition: color 0.3s;
 }
 
-.cart-wrapper-link:hover::after {
+.cart-wrapper-link:hover .cart-text {
   color: #0077b6;
 }
 

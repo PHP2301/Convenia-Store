@@ -31,6 +31,13 @@ def startup_event():
     execute_query(
         "CREATE TABLE IF NOT EXISTS site_settings (key VARCHAR(255) PRIMARY KEY, value TEXT NOT NULL)"
     )
+    # Ensure products schema supports flash sale fields
+    try:
+        execute_query("ALTER TABLE products ADD COLUMN IF NOT EXISTS is_flash_sale BOOLEAN DEFAULT FALSE")
+        execute_query("ALTER TABLE products ADD COLUMN IF NOT EXISTS discount_percent INTEGER DEFAULT 20")
+        logger.info("Products database schema verified successfully.")
+    except Exception as e:
+        logger.error(f"Error checking/updating products schema: {e}")
 
 
 # --- PYDANTIC SCHEMAS ---
@@ -72,6 +79,8 @@ class ProductSchema(BaseModel):
     unit: str
     branch: str
     image_url: str
+    is_flash_sale: Optional[bool] = False
+    discount_percent: Optional[int] = 20
 
 class OrderItemSchema(BaseModel):
     product_name: str
@@ -203,14 +212,14 @@ def fido_login(data: FidoLogin):
 def get_products(branch: str = "ngt", type: str = "all"):
     if type == "all":
         products = execute_query(
-            "SELECT id, pid, name, type, stock, price, unit, branch, image_url FROM products WHERE branch = %s ORDER BY name ASC",
+            "SELECT id, pid, name, type, stock, price, unit, branch, image_url, is_flash_sale, discount_percent FROM products WHERE branch = %s ORDER BY name ASC",
             (branch,),
             fetch=True
         )
     else:
         # Match type filter case-insensitively or normally
         products = execute_query(
-            "SELECT id, pid, name, type, stock, price, unit, branch, image_url FROM products WHERE branch = %s AND LOWER(type) = LOWER(%s) ORDER BY name ASC",
+            "SELECT id, pid, name, type, stock, price, unit, branch, image_url, is_flash_sale, discount_percent FROM products WHERE branch = %s AND LOWER(type) = LOWER(%s) ORDER BY name ASC",
             (branch, type),
             fetch=True
         )
@@ -218,22 +227,39 @@ def get_products(branch: str = "ngt", type: str = "all"):
     # Format numeric price to float
     for p in products:
         p['price'] = float(p['price'])
+        p['is_flash_sale'] = bool(p['is_flash_sale'])
+        p['discount_percent'] = int(p['discount_percent']) if p['discount_percent'] is not None else 20
     return products
+
+@app.get("/api/products/{prod_id}", response_model=ProductSchema)
+def get_product(prod_id: str):
+    product = execute_query(
+        "SELECT id, pid, name, type, stock, price, unit, branch, image_url, is_flash_sale, discount_percent FROM products WHERE id = %s",
+        (prod_id,),
+        fetch=True
+    )
+    if not product:
+        raise HTTPException(status_code=404, detail="Không tìm thấy sản phẩm!")
+    p = product[0]
+    p['price'] = float(p['price'])
+    p['is_flash_sale'] = bool(p['is_flash_sale'])
+    p['discount_percent'] = int(p['discount_percent']) if p['discount_percent'] is not None else 20
+    return p
 
 @app.post("/api/products")
 def create_product(data: ProductSchema):
     prod_id = data.id or str(uuid.uuid4())
     execute_query(
-        "INSERT INTO products (id, pid, name, type, stock, price, unit, branch, image_url) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-        (prod_id, data.pid, data.name, data.type, data.stock, data.price, data.unit, data.branch, data.image_url)
+        "INSERT INTO products (id, pid, name, type, stock, price, unit, branch, image_url, is_flash_sale, discount_percent) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (prod_id, data.pid, data.name, data.type, data.stock, data.price, data.unit, data.branch, data.image_url, data.is_flash_sale, data.discount_percent)
     )
     return {"status": "success", "id": prod_id}
 
 @app.put("/api/products/{prod_id}")
 def update_product(prod_id: str, data: ProductSchema):
     execute_query(
-        "UPDATE products SET pid = %s, name = %s, type = %s, stock = %s, price = %s, unit = %s, branch = %s, image_url = %s WHERE id = %s",
-        (data.pid, data.name, data.type, data.stock, data.price, data.unit, data.branch, data.image_url, prod_id)
+        "UPDATE products SET pid = %s, name = %s, type = %s, stock = %s, price = %s, unit = %s, branch = %s, image_url = %s, is_flash_sale = %s, discount_percent = %s WHERE id = %s",
+        (data.pid, data.name, data.type, data.stock, data.price, data.unit, data.branch, data.image_url, data.is_flash_sale, data.discount_percent, prod_id)
     )
     return {"status": "success"}
 

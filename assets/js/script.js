@@ -1,6 +1,6 @@
 import {
-  initializeApp,
-  getFirestore,
+  db,
+  auth,
   doc,
   getDoc,
   setDoc,
@@ -10,24 +10,9 @@ import {
   getDocs,
   addDoc,
   serverTimestamp,
-  getAuth,
   onAuthStateChanged,
   signOut
 } from "./api-client.js";
-
-// 1. Cấu hình Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
-  authDomain: "circlek-db.firebaseapp.com",
-  projectId: "circlek-db",
-  storageBucket: "circlek-db.firebasestorage.app", // Đã cập nhật cho chuẩn Storage
-  messagingSenderId: "515751444593",
-  appId: "1:515751444593:web:453df449a3b86f09f09bd0",
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
 
 // --- 2. XỬ LÝ ĐĂNG NHẬP & HIỂN THỊ TÊN KHÁCH HÀNG ---
 onAuthStateChanged(auth, async (user) => {
@@ -48,13 +33,13 @@ onAuthStateChanged(auth, async (user) => {
     if (userNameText) userNameText.innerText = displayName;
     if (userInitial) userInitial.innerText = displayName.charAt(0).toUpperCase();
 
-    // B. Kiểm tra quyền Admin trong Firestore
+    // B. Kiểm tra quyền Admin trong cơ sở dữ liệu
     try {
-      const subDoc = await getDoc(doc(db, "subscribers", user.uid));
+      const subDoc = await getDoc(doc(db, "users", user.uid));
       if (subDoc.exists() && subDoc.data().role === "admin") {
         if (adminLink) {
           adminLink.style.display = "flex";
-          adminLink.style.color = "#df2027"; // Highlight màu đỏ cho admin
+          adminLink.style.color = "#00b4d8"; // Highlight màu xanh cyan cho admin
         }
       }
     } catch (error) {
@@ -85,7 +70,7 @@ document.addEventListener("click", async (e) => {
 });
 
 // --- 3. LƯU EMAIL KHÁCH HÀNG (SUBSCRIBERS) ---
-async function saveToFirebase() {
+async function saveSubscriber() {
   const emailInput = document.getElementById("customerEmail");
   if (!emailInput) return;
 
@@ -119,7 +104,7 @@ async function saveToFirebase() {
     alert("Lỗi lưu dữ liệu!");
   }
 }
-window.saveToFirebase = saveToFirebase;
+window.saveSubscriber = saveSubscriber;
 
 // --- 4. SLIDESHOW BANNER ---
 let slideIndex = 1;
@@ -141,10 +126,15 @@ function showSlides(n) {
   }
 }
 
-window.currentSlide = function(n) {
+window._currentSlideReal = function(n) {
   slideIndex = n;
   showSlides(slideIndex);
 };
+if (window._currentSlidePending !== undefined) {
+  window._currentSlideReal(window._currentSlidePending);
+  delete window._currentSlidePending;
+}
+window.currentSlide = window._currentSlideReal;
 
 setInterval(() => {
   slideIndex++;
@@ -199,7 +189,7 @@ document.querySelectorAll(".dropdown-subs a").forEach((link) => {
     window.location.href = this.getAttribute("href");
   });
 });
-// Hàm này dùng để lấy số lượng món từ Firebase và hiện lên icon
+// Hàm này dùng để lấy số lượng món từ cơ sở dữ liệu và hiện lên icon
 async function syncCartBadge(user) {
   const cartBadge = document.getElementById("cart-count");
   if (!cartBadge) return; // Nếu trang đó không có icon giỏ hàng thì thôi
@@ -248,21 +238,26 @@ onAuthStateChanged(auth, async (user) => {
       const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
 
+      let storeId = "ngt";
       if (docSnap.exists()) {
         const data = docSnap.data();
-        // 2. Lấy ID store từ field 'nearestStore' mà  đã lưu
-        const storeId = data.nearestStore || "ngt";
+        // 2. Lấy ID store từ field 'nearestStore' mà đã lưu
+        storeId = data.nearestStore || "ngt";
+      }
 
-        // 3. Lưu ID này vào localStorage để hàm loadProducts dùng để lọc sản phẩm
-        localStorage.setItem("selected_store", storeId);
+      // 3. Lưu ID này vào localStorage để hàm loadProducts dùng để lọc sản phẩm
+      localStorage.setItem("selected_store", storeId);
 
-        // 4. Hiển thị tên tiếng Việt lên Header
-        if (storeDisplayName) {
-          storeDisplayName.innerText = storeMapping[storeId] || "Nguyễn Gia Trí";
-        }
+      // 4. Hiển thị tên tiếng Việt lên Header
+      if (storeDisplayName) {
+        storeDisplayName.innerText = storeMapping[storeId] || "Nguyễn Gia Trí";
       }
     } catch (error) {
       console.error("Lỗi đồng bộ Store:", error);
+      localStorage.setItem("selected_store", "ngt");
+      if (storeDisplayName) {
+        storeDisplayName.innerText = "Nguyễn Gia Trí";
+      }
     }
   } else {
     // Nếu khách chưa đăng nhập, mặc định chọn 1 kho
@@ -356,35 +351,38 @@ async function loadFlashSaleProducts() {
 
   try {
     const colRef = collection(db, "inventory");
-    const q = query(colRef, where("branch", "==", currentBranch));
-    const snap = await getDocs(q);
+    // 1. Tìm các sản phẩm được đánh dấu isFlashSale = true trước
+    const qFlash = query(colRef, where("branch", "==", currentBranch), where("isFlashSale", "==", true));
+    const snapFlash = await getDocs(qFlash);
 
-    if (snap.empty) {
+    let products = [];
+    snapFlash.forEach((doc) => {
+      products.push({ id: doc.id, ...doc.data() });
+    });
+
+    // 2. Dự phòng (Fallback): Nếu chưa cấu hình sản phẩm nào thì tự động lấy tối đa 4 sản phẩm có giá < 100k để tránh màn hình trống
+    if (products.length === 0) {
+      const qFallback = query(colRef, where("branch", "==", currentBranch));
+      const snapFallback = await getDocs(qFallback);
+      snapFallback.forEach((doc) => {
+        const data = doc.data();
+        if (data.price && data.price > 0 && data.price < 100000) {
+          products.push({ id: doc.id, ...data, discountPercent: 20 });
+        }
+      });
+      // Giới hạn 4 sản phẩm
+      products = products.slice(0, 4);
+    }
+
+    if (products.length === 0) {
       container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #ccc; padding: 20px 0;">Không tìm thấy sản phẩm khuyến mãi tại chi nhánh này.</p>`;
       return;
     }
 
-    // Chuyển snap thành mảng và lọc các sản phẩm có giá trị thực tế
-    const products = [];
-    snap.forEach((doc) => {
-      const data = doc.data();
-      if (data.price && data.price > 0 && data.price < 100000) {
-        products.push({ id: doc.id, ...data });
-      }
-    });
-
-    if (products.length === 0) {
-      container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #ccc; padding: 20px 0;">Không tìm thấy sản phẩm phù hợp khuyến mãi.</p>`;
-      return;
-    }
-
-    // Chọn tối đa 4 sản phẩm
-    const saleProducts = products.slice(0, 4);
     container.innerHTML = "";
 
-    saleProducts.forEach((p, idx) => {
-      // Giảm giá 20%
-      const discount = 20;
+    products.forEach((p, idx) => {
+      const discount = p.discountPercent !== undefined ? p.discountPercent : 20;
       const salePrice = Math.round((p.price * (1 - discount / 100)) / 1000) * 1000;
       const originalPrice = p.price;
       const img = p.imageUrl || "../assets/img/default.png";

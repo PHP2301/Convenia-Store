@@ -69,6 +69,23 @@ body {
   animation: fadeInRight 0.5s ease;
 }
 
+.history-aside h2 {
+  color: #0077b6;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dark-theme .history-aside h2 {
+  color: #00b4d8 !important;
+  border-bottom-color: #334155 !important;
+}
+
 @keyframes fadeInRight {
   from {
     opacity: 0;
@@ -265,3 +282,125 @@ body {
     transform: translateY(0);
   }
 }
+
+/* ==========================================================================
+   5. THIẾT KẾ HÓA ĐƠN MUA HÀNG (BILL INVOICE)
+   ========================================================================== */
+.bill-item-card {
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  background: #f8fafc;
+  text-align: left;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.25s ease;
+}
+
+.bill-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 180, 216, 0.15);
+  border-color: #00b4d8;
+}
+
+.bill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed #cbd5e1;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.bill-id {
+  font-weight: 700;
+  color: #0077b6;
+  font-size: 0.95rem;
+}
+
+.bill-date {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.bill-items {
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bill-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.bill-item-name {
+  color: #334155;
+  font-weight: 500;
+}
+
+.bill-item-qty {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.bill-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.bill-total {
+  color: #00b4d8;
+  font-size: 1.1rem;
+}
+
+/* Dark mode overrides cho hóa đơn */
+.dark-theme .bill-item-card {
+  border-color: #223147;
+  background: #1e293b;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .bill-item-card:hover {
+  border-color: #00b4d8;
+  box-shadow: 0 10px 15px -3px rgba(0, 180, 216, 0.25);
+}
+
+.dark-theme .bill-header {
+  border-bottom-color: #334155;
+}
+
+.dark-theme .bill-id {
+  color: #00b4d8;
+}
+
+.dark-theme .bill-date {
+  color: #94a3b8;
+}
+
+.dark-theme .bill-item-name {
+  color: #f8fafc;
+}
+
+.dark-theme .bill-item-qty {
+  color: #94a3b8;
+}
+
+.dark-theme .bill-footer {
+  border-top-color: #334155;
+  color: #f8fafc;
+}
+
+.dark-theme .bill-total {
+  color: #00b4d8;
+}
+

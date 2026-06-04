@@ -45,7 +45,15 @@ def release_connection(conn):
         connection_pool.putconn(conn)
 
 def execute_query(query, params=None, fetch=False):
-    conn = get_connection()
+    global connection_pool
+    conn = None
+    try:
+        conn = get_connection()
+    except Exception as e:
+        logger.error(f"Failed to get connection: {e}. Reinitializing pool...")
+        init_db_pool()
+        conn = get_connection()
+
     cursor = None
     try:
         # Use RealDictCursor to return results as dicts
@@ -59,12 +67,46 @@ def execute_query(query, params=None, fetch=False):
             result = cursor.rowcount
             
         return result
+    except (psycopg2.InterfaceError, psycopg2.OperationalError) as e:
+        logger.warning(f"Database connection error: {e}. Retrying with fresh connection...")
+        try:
+            if cursor:
+                cursor.close()
+            if connection_pool and conn:
+                connection_pool.putconn(conn, close=True)
+        except Exception:
+            pass
+            
+        # Re-initialize the pool and try once more
+        init_db_pool()
+        conn = get_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(query, params or ())
+        
+        if fetch:
+            result = cursor.fetchall()
+        else:
+            conn.commit()
+            result = cursor.rowcount
+            
+        return result
     except Exception as e:
-        if not fetch:
-            conn.rollback()
+        if conn and not fetch:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
         logger.error(f"Database query error: {e}\nQuery: {query}\nParams: {params}")
         raise e
     finally:
         if cursor:
-            cursor.close()
-        release_connection(conn)
+            try:
+                cursor.close()
+            except Exception:
+                pass
+        if conn:
+            try:
+                release_connection(conn)
+            except Exception:
+                pass
+

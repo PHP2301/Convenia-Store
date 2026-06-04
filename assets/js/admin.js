@@ -1,8 +1,7 @@
 import {
-  initializeApp,
-  getApps,
-  getApp,
-  getFirestore,
+  db,
+  storage,
+  auth,
   collection,
   addDoc,
   getDocs,
@@ -13,28 +12,12 @@ import {
   doc,
   deleteDoc,
   updateDoc,
-  getStorage,
   ref,
   uploadBytes,
   getDownloadURL,
   deleteObject,
-  getAuth,
   onAuthStateChanged
 } from "./api-client.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
-  authDomain: "circlek-db.firebaseapp.com",
-  projectId: "circlek-db",
-  storageBucket: "circlek-db.firebasestorage.app",
-  messagingSenderId: "515751444593",
-  appId: "1:515751444593:web:453df449a3b86f09f09bd0",
-};
-
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
-const storage = getStorage(app);
-const auth = getAuth(app);
 
 const modal = document.getElementById("product-modal");
 const openModalBtn = document.getElementById("openModalBtn");
@@ -306,11 +289,264 @@ productForm.onsubmit = async (e) => {
 branchFilter.onchange = loadInventory;
 document.addEventListener("DOMContentLoaded", loadInventory);
 
+// --- QUẢN LÝ TABS ---
+window.switchTab = function(tabName) {
+  const invSection = document.getElementById("inventory-section");
+  const flashSection = document.getElementById("flash-sale-section");
+  const navInv = document.getElementById("nav-inventory");
+  const navFlash = document.getElementById("nav-nav-flash-sale") || document.getElementById("nav-flash-sale");
+  const pageTitle = document.getElementById("page-title");
+
+  if (tabName === "inventory") {
+    invSection.style.display = "block";
+    flashSection.style.display = "none";
+    if (navInv) navInv.classList.add("active");
+    if (navFlash) navFlash.classList.remove("active");
+    pageTitle.innerHTML = '<i class="fas fa-warehouse"></i> Quản lý Tồn kho - Bình Thạnh';
+    loadInventory();
+  } else if (tabName === "flash-sale") {
+    invSection.style.display = "none";
+    flashSection.style.display = "block";
+    if (navInv) navInv.classList.remove("active");
+    if (navFlash) navFlash.classList.add("active");
+    pageTitle.innerHTML = '<i class="fas fa-bolt" style="color: #ffb800;"></i> Quản lý Flash Sale - Bình Thạnh';
+    // Đồng bộ chi nhánh
+    document.getElementById("flash-branch-filter").value = branchFilter.value;
+    loadFlashSaleInventory();
+  }
+};
+
+// --- QUẢN LÝ FLASH SALE LOGIC ---
+const flashSaleModal = document.getElementById("flash-sale-modal");
+const openFlashSaleModalBtn = document.getElementById("openFlashSaleModalBtn");
+const closeFlashBtn = document.getElementById("closeFlashBtn");
+const addFlashSaleForm = document.getElementById("add-flash-sale-form");
+const flashSaleList = document.getElementById("flash-sale-list");
+const flashBranchFilter = document.getElementById("flash-branch-filter");
+
+// Load danh sách sản phẩm trong Flash Sale
+async function loadFlashSaleInventory() {
+  const selectedBranch = flashBranchFilter.value;
+  flashSaleList.innerHTML = `<tr><td colspan="7" style="text-align:center">Đang quét sản phẩm Flash Sale...</td></tr>`;
+  try {
+    const q = query(
+      collection(db, "inventory"), 
+      where("branch", "==", selectedBranch),
+      where("isFlashSale", "==", true)
+    );
+    const snap = await getDocs(q);
+    flashSaleList.innerHTML = "";
+
+    if (snap.empty) {
+      flashSaleList.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--text-muted); padding: 20px 0;">Không có sản phẩm nào trong chương trình Flash Sale của chi nhánh này.</td></tr>`;
+      return;
+    }
+
+    snap.forEach((docSnap) => {
+      const item = docSnap.data();
+      const docId = docSnap.id;
+      const discount = item.discountPercent || 20;
+      const salePrice = Math.round((item.price * (1 - discount / 100)) / 1000) * 1000;
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td data-label="ID">${item.pid}</td>
+        <td data-label="Hình ảnh" style="text-align:center">
+            <img src="${item.imageUrl || "img/default.png"}" style="width:45px;height:45px;object-fit:cover;border-radius:6px;">
+        </td>
+        <td data-label="Sản phẩm"><strong>${item.name}</strong></td>
+        <td data-label="Giá gốc" class="price-cell">${Number(item.price || 0).toLocaleString()}đ</td>
+        <td data-label="% Giảm giá">
+            <input type="number" id="discount-input-${docId}" value="${discount}" min="1" max="99" 
+                   style="width: 70px; text-align: center; padding: 6px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-weight: bold;" />
+        </td>
+        <td data-label="Giá khuyến mãi" style="font-weight:bold; color: #ff9100">${Number(salePrice).toLocaleString()}đ</td>
+        <td data-label="Hành động">
+            <div class="action-buttons">
+                <button onclick="window.updateFlashSaleDiscount('${docId}')" 
+                        class="btn-edit-row" title="Lưu phần trăm giảm giá" style="background-color: rgba(255, 184, 0, 0.1); color: #ffb800;">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button onclick="window.removeProductFromFlashSale('${docId}', '${item.name.replace(/'/g, "\\'")}')" 
+                        class="btn-delete-row" title="Xóa khỏi Flash Sale">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            </div>
+        </td>`;
+      flashSaleList.appendChild(row);
+    });
+  } catch (e) {
+    console.error("Lỗi khi load danh sách Flash Sale:", e);
+    flashSaleList.innerHTML = `<tr><td colspan="7" style="text-align:center; color: red;">Lỗi tải dữ liệu.</td></tr>`;
+  }
+}
+window.loadFlashSaleInventory = loadFlashSaleInventory;
+
+// Cập nhật chi nhánh thay đổi bên Tab Flash Sale
+flashBranchFilter.onchange = () => {
+  // Sync ngược lại tab inventory
+  branchFilter.value = flashBranchFilter.value;
+  loadFlashSaleInventory();
+};
+
+// Cập nhật % giảm giá
+window.updateFlashSaleDiscount = async function(docId) {
+  const discountInput = document.getElementById(`discount-input-${docId}`);
+  const newDiscount = Number(discountInput.value);
+  if (isNaN(newDiscount) || newDiscount < 1 || newDiscount > 99) {
+    Swal.fire("Lỗi", "Vui lòng nhập phần trăm giảm giá từ 1 đến 99%", "error");
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "inventory", docId), {
+      discountPercent: newDiscount,
+      updatedAt: serverTimestamp()
+    });
+    Swal.fire({
+      title: "Đã cập nhật!",
+      text: "Đã cập nhật mức giảm giá mới.",
+      icon: "success",
+      timer: 1000,
+      showConfirmButton: false
+    });
+    loadFlashSaleInventory();
+  } catch (error) {
+    Swal.fire("Lỗi", "Không thể cập nhật giảm giá.", "error");
+  }
+};
+
+// Xóa sản phẩm khỏi chương trình Flash Sale
+window.removeProductFromFlashSale = function(docId, productName) {
+  Swal.fire({
+    title: "Xác nhận xóa khỏi Flash Sale?",
+    html: `Bạn muốn xóa sản phẩm <br><b style="color:#ff9100">${productName}</b> khỏi chương trình Flash Sale?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#df2027",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Xóa khỏi Flash Sale",
+    cancelButtonText: "Hủy",
+    reverseButtons: true
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await updateDoc(doc(db, "inventory", docId), {
+          isFlashSale: false,
+          updatedAt: serverTimestamp()
+        });
+        Swal.fire({
+          title: "Đã xóa!",
+          text: "Đã loại bỏ sản phẩm khỏi Flash Sale.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false
+        });
+        loadFlashSaleInventory();
+      } catch (err) {
+        Swal.fire("Lỗi", "Không thể thực hiện yêu cầu.", "error");
+      }
+    }
+  });
+};
+
+// Mở modal thêm sản phẩm vào Flash Sale
+if (openFlashSaleModalBtn) {
+  openFlashSaleModalBtn.onclick = async () => {
+    const selectedBranch = flashBranchFilter.value;
+    const selectEl = document.getElementById("flash-product-select");
+    selectEl.innerHTML = `<option value="">Đang tải sản phẩm...</option>`;
+    
+    try {
+      // Query tất cả sản phẩm của chi nhánh
+      const q = query(collection(db, "inventory"), where("branch", "==", selectedBranch));
+      const snap = await getDocs(q);
+      selectEl.innerHTML = "";
+
+      let count = 0;
+      snap.forEach((docSnap) => {
+        const item = docSnap.data();
+        // Lọc các sản phẩm chưa tham gia Flash Sale
+        if (!item.isFlashSale) {
+          const opt = document.createElement("option");
+          opt.value = docSnap.id;
+          opt.textContent = `${item.pid} - ${item.name} (${Number(item.price || 0).toLocaleString()}đ)`;
+          selectEl.appendChild(opt);
+          count++;
+        }
+      });
+
+      if (count === 0) {
+        selectEl.innerHTML = `<option value="">Tất cả sản phẩm đã có trong Flash Sale!</option>`;
+      }
+      
+      flashSaleModal.style.display = "block";
+    } catch (e) {
+      console.error(e);
+      selectEl.innerHTML = `<option value="">Lỗi tải danh sách sản phẩm.</option>`;
+    }
+  };
+}
+
+// Đóng modal Flash Sale
+if (closeFlashBtn) {
+  closeFlashBtn.onclick = () => {
+    flashSaleModal.style.display = "none";
+    addFlashSaleForm.reset();
+  };
+}
+
+// Xử lý submit thêm sản phẩm vào Flash Sale
+if (addFlashSaleForm) {
+  addFlashSaleForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const productId = document.getElementById("flash-product-select").value;
+    const discount = Number(document.getElementById("flash-discount-input").value);
+
+    if (!productId) {
+      Swal.fire("Lỗi", "Vui lòng chọn một sản phẩm.", "error");
+      return;
+    }
+    if (isNaN(discount) || discount < 1 || discount > 99) {
+      Swal.fire("Lỗi", "Mức giảm giá phải từ 1 đến 99%", "error");
+      return;
+    }
+
+    const submitBtn = addFlashSaleForm.querySelector("button[type='submit']");
+    submitBtn.disabled = true;
+    submitBtn.innerText = "ĐANG THÊM...";
+
+    try {
+      await updateDoc(doc(db, "inventory", productId), {
+        isFlashSale: true,
+        discountPercent: discount,
+        updatedAt: serverTimestamp()
+      });
+
+      Swal.fire("Thành công", "Đã thêm sản phẩm vào chương trình Flash Sale!", "success");
+      flashSaleModal.style.display = "none";
+      addFlashSaleForm.reset();
+      loadFlashSaleInventory();
+    } catch (error) {
+      Swal.fire("Lỗi", error.message, "error");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerText = "THÊM VÀO FLASH SALE";
+    }
+  };
+}
+
 // ĐÓNG MODAL BẰNG ESC VÀ CLICK NGOÀI
 window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && modal.style.display === "block") {
-    modal.style.display = "none";
-    productForm.reset();
+  if (e.key === "Escape") {
+    if (modal.style.display === "block") {
+      modal.style.display = "none";
+      productForm.reset();
+    }
+    if (flashSaleModal && flashSaleModal.style.display === "block") {
+      flashSaleModal.style.display = "none";
+      addFlashSaleForm.reset();
+    }
   }
 });
 
@@ -318,5 +554,9 @@ window.onclick = (e) => {
   if (e.target === modal) {
     modal.style.display = "none";
     productForm.reset();
+  }
+  if (e.target === flashSaleModal) {
+    flashSaleModal.style.display = "none";
+    addFlashSaleForm.reset();
   }
 };

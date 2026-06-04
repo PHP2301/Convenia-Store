@@ -1,8 +1,12 @@
-// api-client.js - Mock Firebase SDK client connecting to FastAPI and PostgreSQL
+// api-client.js - Database client connecting to Supabase (PostgreSQL) and Render (FastAPI)
 
 const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
   ? "http://localhost:8000"
   : "https://convenia-website.onrender.com";
+
+// --- CLIENT INSTANCES ---
+export const db = { db: "postgres" };
+export const storage = {};
 
 // --- STATE MANAGEMENT ---
 let authStateListeners = [];
@@ -28,9 +32,9 @@ async function apiFetch(path, options = {}) {
   return response.json();
 }
 
-// --- MOCK FIREBASE APP ---
+// --- DEPRECATED/COMPATIBILITY APP LAYERS ---
 export function initializeApp() {
-  return { name: "[FastAPI Mock App]" };
+  return { name: "[FastAPI App]" };
 }
 export function getApps() {
   return [];
@@ -39,17 +43,25 @@ export function getApp() {
   return initializeApp();
 }
 
-// --- MOCK FIREBASE AUTH ---
+// --- DATABASE ACCESS ---
+
+// --- CLIENT AUTH SESSION ---
 export const auth = {
   get currentUser() {
-    const userStr = localStorage.getItem("current_user");
-    if (!userStr) return null;
-    const user = JSON.parse(userStr);
-    return {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.fullname || user.email.split("@")[0],
-    };
+    try {
+      const userStr = localStorage.getItem("current_user");
+      if (!userStr || userStr === "undefined" || userStr === "null") return null;
+      const user = JSON.parse(userStr);
+      if (!user || !user.uid || !user.email) return null;
+      return {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.fullname || user.email.split("@")[0],
+      };
+    } catch (e) {
+      console.error("Error parsing current_user from localStorage:", e);
+      return null;
+    }
   }
 };
 
@@ -111,8 +123,8 @@ export async function sendPasswordResetEmail(authInstance, email) {
   return true;
 }
 
-// --- MOCK FIRESTORE ---
-export function getFirestore() {
+// --- DATABASE SDK INTERFACE ---
+export function getDatabase() {
   return { db: "postgres" };
 }
 
@@ -140,7 +152,7 @@ export function onSnapshot(queryRef, onNext, onError) {
   // Initial fetch
   getDocs(queryRef).then(onNext).catch(onError);
   
-  // Set up polling every 3 seconds to simulate Firestore realtime updates
+  // Set up polling every 3 seconds to simulate database realtime updates
   const intervalId = setInterval(() => {
     getDocs(queryRef).then(onNext).catch(onError);
   }, 3000);
@@ -185,6 +197,31 @@ export async function getDoc(docRef) {
         exists: () => true,
         data: () => ({
           items: data.items || []
+        })
+      };
+    } catch (e) {
+      return {
+        exists: () => false,
+        data: () => null,
+      };
+    }
+  } else if (docRef.collection === "inventory" || docRef.collection === "products") {
+    try {
+      const p = await apiFetch(`/api/products/${docRef.id}`);
+      return {
+        exists: () => true,
+        data: () => ({
+          id: p.id,
+          pid: p.pid,
+          name: p.name,
+          type: p.type,
+          stock: p.stock,
+          price: p.price,
+          unit: p.unit,
+          branch: p.branch,
+          imageUrl: p.image_url,
+          isFlashSale: p.is_flash_sale || false,
+          discountPercent: p.discount_percent !== undefined ? p.discount_percent : 20,
         })
       };
     } catch (e) {
@@ -275,7 +312,7 @@ export async function setDoc(docRef, data, options = {}) {
     });
     return true;
   } else if (docRef.collection === "orders") {
-    // Map Firestore add/set order to FastAPI
+    // Map client SDK add/set order to FastAPI
     const orderData = {
       id: docRef.id,
       user_id: data.userId,
@@ -298,6 +335,25 @@ export async function setDoc(docRef, data, options = {}) {
     await apiFetch(`/api/settings/${docRef.id}`, {
       method: "POST",
       body: JSON.stringify({ value: JSON.stringify(data) }),
+    });
+    return true;
+  } else if (docRef.collection === "inventory" || docRef.collection === "products") {
+    // Map camelCase/snake_case to snake_case for Pydantic schema
+    const productData = {
+      pid: data.pid,
+      name: data.name,
+      type: data.type,
+      stock: parseInt(data.stock) || 0,
+      price: parseFloat(data.price) || 0,
+      unit: data.unit,
+      branch: data.branch,
+      image_url: data.imageUrl !== undefined ? data.imageUrl : (data.image_url || ""),
+      is_flash_sale: data.isFlashSale !== undefined ? data.isFlashSale : (data.is_flash_sale || false),
+      discount_percent: data.discountPercent !== undefined ? parseInt(data.discountPercent) : (data.discount_percent !== undefined ? parseInt(data.discount_percent) : 20),
+    };
+    await apiFetch(`/api/products/${docRef.id}`, {
+      method: "PUT",
+      body: JSON.stringify(productData),
     });
     return true;
   }
@@ -336,6 +392,26 @@ export async function addDoc(colRef, data) {
       }),
     });
     return { collection: "inventory_logs", id: "mock_log_id" };
+  } else if (colRef.collection === "inventory" || colRef.collection === "products") {
+    const docId = uuidv4();
+    const productData = {
+      id: docId,
+      pid: data.pid,
+      name: data.name,
+      type: data.type,
+      stock: parseInt(data.stock) || 0,
+      price: parseFloat(data.price) || 0,
+      unit: data.unit,
+      branch: data.branch,
+      image_url: data.imageUrl !== undefined ? data.imageUrl : (data.image_url || ""),
+      is_flash_sale: data.isFlashSale !== undefined ? data.isFlashSale : (data.is_flash_sale || false),
+      discount_percent: data.discountPercent !== undefined ? parseInt(data.discountPercent) : (data.discount_percent !== undefined ? parseInt(data.discount_percent) : 20),
+    };
+    await apiFetch("/api/products", {
+      method: "POST",
+      body: JSON.stringify(productData),
+    });
+    return { collection: colRef.collection, id: docId };
   }
   return null;
 }
@@ -371,8 +447,25 @@ export async function getDocs(q) {
         unit: p.unit,
         branch: p.branch,
         imageUrl: p.image_url,
+        isFlashSale: p.is_flash_sale || false,
+        discountPercent: p.discount_percent !== undefined ? p.discount_percent : 20,
       }),
     }));
+    
+    if (q.type === "query" && q.filters) {
+      q.filters.forEach((filter) => {
+        if (filter.field !== "branch" && filter.field !== "type") {
+          docs = docs.filter((docObj) => {
+            const data = docObj.data();
+            const val = data[filter.field];
+            if (filter.op === "==") return val === filter.value;
+            if (filter.op === ">") return val > filter.value;
+            if (filter.op === "<") return val < filter.value;
+            return true;
+          });
+        }
+      });
+    }
     
     return {
       empty: docs.length === 0,
@@ -503,9 +596,9 @@ function uuidv4() {
   });
 }
 
-// --- MOCK FIREBASE STORAGE ---
+// --- STORAGE ACCESS ---
 export function getStorage() {
-  return {};
+  return storage;
 }
 
 export function ref(storageInstance, path) {

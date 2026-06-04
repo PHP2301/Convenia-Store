@@ -145,8 +145,16 @@
   color: var(--text-main) !important;
 }
 
+.dark-theme .cart-text {
+  color: var(--text-main) !important;
+}
+
 .dark-theme .nav-item:hover {
   background-color: var(--bg-hover) !important;
+  color: #00b4d8 !important;
+}
+
+.dark-theme .cart-wrapper-link:hover .cart-text {
   color: #00b4d8 !important;
 }
 

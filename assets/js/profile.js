@@ -1,10 +1,9 @@
 import {
-  initializeApp,
-  getAuth,
+  auth,
+  db,
   onAuthStateChanged,
   signOut,
   signInWithEmailAndPassword,
-  getFirestore,
   doc,
   getDoc,
   setDoc,
@@ -13,19 +12,6 @@ import {
   where,
   getDocs
 } from "./api-client.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
-  authDomain: "circlek-db.firebaseapp.com",
-  projectId: "circlek-db",
-  storageBucket: "circlek-db.firebasestorage.app",
-  messagingSenderId: "515751444593",
-  appId: "1:515751444593:web:453df449a3b86f09f09bd0",
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
 
 const stores = [
   { id: "ngt", name: "Nguyễn Gia Trí", lat: 10.801943, lng: 106.711524 },
@@ -75,6 +61,12 @@ onAuthStateChanged(auth, async (user) => {
             statusText.style.color = "#28a745";
           }
         }
+
+        // Hiển thị nút vào trang admin nếu có quyền admin
+        if (data.role === "admin") {
+          const adminBtn = document.getElementById("admin-panel-btn");
+          if (adminBtn) adminBtn.style.display = "flex";
+        }
       }
     } catch (err) {
       console.error("Lỗi xác thực 2FA:", err);
@@ -110,16 +102,22 @@ async function displayOrderHistory(uid) {
       const bill = doc.data();
       const dateStr = new Date(bill.date).toLocaleString("vi-VN");
       html += `
-        <div class="bill-item-card" style="border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 15px; background: #fafafa; text-align: left;">
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">
-                <span style="font-weight: bold; color: #df2027;">Mã đơn: ${bill.orderId}</span>
-                <span style="font-size: 12px; color: #888;">${dateStr}</span>
+        <div class="bill-item-card">
+            <div class="bill-header">
+                <span class="bill-id">Mã đơn: ${bill.orderId}</span>
+                <span class="bill-date">${dateStr}</span>
             </div>
-            <div style="margin: 10px 0;">
-                ${bill.items.map((item) => `<div style="font-size: 14px;">• ${item.name} x${item.quantity}</div>`).join("")}
+            <div class="bill-items">
+                ${bill.items.map((item) => `
+                    <div class="bill-item-row">
+                        <span class="bill-item-name">${item.name}</span>
+                        <span class="bill-item-qty">x${item.quantity}</span>
+                    </div>
+                `).join("")}
             </div>
-            <div style="text-align: right; font-weight: bold; border-top: 1px solid #eee; padding-top: 5px;">
-                Tổng: <span style="color: #df2027;">${Number(bill.totalAmount).toLocaleString()}đ</span>
+            <div class="bill-footer">
+                <span>Tổng:</span>
+                <span class="bill-total">${Number(bill.totalAmount).toLocaleString()}đ</span>
             </div>
         </div>`;
     });
@@ -153,7 +151,7 @@ if (btnShowHistory && historyAside) {
         }, 100);
       }
 
-      // Tải dữ liệu từ Firebase nếu chưa có
+      // Tải dữ liệu từ cơ sở dữ liệu nếu chưa có
       const listContainer = document.getElementById("bill-history-list");
       if (listContainer && (listContainer.innerHTML.includes("Đang tải") || listContainer.innerHTML === "")) {
         const user = auth.currentUser;

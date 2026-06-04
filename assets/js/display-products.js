@@ -1,21 +1,16 @@
 import {
-  initializeApp, getApps, getApp,
-  getFirestore, collection, getDocs, query, where, doc, getDoc, setDoc, updateDoc,
-  getAuth, onAuthStateChanged
+  db,
+  auth,
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  onAuthStateChanged
 } from "./api-client.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCmDCaoZC1B1cvb3vpGeLrxQjNYvrHfHHg",
-  authDomain: "circlek-db.firebaseapp.com",
-  projectId: "circlek-db",
-  storageBucket: "circlek-db.firebasestorage.app",
-  messagingSenderId: "515751444593",
-  appId: "1:515751444593:web:453df449a3b86f09f09bd0",
-};
-
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
-const auth = getAuth(app);
 
 // Bảng tra cứu tên cửa hàng hiển thị lên Header cho đẹp
 const storeNames = {
@@ -32,25 +27,29 @@ onAuthStateChanged(auth, async (user) => {
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
+      let savedStoreId = "ngt";
       if (userSnap.exists()) {
         const userData = userSnap.data();
-
-        // Lấy trực tiếp ID cửa hàng (ví dụ: 'ngt', 'nvt') từ Profile đã lưu
-        const savedStoreId = userData.nearestStore || "ngt";
-
-        localStorage.setItem("selected_store", savedStoreId);
-        console.log("Hệ thống nhận diện cửa hàng từ Profile:", savedStoreId);
-
-        // Hiển thị tên cửa hàng lên Header (nếu có element id này)
-        const storeLabel = document.getElementById("display-store-name");
-        if (storeLabel) storeLabel.innerText = storeNames[savedStoreId] || "Nguyễn Gia Trí";
+        savedStoreId = userData.nearestStore || "ngt";
       }
+
+      localStorage.setItem("selected_store", savedStoreId);
+      console.log("Hệ thống nhận diện cửa hàng từ Profile:", savedStoreId);
+
+      // Hiển thị tên cửa hàng lên Header (nếu có element id này)
+      const storeLabel = document.getElementById("display-store-name");
+      if (storeLabel) storeLabel.innerText = storeNames[savedStoreId] || "Nguyễn Gia Trí";
     } catch (err) {
       console.error("Lỗi lấy Profile:", err);
+      localStorage.setItem("selected_store", "ngt");
+      const storeLabel = document.getElementById("display-store-name");
+      if (storeLabel) storeLabel.innerText = "Nguyễn Gia Trí";
     }
   } else {
     // Nếu chưa đăng nhập, mặc định là chi nhánh Nguyễn Gia Trí
     localStorage.setItem("selected_store", "ngt");
+    const storeLabel = document.getElementById("display-store-name");
+    if (storeLabel) storeLabel.innerText = "Nguyễn Gia Trí";
   }
   // Load sản phẩm sau khi đã biết chi nhánh
   loadProducts();

@@ -1,14 +1,55 @@
 /* ==========================================================================
-   1. BIẾN HỆ THỐNG VÀ RESET
+   1. DESIGN SYSTEM & CSS VARIABLES
    ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
 :root {
-  --primary-red: #00b4d8;
-  --dark-red: #0077b6;
-  --bg-light: #f4f7f6;
-  --text-dark: #333;
-  --success-green: #27ae60;
+  --primary: #00b4d8;         /* Cyan */
+  --primary-hover: #0077b6;   /* Blue */
+  --accent: #caf0f8;
+  
+  --bg-main: #f8fafc;         /* Slate 50 */
+  --bg-card: #ffffff;
+  --bg-sidebar: #0f172a;      /* Dark Slate */
+  --bg-hover: #f1f5f9;        /* Slate 100 */
+  --border-color: #e2e8f0;    /* Slate 200 */
+  
+  --text-main: #0f172a;       /* Slate 900 */
+  --text-muted: #64748b;      /* Slate 500 */
+  --text-light: #ffffff;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Status Colors */
+  --success: #10b981;         /* Emerald 500 */
+  --warning: #f59e0b;         /* Amber 500 */
+  --danger: #ef4444;          /* Red 500 */
 }
 
+/* Dark mode overrides */
+.dark-theme {
+  --bg-main: #0b0f19;         /* Dark Slate */
+  --bg-card: #151f32;         /* Card Navy */
+  --bg-sidebar: #0b0f19;
+  --bg-hover: #1e293b;        /* Slate 800 */
+  --border-color: #223147;
+  
+  --text-main: #f8fafc;       /* Slate 50 */
+  --text-muted: #94a3b8;      /* Slate 400 */
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+/* Reset & Base styles */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -16,9 +57,11 @@
 }
 
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: var(--bg-light);
-  color: var(--text-dark);
+  font-family: 'Outfit', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: var(--transition);
+  overflow-x: hidden;
 }
 
 .admin-wrapper {
@@ -27,260 +70,408 @@ body {
 }
 
 /* ==========================================================================
-   2. SIDEBAR
+   2. SIDEBAR NAVIGATION
    ========================================================================== */
 .sidebar {
   width: 260px;
-  background: #2c3e50;
-  color: white;
-  padding: 20px 0;
+  background: var(--bg-sidebar);
+  color: var(--text-light);
+  padding: 24px 0;
   position: fixed;
   height: 100vh;
   z-index: 1000;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  transition: var(--transition);
 }
 
 .sidebar-header {
-  padding: 0 20px 30px;
+  padding: 0 24px 24px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid #34495e;
-  margin-bottom: 20px;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 24px;
   text-decoration: none;
   color: inherit;
+  transition: var(--transition);
+}
+
+.sidebar-header img {
+  filter: drop-shadow(0 0 8px rgba(0, 180, 216, 0.4));
+  transition: var(--transition);
+}
+
+.sidebar-header:hover img {
+  transform: rotate(15deg) scale(1.05);
 }
 
 .sidebar-header span {
-  font-weight: bold;
-  letter-spacing: 1px;
-  color: white;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  background: linear-gradient(135deg, #ffffff, var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .nav-links {
   list-style: none;
+  padding: 0 12px;
 }
 
 .nav-links li {
-  padding: 15px 25px;
-  transition: 0.3s;
-}
-
-.nav-links li.active,
-.nav-links li:hover {
-  background: var(--primary-red);
+  margin-bottom: 8px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: var(--transition);
 }
 
 .nav-links a {
-  color: white;
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
+  padding: 14px 20px;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: var(--transition);
+}
+
+.nav-links a i {
+  font-size: 1.1rem;
+  transition: var(--transition);
+}
+
+.nav-links li:hover,
+.nav-links li.active {
+  background: rgba(0, 180, 216, 0.15);
+}
+
+.nav-links li.active a,
+.nav-links li:hover a {
+  color: var(--primary);
+}
+
+.nav-links li.active a i,
+.nav-links li:hover a i {
+  transform: scale(1.1);
+  color: var(--primary);
 }
 
 /* ==========================================================================
-   3. MAIN CONTENT VÀ TOP BAR
+   3. MAIN CONTENT AREA
    ========================================================================== */
 .main-content {
   flex: 1;
-  padding: 30px;
+  padding: 32px 40px;
   margin-left: 260px;
+  transition: var(--transition);
 }
 
 .top-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 32px;
+  background: var(--bg-card);
+  padding: 24px 32px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
 }
 
 .top-bar h2 {
-  color: var(--primary-red);
-  font-size: 1.5rem;
+  font-size: 1.45rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-main);
 }
 
+.top-bar h2 i {
+  color: var(--primary);
+}
+
+.admin-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.admin-info strong {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+/* Control Panel */
 .control-panel {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  margin-bottom: 25px;
+  background: var(--bg-card);
+  padding: 24px 32px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  margin-bottom: 32px;
+  transition: var(--transition);
+}
+
+.select-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.select-box label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .select-box select {
-  padding: 10px 15px;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-  margin-left: 10px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
   outline: none;
-  background: #fff;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-weight: 500;
+  font-family: inherit;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.select-box select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);
 }
 
 .btn-add-product {
-  background: var(--primary-red);
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
   color: white;
   border: none;
-  padding: 12px 25px;
-  border-radius: 6px;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  font-weight: bold;
-  transition: 0.3s;
+  font-weight: 600;
+  font-family: inherit;
+  transition: var(--transition);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 180, 216, 0.2);
 }
 
 .btn-add-product:hover {
-  background: var(--dark-red);
-  box-shadow: 0 4px 12px rgba(223, 32, 39, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 180, 216, 0.35);
 }
 
+.btn-add-product:active {
+  transform: translateY(0);
+}
 /* ==========================================================================
-   4. BẢNG DỮ LIỆU (INVENTORY TABLE)
+   4. INVENTORY & HISTORY TABLES
    ========================================================================== */
-.inventory-table {
+.inventory-table,
+.history-table {
   width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 12px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
 }
 
-.inventory-table th {
-  background: #f8f9fa;
-  padding: 18px 15px;
+.inventory-table th,
+.history-table th {
+  background: var(--bg-hover);
+  padding: 20px 24px;
   text-align: left;
-  font-weight: 700;
-  color: #555;
-  border-bottom: 2px solid #eee;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.inventory-table td {
-  padding: 15px;
-  border-bottom: 1px solid #f1f1f1;
+.inventory-table td,
+.history-table td {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-color);
   vertical-align: middle;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  transition: var(--transition);
+}
+
+.inventory-table tr:last-child td,
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+.inventory-table tr:hover td,
+.history-table tr:hover td {
+  background: var(--bg-hover);
+}
+
+/* Badges for logs */
+.type-badge {
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.type-nhap {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.type-xuat {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+.branch-tag {
+  font-weight: 500;
+  color: var(--primary-hover);
+}
+
+.dark-theme .branch-tag {
+  color: var(--primary);
 }
 
 .inventory-table img {
-  width: 50px;
-  height: 50px;
+  width: 52px;
+  height: 52px;
   object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid #eee;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
   background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.inventory-table tr:hover img {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
 }
 
 .price-cell {
-  font-weight: 700;
-  color: var(--primary-red);
-  white-space: nowrap;
+  font-weight: 600;
+  color: var(--primary-hover);
+}
+
+.dark-theme .price-cell {
+  color: var(--primary);
 }
 
 .stock-cell {
   font-weight: 600;
-  color: var(--success-green);
+  color: var(--text-main);
 }
 
-/* Các cột căn giữa */
+/* Căn chỉnh cột */
 .inventory-table th:nth-child(2),
-.inventory-table td:nth-child(2),
+.inventory-table td:nth-child(2) {
+  text-align: center;
+}
+
 .inventory-table th:last-child,
-/* Căn chỉnh lại ô Hành động */
 .inventory-table td:last-child {
   text-align: center;
-  min-width: 120px; /* Đảm bảo đủ chỗ cho 2 nút */
+  min-width: 130px;
 }
-/* Tinh chỉnh kích thước nút để bằng nhau */
-.btn-edit-row,
-.btn-delete-row {
-  width: 38px;
-  height: 38px;
-  padding: 0;
+
+/* Buttons Action */
+.action-buttons {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  gap: 8px;
 }
 
-/* Nút Sửa/Xóa */
-.action-buttons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px; /* Khoảng cách giữa 2 nút */
-  width: 100%;
-}
 .btn-edit-row,
 .btn-delete-row {
+  width: 36px;
+  height: 36px;
   border: none;
-  padding: 8px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   color: white;
-  transition: 0.3s;
-  font-size: 14px;
+  transition: var(--transition);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.95rem;
 }
 
 .btn-edit-row {
-  background-color: #28a745;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success);
 }
+
 .btn-edit-row:hover {
-  background-color: #218838;
+  background-color: var(--success);
+  color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
 }
 
 .btn-delete-row {
-  background-color: #dc3545;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
 }
+
 .btn-delete-row:hover {
-  background-color: #c82333;
+  background-color: var(--danger);
+  color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.2);
 }
 
 /* ==========================================================================
-   5. MODAL CỬA SỔ CHỈNH SỬA
+   5. MODAL FORM POPUP
    ========================================================================== */
 .modal {
   display: none;
   position: fixed;
   z-index: 100000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(5px);
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  transition: var(--transition);
 }
 
 .modal-content {
-  background: white;
+  background: var(--bg-card);
   margin: 5% auto;
-  padding: 30px;
-  border-radius: 15px;
-  width: 500px;
+  padding: 36px;
+  border-radius: var(--radius-lg);
+  width: 520px;
+  max-width: 90%;
   position: relative;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: var(--transition);
 }
 
-@keyframes slideDown {
+@keyframes modalSlideUp {
   from {
-    transform: translateY(-100px);
+    transform: translateY(30px);
     opacity: 0;
   }
   to {
@@ -289,182 +480,212 @@ body {
   }
 }
 
-.modal-content h3 {
-  margin-bottom: 25px;
-  color: var(--primary-red);
-  text-align: center;
+.close-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
   font-size: 1.5rem;
-  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-hover);
+}
+
+.close-btn:hover {
+  color: var(--text-main);
+  background: var(--border-color);
+}
+
+.modal-content h3 {
+  margin-bottom: 28px;
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 1.35rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+}
+
+.modal-content h3 i {
+  color: var(--primary);
 }
 
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  color: #555;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   outline: none;
-  font-size: 15px;
-  transition: 0.3s;
+  font-size: 0.95rem;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);
 }
 
 input[readonly] {
-  background: #f5f5f5;
-  color: #888;
+  background: var(--bg-hover) !important;
+  color: var(--text-muted);
   border-style: dashed;
+  cursor: not-allowed;
+}
+
+/* File input custom styles */
+.form-group input[type="file"] {
+  padding: 8px 12px;
+  background: var(--bg-hover);
+  cursor: pointer;
 }
 
 .btn-save {
   width: 100%;
-  padding: 15px;
-  background: var(--primary-red);
+  padding: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
   color: white;
   border: none;
-  border-radius: 8px;
-  font-weight: bold;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
-  font-size: 16px;
-  margin-top: 10px;
-  transition: 0.3s;
+  font-size: 1rem;
+  margin-top: 12px;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(0, 180, 216, 0.2);
+}
+
+.btn-save:hover {
+  box-shadow: 0 6px 20px rgba(0, 180, 216, 0.35);
 }
 
 /* ==========================================================================
-   6. RESPONSIVE MOBILE - TOÀN DIỆN
+   6. RESPONSIVE LAYOUT (TABLET / MOBILE)
    ========================================================================== */
 
-/* --- Nút Hamburger (ẩn trên desktop) --- */
+/* Toggle Button hamburger */
 .sidebar-toggle {
   display: none;
   position: fixed;
-  top: 12px;
-  left: 12px;
+  top: 16px;
+  left: 16px;
   z-index: 2000;
-  background: var(--primary-red);
+  background: var(--primary);
   color: white;
   border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  font-size: 18px;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  font-size: 1.2rem;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: var(--shadow-sm);
   align-items: center;
   justify-content: center;
+  transition: var(--transition);
 }
 
-/* Overlay mờ khi sidebar mở trên mobile */
+.sidebar-toggle:hover {
+  background: var(--primary-hover);
+}
+
 .sidebar-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
   z-index: 999;
 }
 
-/* --- Tablet (dưới 992px) --- */
+/* Tablet (dưới 992px) */
 @media (max-width: 992px) {
   .sidebar {
     width: 220px;
   }
-
+  
   .main-content {
     margin-left: 220px;
-    padding: 20px;
+    padding: 24px;
   }
-
-  .control-panel {
-    flex-wrap: wrap;
-    gap: 10px;
+  
+  .top-bar, .control-panel {
+    padding: 20px 24px;
   }
 }
 
-/* --- Mobile (dưới 768px) --- */
+/* Mobile (dưới 768px) */
 @media (max-width: 768px) {
-  /* Sidebar: ẩn sang trái, trượt ra khi mở */
   .sidebar {
-    width: 260px;
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
     z-index: 1500;
   }
-
+  
   .sidebar.open {
     transform: translateX(0);
   }
-
+  
   .sidebar-overlay.open {
     display: block;
   }
-
-  /* Hiện nút hamburger */
+  
   .sidebar-toggle {
     display: flex;
   }
-
-  /* Main content chiếm toàn bộ */
+  
   .main-content {
     margin-left: 0;
-    padding: 15px;
-    padding-top: 60px; /* Chỗ cho nút hamburger */
-    width: 100%;
+    padding: 20px 16px;
+    padding-top: 80px;
   }
-
-  /* Top bar: xếp dọc */
+  
   .top-bar {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
-    padding: 15px;
+    gap: 16px;
   }
-
-  .top-bar h2 {
-    font-size: 1.2rem;
-  }
-
-  /* Control panel: xếp dọc */
+  
   .control-panel {
     flex-direction: column;
-    gap: 12px;
-    padding: 15px;
+    align-items: stretch;
+    gap: 16px;
   }
-
+  
   .select-box {
-    width: 100%;
-    display: flex;
     flex-direction: column;
+    align-items: stretch;
     gap: 8px;
   }
-
-  .select-box select {
-    width: 100%;
-    margin-left: 0;
-    padding: 12px;
-    font-size: 15px;
-    border-radius: 8px;
-  }
-
+  
   .btn-add-product {
-    width: 100%;
     justify-content: center;
-    padding: 14px;
-    font-size: 15px;
   }
 
-  /* ========================================
-     BẢNG → CARD VIEW (MOBILE)
-     ======================================== */
+  /* CARD VIEW FOR TABLE */
   .inventory-table,
   .inventory-table thead,
   .inventory-table tbody,
@@ -473,349 +694,48 @@ input[readonly] {
   .inventory-table tr {
     display: block;
   }
-
-  /* Ẩn tiêu đề bảng */
-  .inventory-table thead tr {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
+  
+  .inventory-table thead {
+    display: none; /* Ẩn header table */
   }
-
-  /* Mỗi hàng → 1 card */
+  
   .inventory-table tr {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 14px;
-    margin-bottom: 16px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
-    padding: 12px 15px;
-    position: relative;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
   }
-
-  /* Dải màu bên trái mỗi card */
-  .inventory-table tr::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--primary-red);
-    border-radius: 4px 0 0 4px;
-  }
-
-  /* Mỗi ô → hàng ngang label : value */
+  
   .inventory-table td {
-    border: none;
-    border-bottom: 1px dashed #f1f1f1;
-    padding: 10px 0 10px 0 !important;
-    text-align: right !important;
-    min-height: 40px;
+    padding: 12px 20px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    text-align: right;
   }
-
+  
   .inventory-table td:last-child {
     border-bottom: none;
-    padding-top: 12px !important;
   }
-
-  /* Label giả từ data-label */
+  
   .inventory-table td::before {
     content: attr(data-label);
-    font-weight: 700;
-    color: #666;
-    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
     text-transform: uppercase;
-    text-align: left;
+    font-size: 0.8rem;
     letter-spacing: 0.5px;
-    min-width: 100px;
-  }
-
-  .inventory-table img {
-    width: 55px;
-    height: 55px;
-    border-radius: 8px;
-  }
-
-  /* Nút hành động */
-  .action-buttons {
-    width: 100%;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 4px;
-  }
-
-  .btn-edit-row,
-  .btn-delete-row {
-    flex: 1;
-    max-width: 130px;
-    padding: 11px;
-    font-size: 14px;
-    border-radius: 8px;
-    width: auto !important;
-    height: auto !important;
-    min-width: unset !important;
-  }
-
-  /* Modal: toàn màn hình trên mobile */
-  .modal-content {
-    width: 95vw;
-    max-width: 95vw;
-    margin: 10px auto;
-    padding: 20px 15px;
-    border-radius: 15px;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-
-  .modal-content h3 {
-    font-size: 1.2rem;
-    margin-bottom: 18px;
-  }
-
-  .form-group input,
-  .form-group select {
-    font-size: 16px; /* Tránh iOS zoom khi focus */
-    padding: 13px 12px;
-  }
-
-  .btn-save {
-    padding: 14px;
-    font-size: 15px;
-  }
-}
-
-/* --- Mobile nhỏ (dưới 480px) --- */
-@media (max-width: 480px) {
-  .main-content {
-    padding: 12px;
-    padding-top: 58px;
-  }
-
-  .inventory-table td {
-    font-size: 13px;
-  }
-
-  .inventory-table td::before {
-    font-size: 11px;
-    min-width: 85px;
-  }
-}
-
-/* ============================================================
-   FIX: Cột Hành động và nút trên desktop
-   ============================================================ */
-.inventory-table td:last-child {
-  text-align: center;
-  vertical-align: middle;
-  padding: 10px !important;
-}
-
-.action-buttons {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-edit-row,
-.btn-delete-row {
-  width: 35px !important;
-  height: 35px !important;
-  min-width: 35px !important;
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-  border-radius: 6px;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-
-/* --- Mobile Card View (Dưới 768px) --- */
-@media (max-width: 768px) {
-  /* Thu nhỏ Sidebar */
-  .sidebar {
-    width: 60px;
-    overflow: hidden;
-  }
-  .sidebar span,
-  .sidebar-header span {
-    display: none;
-  }
-  .main-content {
-    margin-left: 60px;
-    padding: 15px;
-  }
-
-  /* BIẾN TABLE THÀNH CARD */
-  .inventory-table,
-  .inventory-table thead,
-  .inventory-table tbody,
-  .inventory-table th,
-  .inventory-table td,
-  .inventory-table tr {
-    display: block;
-  }
-
-  .inventory-table thead tr {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-  }
-
-  .inventory-table tr {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    padding: 10px;
-  }
-
-  .inventory-table td {
-    border: none;
-    border-bottom: 1px dashed #f1f1f1;
-    position: relative;
-    padding-left: 45% !important;
-    text-align: right !important;
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-  }
-
-  /* Nhãn giả cho Card */
-  .inventory-table td::before {
-    content: attr(data-label);
-    position: absolute;
-    left: 15px;
-    width: 40%;
     text-align: left;
-    font-weight: bold;
-    color: #666;
-    font-size: 13px;
   }
-
+  
   .inventory-table img {
-    width: 60px;
-    height: 60px;
     margin-left: auto;
   }
-
+  
   .action-buttons {
     width: 100%;
     justify-content: flex-end;
-    gap: 10px;
-    margin-top: 10px;
   }
-
-  .btn-edit-row,
-  .btn-delete-row {
-    flex: 1;
-    max-width: 120px;
-    padding: 10px;
-  }
-}
-
-/* --- Màn hình siêu nhỏ (Dưới 480px) --- */
-@media (max-width: 480px) {
-  .inventory-table td {
-    padding-left: 40% !important;
-    font-size: 13px;
-  }
-}
-/* ==========================================================================
-   FIX LỖI BẢNG LỊCH SỬ TRÊN MOBILE
-   ========================================================================== */
-@media screen and (max-width: 768px) {
-  /* 1. Đảm bảo Main Content không bị Sidebar đè */
-  .main-content {
-    margin-left: 60px; /* Khớp với Sidebar đã thu nhỏ */
-    padding: 15px;
-    width: calc(100% - 60px);
-  }
-
-  /* 2. Biến bảng Lịch sử thành dạng danh sách */
-  .history-table,
-  .history-table thead,
-  .history-table tbody,
-  .history-table tr,
-  .history-table td {
-    display: block;
-    width: 100%;
-  }
-
-  /* Ẩn tiêu đề bảng */
-  .history-table thead {
-    display: none;
-  }
-
-  .history-table tr {
-    background: #fff;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border-left: 4px solid #00b4d8; /* Tạo điểm nhấn cho mỗi dòng lịch sử */
-  }
-
-  .history-table td {
-    text-align: left !important;
-    padding: 8px 0;
-    border: none;
-    border-bottom: 1px solid #f9f9f9;
-    display: flex;
-    flex-direction: column; /* Cho tiêu đề nằm trên nội dung */
-  }
-
-  .history-table td:last-child {
-    border-bottom: none;
-  }
-
-  /* Tạo nhãn nội dung */
-  .history-table td::before {
-    content: attr(data-label);
-    font-weight: bold;
-    color: #888;
-    font-size: 11px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-
-  /* Tối ưu hiển thị thời gian */
-  .history-table td[data-label="THỜI GIAN"] {
-    color: #00b4d8;
-    font-weight: bold;
-  }
-}
-/* Căn chỉnh cột Hành động */
-.inventory-table td:last-child {
-  text-align: center;
-  vertical-align: middle;
-  padding: 10px !important;
-}
-
-.action-buttons {
-  display: inline-flex; /* Chuyển sang inline-flex để không chiếm hết chiều ngang */
-  justify-content: center;
-  align-items: center;
-  gap: 8px; /* Khoảng cách giữa 2 nút */
-}
-
-/* Ép kích thước 2 nút bằng chằn chặn nhau */
-.btn-edit-row,
-.btn-delete-row {
-  width: 35px !important;
-  height: 35px !important;
-  min-width: 35px !important;
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-  border-radius: 6px;
-  margin: 0 !important; /* Xóa bỏ margin thừa gây lệch */
-  padding: 0 !important;
 }
