@@ -435,7 +435,7 @@ export async function getDocs(q) {
     }
     
     const products = await apiFetch(`/api/products?branch=${branch}&type=${type}`);
-    const docs = products.map((p) => ({
+    let docs = products.map((p) => ({
       id: p.id,
       data: () => ({
         id: p.id,
