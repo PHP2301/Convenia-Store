@@ -18,7 +18,7 @@ import {
   getDownloadURL,
   deleteObject,
   onAuthStateChanged
-} from "./api-client.js";
+} from "../core/api-client.js";
 
 const modal = document.getElementById("product-modal");
 const openModalBtn = document.getElementById("openModalBtn");
@@ -34,7 +34,7 @@ let currentEditId = null;
 // Kiểm tra quyền Admin và 2FA
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.href = "indexlogin.html";
+    window.location.href = "login.html";
     return;
   }
   
@@ -48,7 +48,7 @@ onAuthStateChanged(auth, async (user) => {
         if (!isVerified) {
           // Chưa xác thực 2FA, đăng xuất và quay lại trang login
           await auth.signOut();
-          window.location.href = "indexlogin.html";
+          window.location.href = "login.html";
         }
       }
     }

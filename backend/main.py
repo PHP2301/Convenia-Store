@@ -6,12 +6,31 @@ import uuid
 import logging
 from datetime import datetime
 import os
+import bcrypt
 
 from backend.database import execute_query, init_db_pool
 
 # Initialize logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+def hash_password(password: str) -> str:
+    pwd_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(pwd_bytes, salt)
+    return hashed.decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    if not hashed_password:
+        return False
+    if hashed_password.startswith("$2a$") or hashed_password.startswith("$2b$"):
+        try:
+            pwd_bytes = plain_password.encode('utf-8')
+            hashed_bytes = hashed_password.encode('utf-8')
+            return bcrypt.checkpw(pwd_bytes, hashed_bytes)
+        except Exception:
+            return False
+    return plain_password == hashed_password
 
 app = FastAPI(title="Circle K Backend API", version="1.0.0")
 
@@ -38,6 +57,24 @@ def startup_event():
         logger.info("Products database schema verified successfully.")
     except Exception as e:
         logger.error(f"Error checking/updating products schema: {e}")
+
+    # Migrate passwords to bcrypt if they are plaintext
+    try:
+        all_users = execute_query("SELECT uid, password, fido_password FROM users", fetch=True)
+        if all_users:
+            for u in all_users:
+                pwd = u["password"]
+                if pwd and not (pwd.startswith("$2a$") or pwd.startswith("$2b$")):
+                    hashed = hash_password(pwd)
+                    execute_query("UPDATE users SET password = %s WHERE uid = %s", (hashed, u["uid"]))
+                
+                fido_pwd = u["fido_password"]
+                if fido_pwd and not (fido_pwd.startswith("$2a$") or fido_pwd.startswith("$2b$")):
+                    hashed_fido = hash_password(fido_pwd)
+                    execute_query("UPDATE users SET fido_password = %s WHERE uid = %s", (hashed_fido, u["uid"]))
+            logger.info("Passwords migration completed successfully.")
+    except Exception as e:
+        logger.error(f"Error during password migration: {e}")
 
 
 # --- PYDANTIC SCHEMAS ---
@@ -120,22 +157,50 @@ def register(data: UserRegister):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email đã tồn tại!")
     
     uid = str(uuid.uuid4())
+    hashed_pwd = hash_password(data.password)
     execute_query(
         "INSERT INTO users (uid, email, password, role) VALUES (%s, %s, %s, 'user')",
-        (uid, data.email, data.password)
+        (uid, data.email, hashed_pwd)
     )
     return {"uid": uid, "email": data.email, "role": "user"}
 
 @app.post("/api/auth/login")
 def login(data: UserLogin):
     user = execute_query(
-        "SELECT uid, email, fullname, dob, phone, address, nearest_store, role, has_fido, tfa_secret FROM users WHERE email = %s AND (password = %s OR fido_password = %s)",
-        (data.email, data.password, data.password),
+        "SELECT uid, email, fullname, dob, phone, address, nearest_store, role, has_fido, tfa_secret, password, fido_password FROM users WHERE email = %s",
+        (data.email,),
         fetch=True
     )
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sai tài khoản hoặc mật khẩu!")
-    return user[0]
+        
+    user_data = user[0]
+    stored_password = user_data.get("password")
+    stored_fido_password = user_data.get("fido_password")
+    
+    is_valid = False
+    if stored_password and verify_password(data.password, stored_password):
+        is_valid = True
+    elif stored_fido_password and verify_password(data.password, stored_fido_password):
+        is_valid = True
+        
+    if not is_valid:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sai tài khoản hoặc mật khẩu!")
+        
+    # Return user data without password fields
+    return {
+        "uid": user_data["uid"],
+        "email": user_data["email"],
+        "fullname": user_data["fullname"],
+        "dob": user_data["dob"],
+        "phone": user_data["phone"],
+        "address": user_data["address"],
+        "nearest_store": user_data["nearest_store"],
+        "role": user_data["role"],
+        "has_fido": user_data["has_fido"],
+        "tfa_secret": user_data["tfa_secret"]
+    }
+
 
 @app.get("/api/auth/profile/{uid}")
 def get_profile(uid: str):

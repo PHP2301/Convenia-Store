@@ -11,7 +11,7 @@ import {
   query,
   where,
   getDocs
-} from "./api-client.js";
+} from "../core/api-client.js";
 
 const stores = [
   { id: "ngt", name: "Nguyễn Gia Trí", lat: 10.801943, lng: 106.711524 },
@@ -43,7 +43,7 @@ onAuthStateChanged(auth, async (user) => {
                              localStorage.getItem("tfa_verified_" + user.uid) === "true";
           if (!isVerified) {
             await signOut(auth);
-            window.location.href = "indexlogin.html";
+            window.location.href = "login.html";
             return;
           }
         }
@@ -79,7 +79,7 @@ onAuthStateChanged(auth, async (user) => {
     if (initialDisplay) initialDisplay.innerText = user.email.charAt(0).toUpperCase();
 
   } else {
-    window.location.href = "indexlogin.html";
+    window.location.href = "login.html";
   }
 });
 

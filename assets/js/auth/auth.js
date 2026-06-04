@@ -12,7 +12,7 @@ import {
   query,
   where,
   getDocs
-} from "./api-client.js";
+} from "../core/api-client.js";
 
 // 2. Cấu hình EmailJS
 emailjs.init("utKMKTgKkf6gww2x1");
@@ -228,7 +228,7 @@ window.handleForgotAction = async function () {
       await sendPasswordResetEmail(auth, email);
       showNotify("Thành công! Kiểm tra email để đổi mật khẩu.", "success");
       setTimeout(() => {
-        location.href = "indexlogin.html";
+        location.href = "login.html";
       }, 2500);
     } catch (err) {
       showNotify(err.message, "error");
@@ -440,7 +440,7 @@ authForm.addEventListener("submit", async (e) => {
 
           showNotify("Đăng ký thành công!", "success");
           setTimeout(() => {
-            // SỬA TẠI ĐÂY: Quay về trạng thái login của file indexlogin.html
+            // SỬA TẠI ĐÂY: Quay về trạng thái login của file login.html
             window.location.hash = "";
             location.reload();
           }, 1500);

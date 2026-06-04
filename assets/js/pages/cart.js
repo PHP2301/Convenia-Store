@@ -7,7 +7,7 @@ import {
   getDoc,
   updateDoc,
   onAuthStateChanged
-} from "./api-client.js";
+} from "../core/api-client.js";
 
 // Initialize EmailJS
 emailjs.init("utKMKTgKkf6gww2x1");
@@ -19,7 +19,7 @@ onAuthStateChanged(auth, (user) => {
     renderCart(user.uid);
   } else {
     document.getElementById("cart-list").innerHTML =
-      `<p style="text-align:center; padding:20px;">Vui lòng <a href="indexlogin.html">đăng nhập</a> để xem giỏ hàng.</p>`;
+      `<p style="text-align:center; padding:20px;">Vui lòng <a href="login.html">đăng nhập</a> để xem giỏ hàng.</p>`;
   }
 });
 
@@ -108,7 +108,7 @@ if (btnVietQR) {
     const user = auth.currentUser;
     if (!user) {
       alert("Vui lòng đăng nhập để tiến hành thanh toán!");
-      window.location.href = "indexlogin.html";
+      window.location.href = "login.html";
       return;
     }
 
@@ -123,14 +123,14 @@ if (btnVietQR) {
 
       if (!userSnap.exists()) {
         alert("Bạn cần cập nhật thông tin cá nhân (Họ tên, SĐT) trước khi thanh toán!");
-        window.location.href = "indexprofile.html";
+        window.location.href = "profile.html";
         return;
       }
 
       const userData = userSnap.data();
       if (!userData.fullname || !userData.phone || !userData.address) {
         alert("Thông tin nhận hàng còn thiếu (Họ tên, SĐT hoặc Địa chỉ). Vui lòng cập nhật hồ sơ!");
-        window.location.href = "indexprofile.html";
+        window.location.href = "profile.html";
         return;
       }
 
@@ -174,7 +174,7 @@ if (btnVietQR) {
           }
         } else {
           alert("Đơn hàng từ 1.000.000đ trở lên yêu cầu Xác thực đa yếu tố cấp cao (MFA Step-up). Vui lòng vào trang Hồ sơ để liên kết thiết bị bảo mật (FIDO2) trước!");
-          window.location.href = "indexprofile.html";
+          window.location.href = "profile.html";
           return;
         }
       }
@@ -233,7 +233,7 @@ async function finalizeOrder(user, userData, cartData, cartRef, orderId, total) 
   await addDoc(collection(db, "orders"), newOrder);
   await updateDoc(cartRef, { items: [] });
   alert(`🎉 Thanh toán thành công! Mã đơn: ${orderId}`);
-  window.location.href = "indexprofile.html";
+  window.location.href = "profile.html";
 }
 
 // --- HÀM HIỂN THỊ VÀ XỬ LÝ MODAL EMAIL OTP KHI THANH TOÁN ---

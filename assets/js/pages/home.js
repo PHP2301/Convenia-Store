@@ -13,7 +13,7 @@ import {
   onAuthStateChanged,
   signOut,
   clearAllFlashSaleProducts
-} from "./api-client.js";
+} from "../core/api-client.js";
 
 // --- 2. XỬ LÝ ĐĂNG NHẬP & HIỂN THỊ TÊN KHÁCH HÀNG ---
 onAuthStateChanged(auth, async (user) => {

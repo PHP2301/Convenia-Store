@@ -10,7 +10,7 @@ import {
   setDoc,
   updateDoc,
   onAuthStateChanged
-} from "./api-client.js";
+} from "../core/api-client.js";
 
 // Bảng tra cứu tên cửa hàng hiển thị lên Header cho đẹp
 const storeNames = {
@@ -121,7 +121,7 @@ window.handleAddToCart = async (btn, id, name, price, imageUrl) => {
   const user = auth.currentUser;
   if (!user) {
     alert("Bạn ơi, bạn cần đăng nhập để mua hàng nhé!");
-    window.location.href = "indexlogin.html";
+    window.location.href = "login.html";
     return;
   }
 
