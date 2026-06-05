@@ -138,7 +138,8 @@ export default function Profile() {
       });
 
       if (!loginCheck.ok) {
-        throw new Error(t("Xác nhận mật khẩu thất bại! Vui lòng điền đúng mật khẩu tài khoản."));
+        const errorData = await loginCheck.json().catch(() => ({}));
+        throw new Error(errorData.detail || t("Xác nhận mật khẩu thất bại! Vui lòng điền đúng mật khẩu tài khoản."));
       }
 
       const res = await fetch("/api/auth/fido-register", {
