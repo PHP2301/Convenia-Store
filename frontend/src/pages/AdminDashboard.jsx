@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useThemeLang } from '../context/ThemeLangContext'
-import { PlusCircle, Edit2, Trash2, ShieldAlert, Sparkles, ArrowUpRight, ArrowDownLeft, Upload } from 'lucide-react'
+import { PlusCircle, Edit2, Trash2, ShieldAlert, Sparkles, ArrowUpRight, ArrowDownLeft, Upload, Clock } from 'lucide-react'
 
 export default function AdminDashboard() {
   const { user, fetchWithAuth } = useAuth()
@@ -30,6 +30,55 @@ export default function AdminDashboard() {
   // Upload state
   const [uploading, setUploading] = useState(false)
 
+  // Flash Sale Settings state
+  const [flashEndTime, setFlashEndTime] = useState('')
+
+  // Fetch flash sale setting
+  const fetchFlashSaleSetting = async () => {
+    try {
+      const res = await fetch('/api/settings/flash_sale')
+      if (res.ok) {
+        const data = await res.json()
+        if (data.exists && data.value) {
+          const timestamp = parseInt(data.value)
+          if (!isNaN(timestamp)) {
+            const date = new Date(timestamp)
+            const tzoffset = date.getTimezoneOffset() * 60000; 
+            const localISOTime = (new Date(date - tzoffset)).toISOString().slice(0, 16);
+            setFlashEndTime(localISOTime)
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi khi load cấu hình bộ đếm:", err)
+    }
+  }
+
+  const handleSaveFlashTimer = async () => {
+    if (!flashEndTime) {
+      alert(t('Vui lòng chọn ngày giờ kết thúc hợp lệ!'))
+      return
+    }
+
+    try {
+      const selectedTime = new Date(flashEndTime).getTime()
+      const res = await fetchWithAuth('/api/settings/flash_sale', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: selectedTime.toString() })
+      })
+
+      if (res.ok) {
+        alert(t('Đã cập nhật thời gian kết thúc Flash Sale thành công!'))
+      } else {
+        const data = await res.json()
+        throw new Error(data.detail || t('Lưu cấu hình thất bại!'))
+      }
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
   // Fetch Data
   const fetchData = async () => {
     setLoading(true)
@@ -40,12 +89,14 @@ export default function AdminDashboard() {
           const data = await res.json()
           setProducts(data)
         }
-      } else {
+      } else if (activeTab === 'inventory') {
         const res = await fetchWithAuth('/api/inventory-logs')
         if (res.ok) {
           const data = await res.json()
           setLogs(data)
         }
+      } else if (activeTab === 'settings') {
+        await fetchFlashSaleSetting()
       }
     } catch (err) {
       console.error("Lỗi lấy thông tin admin:", err)
@@ -233,6 +284,14 @@ export default function AdminDashboard() {
           >
             {t('Nhật Ký Kho Hàng')}
           </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`px-5 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+              activeTab === 'settings' ? 'bg-[#00b4d8] text-white shadow' : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            {t('Cấu Hình Flash Sale')}
+          </button>
         </div>
       </div>
 
@@ -338,7 +397,7 @@ export default function AdminDashboard() {
             </tbody>
           </table>
         </div>
-      ) : (
+      ) : activeTab === 'inventory' ? (
         /* Inventory Logs Table */
         <div className="rounded-3xl border border-[#eeeeee] bg-white overflow-x-auto shadow-sm">
           <table className="w-full text-left border-collapse text-sm min-w-[700px]">
@@ -381,6 +440,36 @@ export default function AdminDashboard() {
               })}
             </tbody>
           </table>
+        </div>
+      ) : (
+        /* Settings Tab (Flash Sale Timer Setting) */
+        <div className="max-w-md mx-auto bg-white border border-[#eeeeee] rounded-3xl p-8 space-y-6 shadow-sm">
+          <div className="space-y-2 text-center md:text-left">
+            <h3 className="text-lg font-black text-slate-800 uppercase tracking-wide flex items-center justify-center md:justify-start gap-2">
+              <Clock className="w-5 h-5 text-red-500 shrink-0 animate-pulse" />
+              <span>{t('Thời Gian Kết Thúc Flash Sale')}</span>
+            </h3>
+            <p className="text-slate-400 text-xs font-semibold">{t('Điều chỉnh thời gian đếm ngược kết thúc Flash Sale hiển thị tại Trang Chủ.')}</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('Chọn Ngày Giờ Kết Thúc')}</label>
+              <input
+                type="datetime-local"
+                value={flashEndTime}
+                onChange={(e) => setFlashEndTime(e.target.value)}
+                className="w-full px-4 py-2.5 bg-white border border-[#eeeeee] rounded-xl text-slate-850 text-xs font-bold focus:outline-none focus:border-[#00b4d8] shadow-sm"
+              />
+            </div>
+
+            <button
+              onClick={handleSaveFlashTimer}
+              className="w-full px-5 py-2.5 bg-[#00b4d8] hover:bg-black text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center space-x-2"
+            >
+              <span>{t('Lưu Thời Gian')}</span>
+            </button>
+          </div>
         </div>
       )}
 

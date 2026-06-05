@@ -56,25 +56,69 @@ export default function Home() {
 
   // Timer for Flash Sale
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 })
+  const [flashEndTime, setFlashEndTime] = useState(null)
+
+  // Fetch flash sale end time from server
+  useEffect(() => {
+    const fetchSetting = async () => {
+      try {
+        const res = await fetch('/api/settings/flash_sale')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.exists && data.value) {
+            const timestamp = parseInt(data.value)
+            if (!isNaN(timestamp)) {
+              setFlashEndTime(timestamp)
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi lấy thời gian flash sale:", err)
+      }
+    }
+
+    fetchSetting()
+    // Poll every 10 seconds to keep it "realtime"
+    const pollInterval = setInterval(fetchSetting, 10000)
+    return () => clearInterval(pollInterval)
+  }, [])
+
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const now = new Date()
-      const endOfToday = new Date()
-      endOfToday.setHours(23, 59, 59, 999)
-      const diff = endOfToday - now
+      if (!flashEndTime) {
+        // Fallback: end of today
+        const now = new Date()
+        const endOfToday = new Date()
+        endOfToday.setHours(23, 59, 59, 999)
+        const diff = endOfToday - now
+        if (diff > 0) {
+          setTimeLeft({
+            hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+            minutes: Math.floor((diff / 1000 / 60) % 60),
+            seconds: Math.floor((diff / 1000) % 60)
+          })
+        }
+        return
+      }
+
+      const now = new Date().getTime()
+      const diff = flashEndTime - now
       
       if (diff > 0) {
         setTimeLeft({
-          hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+          hours: Math.floor(diff / (1000 * 60 * 60)), // Total hours remaining
           minutes: Math.floor((diff / 1000 / 60) % 60),
           seconds: Math.floor((diff / 1000) % 60)
         })
+      } else {
+        setTimeLeft({ hours: 0, minutes: 0, seconds: 0 })
       }
     }
+
     calculateTimeLeft()
     const timer = setInterval(calculateTimeLeft, 1000)
     return () => clearInterval(timer)
-  }, [])
+  }, [flashEndTime])
 
   const flashSales = products.filter(p => p.is_flash_sale)
   const featured = products.filter(p => !p.is_flash_sale).slice(0, 4)

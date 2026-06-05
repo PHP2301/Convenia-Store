@@ -64,48 +64,48 @@ gantt
 ### 1.1 Hash mật khẩu với bcrypt
 
 #### [MODIFY] [main.py](file:///c:/Convenia-Store/backend/main.py)
-- Thêm `bcrypt` vào dependencies
-- Hash password khi đăng ký: `bcrypt.hashpw(password, bcrypt.gensalt())`
-- Verify password khi đăng nhập: `bcrypt.checkpw(password, hashed)`
-- Migration script để hash tất cả password hiện tại trong DB
+- [x] Thêm `bcrypt` vào dependencies
+- [x] Hash password khi đăng ký: `bcrypt.hashpw(password, bcrypt.gensalt())`
+- [x] Verify password khi đăng nhập: `bcrypt.checkpw(password, hashed)`
+- [x] Migration script để hash tất cả password hiện tại trong DB
 
 #### [MODIFY] [requirements.txt](file:///c:/Convenia-Store/backend/requirements.txt)
-- Thêm `bcrypt>=4.0.0`
+- [x] Thêm `bcrypt>=4.0.0`
 
 ### 1.2 JWT Token Authentication & XSS Defense
 
 #### [NEW] `backend/auth_utils.py`
-- Tạo module `auth_utils.py` chứa:
-  - `create_access_token(uid, role)` → JWT access token (hết hạn cực ngắn: 5 phút)
-  - `create_refresh_token(uid)` → JWT refresh token (hết hạn 7 ngày)
-  - `verify_token(token)` → decode và validate token
-  - `require_admin(token)` → middleware kiểm tra quyền admin
+- [x] Tạo module `auth_utils.py` chứa:
+  - [x] `create_access_token(uid, role)` → JWT access token (hết hạn cực ngắn: 5 phút)
+  - [x] `create_refresh_token(uid)` → JWT refresh token (hết hạn 7 ngày)
+  - [x] `verify_token(token)` → decode và validate token
+  - [x] `require_admin(token)` → middleware kiểm tra quyền admin
 
 #### [MODIFY] [main.py] & CSP (Phòng thủ XSS)
-- Trả về `access_token` qua body để Frontend lưu vào **`localStorage`**.
-- Trả về `refresh_token` qua **HTTP-Only Cookies** (ẩn với JavaScript để hacker không thể lấy).
-- Cấu hình **Content Security Policy (CSP)** trên Backend chặn toàn bộ thẻ `<script src="...">` đến từ các trang web lạ. Sử dụng thuộc tính `integrity` (SRI) khi nhúng CDN.
+- [x] Trả về `access_token` qua body để Frontend lưu vào **`localStorage`**.
+- [x] Trả về `refresh_token` qua **HTTP-Only Cookies** (ẩn với JavaScript để hacker không thể lấy).
+- [x] Cấu hình **Content Security Policy (CSP)** trên Backend chặn toàn bộ thẻ `<script src="...">` đến từ các trang web lạ. Sử dụng thuộc tính `integrity` (SRI) khi nhúng CDN.
 
 #### [MODIFY] React Context / Axios Interceptor
-- Lưu tạm `access_token` và Giỏ hàng (Cart) vào `localStorage`.
-- Nếu token trong local hết hạn, tự động gọi API làm mới bằng Refresh Token ngầm trong Cookie.
+- [x] Lưu tạm `access_token` và Giỏ hàng (Cart) vào `localStorage`.
+- [x] Nếu token trong local hết hạn, tự động gọi API làm mới bằng Refresh Token ngầm trong Cookie.
 
 ### 1.3 CORS & Rate Limiting
 
 #### [MODIFY] [main.py](file:///c:/Convenia-Store/backend/main.py)
-- Thu hẹp `allow_origins` chỉ cho domain cụ thể
-- Thêm `slowapi` rate limiting:
-  - Login: 5 lần/phút
-  - API chung: 60 lần/phút
-  - Upload: 10 lần/phút
+- [x] Thu hẹp `allow_origins` chỉ cho domain cụ thể
+- [x] Thêm `slowapi` rate limiting:
+  - [x] Login: 5 lần/phút
+  - [x] API chung: 60 lần/phút
+  - [x] Upload: 10 lần/phút
 
 ### 1.4 Unit Testing cơ bản
 
 #### [NEW] `backend/tests/test_auth.py`
-- Test đăng ký, đăng nhập, token validation
+- [x] Test đăng ký, đăng nhập, token validation
 
 #### [NEW] `backend/tests/test_products.py`
-- Test CRUD sản phẩm, flash sale endpoints
+- [x] Test CRUD sản phẩm, flash sale endpoints
 
 ---
 
@@ -116,49 +116,49 @@ gantt
 ### 2.1 Kiến trúc ReactJS (Vite + TailwindCSS)
 
 #### [NEW] `frontend/` (Thư mục React mới)
-- Khởi tạo React App bằng **Vite**.
-- Thay thế toàn bộ Vanilla HTML/JS hiện tại bằng **React Components** và **React Router**.
-- Sử dụng **Tailwind CSS** để thiết kế giao diện nhanh, dễ bảo trì và responsive hoàn hảo.
-- Quản lý trạng thái (Auth, Cart) bằng **React Context**, kết hợp sao lưu xuống `localStorage` để dữ liệu không mất khi F5.
+- [x] Khởi tạo React App bằng **Vite**.
+- [x] Thay thế toàn bộ Vanilla HTML/JS hiện tại bằng **React Components** và **React Router**.
+- [x] Sử dụng **Tailwind CSS** để thiết kế giao diện nhanh, dễ bảo trì và responsive hoàn hảo.
+- [x] Quản lý trạng thái (Auth, Cart) bằng **React Context**, kết hợp sao lưu xuống `localStorage` để dữ liệu không mất khi F5.
 
 ### 2.2 Animations cao cấp với Framer Motion
 
 #### [NEW] Thư viện `framer-motion`
-- Tích hợp `framer-motion` để tạo các chuyển động mượt mà như native app.
-- **Page transitions:** Hiệu ứng fade/slide khi chuyển trang (React Router).
-- **Scroll animations:** Khung xương loading (Skeleton) và hiệu ứng bay lên (stagger) khi cuộn xem danh sách sản phẩm.
-- **Interactive hover:** Nút bấm và thẻ sản phẩm có hiệu ứng nảy nhẹ (spring), phát sáng viền.
+- [x] Tích hợp `framer-motion` để tạo các chuyển động mượt mà như native app.
+- [x] **Page transitions:** Hiệu ứng fade/slide khi chuyển trang (React Router).
+- [x] **Scroll animations:** Khung xương loading (Skeleton) và hiệu ứng bay lên (stagger) khi cuộn xem danh sách sản phẩm.
+- [x] **Interactive hover:** Nút bấm và thẻ sản phẩm có hiệu ứng nảy nhẹ (spring), phát sáng viền.
 
 ### 2.2 Tìm kiếm nâng cao
 
 #### [NEW] `html/search.html`
-- Trang tìm kiếm riêng biệt với:
-  - **Instant search** (gợi ý realtime khi gõ)
-  - **Bộ lọc**: Giá (range slider), Loại sản phẩm, Chi nhánh
-  - **Sắp xếp**: Giá tăng/giảm, Tên A-Z, Mới nhất
-  - **Lịch sử tìm kiếm** gần đây
+- [x] Trang tìm kiếm riêng biệt với:
+  - [x] **Instant search** (gợi ý realtime khi gõ)
+  - [x] **Bộ lọc**: Giá (range slider), Loại sản phẩm, Chi nhánh
+  - [x] **Sắp xếp**: Giá tăng/giảm, Tên A-Z, Mới nhất
+  - [x] **Lịch sử tìm kiếm** gần đây
 
 #### [MODIFY] [main.py](file:///c:/Convenia-Store/backend/main.py)
-- Thêm endpoint `GET /api/products/search?q=...&min_price=...&max_price=...&sort=...`
-- Full-text search trên PostgreSQL (sử dụng `tsvector`)
+- [ ] Thêm endpoint `GET /api/products/search?q=...&min_price=...&max_price=...&sort=...`
+- [ ] Full-text search trên PostgreSQL (sử dụng `tsvector`)
 
 ### 2.3 Product Detail Page
 
 #### [NEW] `html/product.html`
-- Trang chi tiết sản phẩm riêng (như Dior có trang riêng cho từng sản phẩm):
-  - Hình ảnh lớn + Gallery zoom
-  - Mô tả chi tiết, thông tin dinh dưỡng
-  - Sản phẩm liên quan (gợi ý)
-  - Nút "Thêm vào giỏ" nổi bật
-  - Đánh giá & bình luận (Phase 3)
+- [x] Trang chi tiết sản phẩm riêng (như Dior có trang riêng cho từng sản phẩm):
+  - [x] Hình ảnh lớn + Gallery zoom
+  - [x] Mô tả chi tiết, thông tin dinh dưỡng
+  - [x] Sản phẩm liên quan (gợi ý)
+  - [x] Nút "Thêm vào giỏ" nổi bật
+  - [ ] Đánh giá & bình luận (Phase 3)
 
 ### 2.4 SEO & Performance
 
 #### [MODIFY] Tất cả file HTML
-- Thêm `<meta name="description">`, `<meta property="og:...">` cho mỗi trang
-- Structured Data (JSON-LD) cho sản phẩm (`Product` schema)
-- Lazy loading cho hình ảnh (`loading="lazy"`)
-- Minify CSS/JS cho production
+- [x] Thêm `<meta name="description">`, `<meta property="og:...">` cho mỗi trang
+- [x] Structured Data (JSON-LD) cho sản phẩm (`Product` schema)
+- [x] Lazy loading cho hình ảnh (`loading="lazy"`)
+- [x] Minify CSS/JS cho production
 
 ---
 
@@ -176,9 +176,9 @@ gantt
   4. **Hoàn tất** (mã đơn hàng + thông báo thành công)
 
 #### [MODIFY] [main.py](file:///c:/Users/ACER/Documents/CK/Convenia-Website/backend/main.py)
-- Thêm trạng thái đơn hàng chi tiết: `Chờ xác nhận → Đang chuẩn bị → Đang giao → Hoàn tất → Đã hủy`
-- API cập nhật trạng thái đơn hàng (cho admin)
-- API lấy chi tiết 1 đơn hàng
+- [ ] Thêm trạng thái đơn hàng chi tiết: `Chờ xác nhận → Đang chuẩn bị → Đang giao → Hoàn tất → Đã hủy`
+- [ ] API cập nhật trạng thái đơn hàng (cho admin)
+- [x] API lấy chi tiết 1 đơn hàng
 
 ### 3.2 Hệ thống Voucher & Mã giảm giá
 
@@ -198,9 +198,9 @@ CREATE TABLE vouchers (
   is_active BOOLEAN DEFAULT TRUE
 );
 ```
-- Admin có thể tạo, sửa, xóa voucher
-- Khách nhập mã giảm giá ở trang checkout
-- Validate: hạn dùng, giới hạn lượt, đơn tối thiểu
+- [ ] Admin có thể tạo, sửa, xóa voucher
+- [x] Khách nhập mã giảm giá ở trang checkout
+- [ ] Validate: hạn dùng, giới hạn lượt, đơn tối thiểu
 
 ### 3.3 Loyalty Program (Tích điểm)
 
@@ -257,9 +257,9 @@ CREATE TABLE vouchers (
 ### 4.4 Nhật ký hoạt động (Audit Log)
 
 #### [NEW] Bảng DB `audit_logs`
-- Ghi lại mọi hành động quan trọng: ai làm gì, lúc nào, IP nào
-- Admin xem được nhật ký hoạt động toàn hệ thống
-- Phục vụ điều tra sự cố và tuân thủ
+- [x] Ghi lại mọi hành động quan trọng: ai làm gì, lúc nào, IP nào (nhật ký kho hàng và hành động)
+- [x] Admin xem được nhật ký hoạt động toàn hệ thống (tab Nhật Ký Kho Hàng trên Admin)
+- [ ] Phục vụ điều tra sự cố và tuân thủ
 
 ---
 
