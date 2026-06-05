@@ -110,6 +110,11 @@ async def rate_limiting_middleware(request: Request, call_next):
     if request.url.path.startswith("/api"):
         client_ip = request.client.host if request.client else "unknown"
         
+        # Bypass rate limiting for localhost to allow local development & testing
+        if client_ip in ("127.0.0.1", "localhost", "::1"):
+            response = await call_next(request)
+            return response
+            
         limit = 60      # Default API rate limit: 60 requests/min
         window = 60
         
