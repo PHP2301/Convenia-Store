@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, status, Query, UploadFile, File
+from fastapi import FastAPI, HTTPException, status, Query, UploadFile, File, Response, Request, Depends
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
@@ -7,8 +8,12 @@ import logging
 from datetime import datetime
 import os
 import bcrypt
+import time
+from collections import defaultdict
+from contextlib import asynccontextmanager
 
 from backend.database import execute_query, init_db_pool
+from backend.auth_utils import create_access_token, create_refresh_token, verify_token, require_admin
 
 # Initialize logger
 logging.basicConfig(level=logging.INFO)
@@ -32,19 +37,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
             return False
     return plain_password == hashed_password
 
-app = FastAPI(title="Circle K Backend API", version="1.0.0")
-
-# Enable CORS for frontend local server (Live Server runs on port 5500 or 5000)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.on_event("startup")
-def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     init_db_pool()
     # Create site_settings table if it doesn't exist
     execute_query(
@@ -75,6 +69,83 @@ def startup_event():
             logger.info("Passwords migration completed successfully.")
     except Exception as e:
         logger.error(f"Error during password migration: {e}")
+    yield
+
+# App initialization and routing
+app = FastAPI(title="Convenia Store Việt Nam Backend API", version="1.0.0", lifespan=lifespan)
+
+# Enable CORS for frontend local server and production domain
+origins = [
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+    "http://localhost:5173", # Vite local
+    "http://127.0.0.1:5173",
+    "https://convenia-website.onrender.com",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# In-memory store for rate limiting: ip_address -> list of timestamps
+rate_limit_store = defaultdict(list)
+
+def is_rate_limited(ip: str, limit: int, window: int) -> bool:
+    now = time.time()
+    # Keep only timestamps within the window
+    rate_limit_store[ip] = [t for t in rate_limit_store[ip] if now - t < window]
+    if len(rate_limit_store[ip]) >= limit:
+        return True
+    rate_limit_store[ip].append(now)
+    return False
+
+# Rate Limiting Middleware
+@app.middleware("http")
+async def rate_limiting_middleware(request: Request, call_next):
+    # Only rate limit API requests
+    if request.url.path.startswith("/api"):
+        client_ip = request.client.host if request.client else "unknown"
+        
+        limit = 60      # Default API rate limit: 60 requests/min
+        window = 60
+        
+        if request.url.path == "/api/auth/login":
+            limit = 5   # Login limit: 5 requests/min
+        elif request.url.path == "/api/upload":
+            limit = 10  # Upload limit: 10 requests/min
+            
+        if is_rate_limited(client_ip, limit, window):
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Bạn đã gửi quá nhiều yêu cầu! Vui lòng thử lại sau."}
+            )
+            
+    response = await call_next(request)
+    return response
+
+# Security Headers Middleware (CSP, Clickjacking, XSS Protection)
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    csp = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+        "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; "
+        "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; "
+        "img-src 'self' data: https://www.circlek.com.vn https://images.unsplash.com; "
+        "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000;"
+    )
+    response.headers["Content-Security-Policy"] = csp
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
+
+# Lifespan events configured on app initialization
 
 
 # --- PYDANTIC SCHEMAS ---
@@ -165,7 +236,7 @@ def register(data: UserRegister):
     return {"uid": uid, "email": data.email, "role": "user"}
 
 @app.post("/api/auth/login")
-def login(data: UserLogin):
+def login(data: UserLogin, response: Response):
     user = execute_query(
         "SELECT uid, email, fullname, dob, phone, address, nearest_store, role, has_fido, tfa_secret, password, fido_password FROM users WHERE email = %s",
         (data.email,),
@@ -187,7 +258,29 @@ def login(data: UserLogin):
     if not is_valid:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sai tài khoản hoặc mật khẩu!")
         
-    # Return user data without password fields
+    # Generate Tokens
+    access_token = create_access_token(user_data["uid"], user_data["role"])
+    refresh_token = create_refresh_token(user_data["uid"])
+    
+    # Set Cookies (Lưu ở Cookie bảo mật chống XSS)
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        max_age=300,  # 5 phút
+        samesite="lax",
+        secure=False  # Cấu hình True nếu deploy HTTPS
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        max_age=604800,  # 7 ngày
+        samesite="lax",
+        secure=False
+    )
+    
+    # Return user data with access_token (để lưu localStorage dự phòng theo yêu cầu)
     return {
         "uid": user_data["uid"],
         "email": user_data["email"],
@@ -198,8 +291,43 @@ def login(data: UserLogin):
         "nearest_store": user_data["nearest_store"],
         "role": user_data["role"],
         "has_fido": user_data["has_fido"],
-        "tfa_secret": user_data["tfa_secret"]
+        "tfa_secret": user_data["tfa_secret"],
+        "access_token": access_token
     }
+
+@app.post("/api/auth/refresh")
+def refresh_token(request: Request, response: Response):
+    # Lấy refresh token từ cookie
+    r_token = request.cookies.get("refresh_token")
+    if not r_token:
+        raise HTTPException(status_code=401, detail="Không tìm thấy refresh token!")
+    try:
+        payload = verify_token(r_token)
+        uid = payload.get("sub")
+        
+        user = execute_query("SELECT role FROM users WHERE uid = %s", (uid,), fetch=True)
+        if not user:
+            raise HTTPException(status_code=401, detail="User không tồn tại!")
+        role = user[0]["role"]
+        
+        new_access = create_access_token(uid, role)
+        response.set_cookie(
+            key="access_token",
+            value=new_access,
+            httponly=True,
+            max_age=300,
+            samesite="lax",
+            secure=False
+        )
+        return {"access_token": new_access}
+    except Exception:
+        raise HTTPException(status_code=401, detail="Refresh token không hợp lệ hoặc đã hết hạn!")
+
+@app.post("/api/auth/logout")
+def logout(response: Response):
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    return {"status": "success", "message": "Đăng xuất thành công!"}
 
 
 @app.get("/api/auth/profile/{uid}")
@@ -312,7 +440,7 @@ def get_product(prod_id: str):
     return p
 
 @app.post("/api/products")
-def create_product(data: ProductSchema):
+def create_product(data: ProductSchema, admin: dict = Depends(require_admin)):
     prod_id = data.id or str(uuid.uuid4())
     execute_query(
         "INSERT INTO products (id, pid, name, type, stock, price, unit, branch, image_url, is_flash_sale, discount_percent) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
@@ -321,12 +449,12 @@ def create_product(data: ProductSchema):
     return {"status": "success", "id": prod_id}
 
 @app.post("/api/products/clear-flash-sale")
-def clear_flash_sale():
+def clear_flash_sale(admin: dict = Depends(require_admin)):
     execute_query("UPDATE products SET is_flash_sale = FALSE")
     return {"status": "success", "message": "Đã xóa tất cả sản phẩm khỏi Flash Sale"}
 
 @app.put("/api/products/{prod_id}")
-def update_product(prod_id: str, data: ProductSchema):
+def update_product(prod_id: str, data: ProductSchema, admin: dict = Depends(require_admin)):
     execute_query(
         "UPDATE products SET pid = %s, name = %s, type = %s, stock = %s, price = %s, unit = %s, branch = %s, image_url = %s, is_flash_sale = %s, discount_percent = %s WHERE id = %s",
         (data.pid, data.name, data.type, data.stock, data.price, data.unit, data.branch, data.image_url, data.is_flash_sale, data.discount_percent, prod_id)
@@ -334,7 +462,7 @@ def update_product(prod_id: str, data: ProductSchema):
     return {"status": "success"}
 
 @app.delete("/api/products/{prod_id}")
-def delete_product(prod_id: str):
+def delete_product(prod_id: str, admin: dict = Depends(require_admin)):
     execute_query("DELETE FROM products WHERE id = %s", (prod_id,))
     return {"status": "success"}
 
@@ -407,7 +535,7 @@ def create_inventory_log(data: InventoryLogSchema):
     return {"status": "success"}
 
 @app.get("/api/inventory-logs")
-def get_inventory_logs():
+def get_inventory_logs(admin: dict = Depends(require_admin)):
     logs = execute_query(
         "SELECT id, product_name, quantity, type, user_name, branch, timestamp FROM inventory_logs ORDER BY timestamp DESC",
         fetch=True
@@ -482,23 +610,31 @@ def set_setting(key: str, data: SettingSchema):
 @app.post("/api/upload")
 async def upload_image(file: UploadFile = File(...)):
     try:
-        # Create directory if not exists
         base_dir = os.path.dirname(os.path.dirname(__file__))
-        upload_dir = os.path.join(base_dir, "assets", "img", "products")
-        os.makedirs(upload_dir, exist_ok=True)
+        
+        # 1. Path in raw assets folder
+        old_assets_dir = os.path.join(base_dir, "assets", "img", "products")
+        os.makedirs(old_assets_dir, exist_ok=True)
+        
+        # 2. Path in React public assets folder
+        new_assets_dir = os.path.join(base_dir, "frontend", "public", "assets", "img", "products")
+        os.makedirs(new_assets_dir, exist_ok=True)
         
         # Generate a safe filename
         ext = os.path.splitext(file.filename)[1] or ".jpg"
         filename = f"{int(datetime.utcnow().timestamp())}_ck{ext}"
-        file_path = os.path.join(upload_dir, filename)
         
-        # Save file
-        with open(file_path, "wb") as f:
-            content = await file.read()
-            f.write(content)
+        content = await file.read()
+        
+        # Save to both locations
+        with open(os.path.join(old_assets_dir, filename), "wb") as f1:
+            f1.write(content)
             
-        # Return the relative path for frontend reference
-        return {"imageUrl": f"../assets/img/products/{filename}"}
+        with open(os.path.join(new_assets_dir, filename), "wb") as f2:
+            f2.write(content)
+            
+        # Return web-accessible path starting with /assets
+        return {"imageUrl": f"/assets/img/products/{filename}"}
     except Exception as e:
         logger.error(f"Error uploading image: {e}")
         raise HTTPException(status_code=500, detail="Lỗi tải ảnh lên máy chủ!")

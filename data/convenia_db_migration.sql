@@ -1,4 +1,4 @@
--- CircleK PostgreSQL Database Migration Dump
+-- Convenia PostgreSQL Database Migration Dump
 -- Generated on 2026-06-03
 
 DROP TABLE IF EXISTS order_items CASCADE;

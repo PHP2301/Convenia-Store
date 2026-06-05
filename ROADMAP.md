@@ -1,6 +1,6 @@
-# 🚀 Kế hoạch Đường dài — CK GO Website
+# 🚀 Kế hoạch Đường dài — Convenia Website
 
-> **Tầm nhìn:** Biến CK GO từ một đồ án sinh viên thành một nền tảng thương mại điện tử chuỗi cửa hàng tiện lợi có kiến trúc chuyên nghiệp, lấy cảm hứng từ các thương hiệu hàng đầu thế giới.
+> **Tầm nhìn:** Biến Convenia từ một đồ án sinh viên thành một nền tảng thương mại điện tử chuỗi cửa hàng tiện lợi có kiến trúc chuyên nghiệp, lấy cảm hứng từ các thương hiệu hàng đầu thế giới.
 
 ---
 
@@ -15,10 +15,10 @@
 | **Tính năng** | Flash Sale, Giỏ hàng, Đặt hàng, Quản lý kho, Đa chi nhánh |
 | **i18n** | Đa ngôn ngữ (VI/EN/KR) với MutationObserver |
 | **Admin** | CRUD sản phẩm, Nhật ký kho, Cấu hình Flash Sale |
+| **Bảo mật** | Hashing bcrypt, JWT Cookie, CSP, CORS an toàn & Rate Limiting |
+| **Testing** | Unit tests cơ bản (Auth, Products) |
 
 ### Những gì thiếu ❌
-- Bảo mật: Password chưa hash, không JWT, CORS mở toàn bộ
-- Testing: Không có unit test hay integration test
 - CI/CD: Không có pipeline tự động
 - Analytics: Không có dashboard thống kê
 - UX nâng cao: Không có animations, loading skeleton, search nâng cao
@@ -30,7 +30,7 @@
 
 ```mermaid
 gantt
-    title CK GO — Lộ trình phát triển
+    title Convenia — Lộ trình phát triển
     dateFormat  YYYY-MM-DD
     axisFormat  %b %Y
 
@@ -38,8 +38,8 @@ gantt
     Bảo mật & Auth          :p1a, 2026-06-10, 7d
     Testing cơ bản          :p1b, after p1a, 5d
 
-    section Phase 2 — Trải nghiệm
-    Premium UI/UX           :p2a, after p1b, 10d
+    section Phase 2 — Trải nghiệm (ReactJS)
+    Chuyển đổi ReactJS & UI :p2a, after p1b, 10d
     SEO & Performance       :p2b, after p2a, 5d
 
     section Phase 3 — Thương mại
@@ -63,39 +63,36 @@ gantt
 
 ### 1.1 Hash mật khẩu với bcrypt
 
-#### [MODIFY] [main.py](file:///c:/Users/ACER/Documents/CK/CircleK-Website/backend/main.py)
+#### [MODIFY] [main.py](file:///c:/Convenia-Store/backend/main.py)
 - Thêm `bcrypt` vào dependencies
 - Hash password khi đăng ký: `bcrypt.hashpw(password, bcrypt.gensalt())`
 - Verify password khi đăng nhập: `bcrypt.checkpw(password, hashed)`
 - Migration script để hash tất cả password hiện tại trong DB
 
-#### [MODIFY] [requirements.txt](file:///c:/Users/ACER/Documents/CK/CircleK-Website/backend/requirements.txt)
+#### [MODIFY] [requirements.txt](file:///c:/Convenia-Store/backend/requirements.txt)
 - Thêm `bcrypt>=4.0.0`
 
-### 1.2 JWT Token Authentication
+### 1.2 JWT Token Authentication & XSS Defense
 
 #### [NEW] `backend/auth_utils.py`
 - Tạo module `auth_utils.py` chứa:
-  - `create_access_token(uid, role)` → JWT access token (hết hạn 30 phút)
+  - `create_access_token(uid, role)` → JWT access token (hết hạn cực ngắn: 5 phút)
   - `create_refresh_token(uid)` → JWT refresh token (hết hạn 7 ngày)
   - `verify_token(token)` → decode và validate token
   - `require_admin(token)` → middleware kiểm tra quyền admin
 
-#### [MODIFY] [main.py](file:///c:/Users/ACER/Documents/CK/CircleK-Website/backend/main.py)
-- Login endpoint trả về `{ access_token, refresh_token }`
-- Thêm `Depends(require_admin)` cho các route nhạy cảm:
-  - `POST/PUT/DELETE /api/products/*`
-  - `POST /api/settings/*`
-  - `GET /api/inventory-logs`
+#### [MODIFY] [main.py] & CSP (Phòng thủ XSS)
+- Trả về `access_token` qua body để Frontend lưu vào **`localStorage`**.
+- Trả về `refresh_token` qua **HTTP-Only Cookies** (ẩn với JavaScript để hacker không thể lấy).
+- Cấu hình **Content Security Policy (CSP)** trên Backend chặn toàn bộ thẻ `<script src="...">` đến từ các trang web lạ. Sử dụng thuộc tính `integrity` (SRI) khi nhúng CDN.
 
-#### [MODIFY] [api-client.js](file:///c:/Users/ACER/Documents/CK/CircleK-Website/assets/js/api-client.js)
-- Lưu JWT vào `localStorage` khi login thành công
-- Tự động gắn `Authorization: Bearer <token>` vào header mọi request
-- Xử lý token hết hạn → tự động refresh hoặc redirect về trang đăng nhập
+#### [MODIFY] React Context / Axios Interceptor
+- Lưu tạm `access_token` và Giỏ hàng (Cart) vào `localStorage`.
+- Nếu token trong local hết hạn, tự động gọi API làm mới bằng Refresh Token ngầm trong Cookie.
 
 ### 1.3 CORS & Rate Limiting
 
-#### [MODIFY] [main.py](file:///c:/Users/ACER/Documents/CK/CircleK-Website/backend/main.py)
+#### [MODIFY] [main.py](file:///c:/Convenia-Store/backend/main.py)
 - Thu hẹp `allow_origins` chỉ cho domain cụ thể
 - Thêm `slowapi` rate limiting:
   - Login: 5 lần/phút
@@ -112,18 +109,25 @@ gantt
 
 ---
 
-## Phase 2: Trải nghiệm Premium UI/UX (~2 tuần)
+## Phase 2: Chuyển đổi ReactJS & Trải nghiệm Premium UI/UX (~3 tuần)
 
-> **Cảm hứng từ Dior:** Giao diện sang trọng, animations tinh tế, storytelling qua visual. Mỗi micro-interaction đều có mục đích.
+> **Cảm hứng từ Dior:** Giao diện sang trọng, animations tinh tế, kiến trúc Frontend hiện đại chuẩn doanh nghiệp.
 
-### 2.1 Loading Skeleton & Micro-animations
+### 2.1 Kiến trúc ReactJS (Vite + TailwindCSS)
 
-#### [MODIFY] [style.css](file:///c:/Users/ACER/Documents/CK/CircleK-Website/assets/css/style.css)
-- Thêm **skeleton loading** cho card sản phẩm (placeholder xám nhấp nháy khi chờ data)
-- **Fade-in animation** khi sản phẩm xuất hiện (intersection observer)
-- **Hover effects cao cấp**: scale nhẹ + shadow + border glow cho product cards
-- **Page transition** mượt mà giữa các trang (opacity fade)
-- **Scroll-triggered animations** cho các section (parallax nhẹ)
+#### [NEW] `frontend/` (Thư mục React mới)
+- Khởi tạo React App bằng **Vite**.
+- Thay thế toàn bộ Vanilla HTML/JS hiện tại bằng **React Components** và **React Router**.
+- Sử dụng **Tailwind CSS** để thiết kế giao diện nhanh, dễ bảo trì và responsive hoàn hảo.
+- Quản lý trạng thái (Auth, Cart) bằng **React Context**, kết hợp sao lưu xuống `localStorage` để dữ liệu không mất khi F5.
+
+### 2.2 Animations cao cấp với Framer Motion
+
+#### [NEW] Thư viện `framer-motion`
+- Tích hợp `framer-motion` để tạo các chuyển động mượt mà như native app.
+- **Page transitions:** Hiệu ứng fade/slide khi chuyển trang (React Router).
+- **Scroll animations:** Khung xương loading (Skeleton) và hiệu ứng bay lên (stagger) khi cuộn xem danh sách sản phẩm.
+- **Interactive hover:** Nút bấm và thẻ sản phẩm có hiệu ứng nảy nhẹ (spring), phát sáng viền.
 
 ### 2.2 Tìm kiếm nâng cao
 
@@ -134,7 +138,7 @@ gantt
   - **Sắp xếp**: Giá tăng/giảm, Tên A-Z, Mới nhất
   - **Lịch sử tìm kiếm** gần đây
 
-#### [MODIFY] [main.py](file:///c:/Users/ACER/Documents/CK/CircleK-Website/backend/main.py)
+#### [MODIFY] [main.py](file:///c:/Convenia-Store/backend/main.py)
 - Thêm endpoint `GET /api/products/search?q=...&min_price=...&max_price=...&sort=...`
 - Full-text search trên PostgreSQL (sử dụng `tsvector`)
 
@@ -171,7 +175,7 @@ gantt
   3. **Xác nhận đơn hàng** (review giỏ hàng)
   4. **Hoàn tất** (mã đơn hàng + thông báo thành công)
 
-#### [MODIFY] [main.py](file:///c:/Users/ACER/Documents/CK/CircleK-Website/backend/main.py)
+#### [MODIFY] [main.py](file:///c:/Users/ACER/Documents/CK/Convenia-Website/backend/main.py)
 - Thêm trạng thái đơn hàng chi tiết: `Chờ xác nhận → Đang chuẩn bị → Đang giao → Hoàn tất → Đã hủy`
 - API cập nhật trạng thái đơn hàng (cho admin)
 - API lấy chi tiết 1 đơn hàng
@@ -228,7 +232,7 @@ CREATE TABLE vouchers (
 - **Phân bổ đơn hàng** theo chi nhánh (pie chart)
 - **Khách hàng mới** theo thời gian (line chart)
 
-#### [MODIFY] [main.py](file:///c:/Users/ACER/Documents/CK/CircleK-Website/backend/main.py)
+#### [MODIFY] [main.py](file:///c:/Users/ACER/Documents/CK/Convenia-Website/backend/main.py)
 - Thêm các endpoint analytics:
   - `GET /api/analytics/revenue?period=daily|weekly|monthly`
   - `GET /api/analytics/top-products?limit=10`
@@ -283,7 +287,7 @@ CREATE TABLE vouchers (
 ### 5.3 Progressive Web App (PWA)
 
 #### [NEW] `manifest.json` + `service-worker.js`
-- Cài đặt CK GO như ứng dụng trên điện thoại
+- Cài đặt Convenia như ứng dụng trên điện thoại
 - Hoạt động offline (cache sản phẩm, giỏ hàng)
 - **Push Notification**: Thông báo Flash Sale sắp bắt đầu, đơn hàng cập nhật
 

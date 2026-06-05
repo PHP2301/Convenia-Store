@@ -1,0 +1,352 @@
+/* Thêm vào đầu file để căn giữa nội dung */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.cart-page h1 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+/* Tinh chỉnh nút Tăng/Giảm số lượng */
+.item-qty button {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  background: #f8f8f8;
+  border-radius: 4px;
+  transition: 0.2s;
+  font-weight: bold;
+}
+
+.item-qty button:hover {
+  background: #00b4d8;
+  color: white;
+  border-color: #00b4d8;
+}
+
+.item-qty span {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Tinh chỉnh tổng tiền món ăn */
+.item-total-price {
+  min-width: 100px;
+  text-align: right;
+  color: #333;
+}
+
+/* Nút thanh toán xịn hơn */
+.btn-checkout:hover {
+  background: #0077b6;
+  box-shadow: 0 4px 12px rgba(223, 32, 39, 0.3);
+}
+
+/* Responsive cho điện thoại */
+@media (max-width: 768px) {
+  .cart-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .cart-item {
+    flex-wrap: nowrap;
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .cart-item img {
+    width: 65px;
+    height: 65px;
+    flex-shrink: 0;
+  }
+
+  .item-info h4 {
+    font-size: 14px;
+  }
+
+  .item-qty {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .item-qty button {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .item-total-price {
+    min-width: 70px;
+    font-size: 13px;
+  }
+
+  .cart-page {
+    padding: 20px 0 80px; /* Khoảng trống dưới để tránh bị modal che */
+  }
+
+  .cart-list {
+    padding: 15px;
+  }
+
+  .cart-summary {
+    padding: 18px;
+    position: sticky;
+    bottom: 0;
+    border-radius: 15px 15px 0 0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    margin: 0 -15px;
+  }
+
+  .btn-checkout {
+    padding: 14px;
+    font-size: 15px;
+    border-radius: 10px;
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-page h1 {
+    font-size: 18px;
+    padding: 0 15px;
+  }
+
+  .cart-item img {
+    width: 55px;
+    height: 55px;
+  }
+
+  .item-info h4 {
+    font-size: 13px;
+  }
+
+  .otp-field {
+    width: 38px;
+    height: 38px;
+    font-size: 20px;
+  }
+
+  /* VietQR modal responsive */
+  .tfa-modal-container {
+    width: 95vw;
+    max-width: 95vw;
+    border-radius: 12px;
+  }
+
+  .tfa-modal-header h3 {
+    font-size: 1rem;
+  }
+}
+.cart-page {
+  padding: 50px 0;
+  background: #f9f9f9;
+  min-height: 80vh;
+}
+.cart-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.cart-list {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+.cart-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+.item-info {
+  flex: 1;
+}
+.item-info h4 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+.item-price {
+  color: #00b4d8;
+  font-weight: bold;
+}
+
+.item-qty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.item-qty button {
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+.btn-remove {
+  color: #999;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-remove:hover {
+  color: #00b4d8;
+}
+
+.cart-summary {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  height: fit-content;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.total {
+  font-size: 20px;
+  font-weight: bold;
+  color: #00b4d8;
+  margin-top: 10px;
+}
+
+.btn-checkout {
+  width: 100%;
+  padding: 15px;
+  background: #00b4d8;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+}
+/* ==========================================================================
+   7. RESPONSIVE (ĐÃ SỬA LỖI MẤT NÚT)
+   ========================================================================== */
+
+
+
+
+
+/* --- 2FA Modal Styling --- */
+.tfa-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.tfa-modal-container {
+  background-color: #fff;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 15px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tfa-modal-header {
+  background-color: #00b4d8;
+  color: #fff;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tfa-modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.tfa-close-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tfa-modal-body {
+  padding: 25px 20px;
+  text-align: center;
+}
+
+.tfa-instruction {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.tfa-otp-field {
+  color: #00b4d8;
+  border-color: #00b4d8;
+}
+
+.otp-input-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.otp-field {
+  width: 45px;
+  height: 45px;
+  font-size: 24px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.vietqr-instruction {
+  color: #555;
+}
+
+.vietqr-details {
+  background: #f8f9fa;
+  color: #333;
+}
+
