@@ -4,8 +4,16 @@ const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('current_user')
-    return saved ? JSON.parse(saved) : null
+    try {
+      const saved = localStorage.getItem('current_user')
+      if (saved && saved !== 'undefined') {
+        return JSON.parse(saved)
+      }
+    } catch (e) {
+      console.error("Lỗi parse current_user từ localStorage:", e)
+      localStorage.removeItem('current_user')
+    }
+    return null
   })
   const [loading, setLoading] = useState(true)
 
@@ -43,12 +51,16 @@ export const AuthProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json() // { access_token: ... }
         const saved = localStorage.getItem('current_user')
-        if (saved) {
-          const currentUser = JSON.parse(saved)
-          const updatedUser = { ...currentUser, access_token: data.access_token }
-          setUser(updatedUser)
-          localStorage.setItem('current_user', JSON.stringify(updatedUser))
-          return data.access_token
+        if (saved && saved !== 'undefined') {
+          try {
+            const currentUser = JSON.parse(saved)
+            const updatedUser = { ...currentUser, access_token: data.access_token }
+            setUser(updatedUser)
+            localStorage.setItem('current_user', JSON.stringify(updatedUser))
+            return data.access_token
+          } catch (e) {
+            console.error("Lỗi parse current_user trong refreshSession:", e)
+          }
         }
       }
     } catch (err) {

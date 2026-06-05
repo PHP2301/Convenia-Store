@@ -26,7 +26,17 @@ export const CartProvider = ({ children }) => {
         }
       } else {
         const saved = localStorage.getItem('convenia_cart')
-        setCart(saved ? JSON.parse(saved) : [])
+        if (saved && saved !== 'undefined') {
+          try {
+            setCart(JSON.parse(saved))
+          } catch (e) {
+            console.error("Lỗi parse convenia_cart từ localStorage:", e)
+            setCart([])
+            localStorage.removeItem('convenia_cart')
+          }
+        } else {
+          setCart([])
+        }
       }
       setLoading(false)
     }

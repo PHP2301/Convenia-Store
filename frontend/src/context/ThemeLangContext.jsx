@@ -1025,14 +1025,22 @@ export function ThemeLangProvider({ children }) {
         if (themeRes.ok) {
           const themeData = await themeRes.json()
           if (themeData.exists && themeData.value) {
-            setTheme(JSON.parse(themeData.value))
+            try {
+              setTheme(JSON.parse(themeData.value))
+            } catch (e) {
+              setTheme(themeData.value)
+            }
           }
         }
         const langRes = await fetch(`/api/settings/lang_${prefsId}`)
         if (langRes.ok) {
           const langData = await langRes.json()
           if (langData.exists && langData.value) {
-            setLang(JSON.parse(langData.value))
+            try {
+              setLang(JSON.parse(langData.value))
+            } catch (e) {
+              setLang(langData.value)
+            }
           }
         }
       } catch (err) {
