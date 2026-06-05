@@ -32,6 +32,7 @@ export default function AdminDashboard() {
 
   // Flash Sale Settings state
   const [flashEndTime, setFlashEndTime] = useState('')
+  const [settingsSearchQuery, setSettingsSearchQuery] = useState('')
 
   // Fetch flash sale setting
   const fetchFlashSaleSetting = async () => {
@@ -79,6 +80,48 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleToggleFlashSale = async (product, isFlash, discountVal) => {
+    try {
+      const updatedProduct = {
+        ...product,
+        is_flash_sale: isFlash,
+        discount_percent: Math.max(1, Math.min(99, parseInt(discountVal) || 20))
+      }
+      const res = await fetchWithAuth(`/api/products/${product.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedProduct)
+      })
+
+      if (res.ok) {
+        // Update local products list
+        setProducts(prev => prev.map(p => p.id === product.id ? updatedProduct : p))
+      } else {
+        const data = await res.json()
+        throw new Error(data.detail || t('Không thể cập nhật trạng thái Flash Sale!'))
+      }
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
+  const handleClearAllFlashSale = async () => {
+    if (!window.confirm(t('Bạn có chắc chắn muốn xóa toàn bộ sản phẩm khỏi chương trình Flash Sale không?'))) return
+    try {
+      const res = await fetchWithAuth('/api/products/clear-flash-sale', {
+        method: 'POST'
+      })
+      if (res.ok) {
+        setProducts(prev => prev.map(p => ({ ...p, is_flash_sale: false })))
+        alert(t('Đã xóa tất cả sản phẩm khỏi Flash Sale thành công!'))
+      } else {
+        throw new Error(t('Không thể xóa Flash Sale!'))
+      }
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
   // Fetch Data
   const fetchData = async () => {
     setLoading(true)
@@ -97,6 +140,12 @@ export default function AdminDashboard() {
         }
       } else if (activeTab === 'settings') {
         await fetchFlashSaleSetting()
+        // Fetch products as well to toggle them in Settings tab
+        const res = await fetch(`/api/products?branch=${branch}`)
+        if (res.ok) {
+          const data = await res.json()
+          setProducts(data)
+        }
       }
     } catch (err) {
       console.error("Lỗi lấy thông tin admin:", err)
@@ -442,34 +491,179 @@ export default function AdminDashboard() {
           </table>
         </div>
       ) : (
-        /* Settings Tab (Flash Sale Timer Setting) */
-        <div className="max-w-md mx-auto bg-white border border-[#eeeeee] rounded-3xl p-8 space-y-6 shadow-sm">
-          <div className="space-y-2 text-center md:text-left">
-            <h3 className="text-lg font-black text-slate-800 uppercase tracking-wide flex items-center justify-center md:justify-start gap-2">
-              <Clock className="w-5 h-5 text-red-500 shrink-0 animate-pulse" />
-              <span>{t('Thời Gian Kết Thúc Flash Sale')}</span>
-            </h3>
-            <p className="text-slate-400 text-xs font-semibold">{t('Điều chỉnh thời gian đếm ngược kết thúc Flash Sale hiển thị tại Trang Chủ.')}</p>
-          </div>
+        /* Settings Tab (Flash Sale Timer Setting & Product Selector) */
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Left Column: Timer config */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-white border border-[#eeeeee] rounded-3xl p-8 space-y-6 shadow-sm">
+              <div className="space-y-2 text-center md:text-left">
+                <h3 className="text-lg font-black text-slate-800 uppercase tracking-wide flex items-center justify-center md:justify-start gap-2">
+                  <Clock className="w-5 h-5 text-red-500 shrink-0 animate-pulse" />
+                  <span>{t('Thời Gian Kết Thúc Flash Sale')}</span>
+                </h3>
+                <p className="text-slate-400 text-xs font-semibold">{t('Điều chỉnh thời gian đếm ngược kết thúc Flash Sale hiển thị tại Trang Chủ.')}</p>
+              </div>
 
-          <div className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('Chọn Ngày Giờ Kết Thúc')}</label>
-              <input
-                type="datetime-local"
-                value={flashEndTime}
-                onChange={(e) => setFlashEndTime(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-[#eeeeee] rounded-xl text-slate-850 text-xs font-bold focus:outline-none focus:border-[#00b4d8] shadow-sm"
-              />
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('Chọn Ngày Giờ Kết Thúc')}</label>
+                  <input
+                    type="datetime-local"
+                    value={flashEndTime}
+                    onChange={(e) => setFlashEndTime(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-[#eeeeee] rounded-xl text-slate-850 text-xs font-bold focus:outline-none focus:border-[#00b4d8] shadow-sm"
+                  />
+                </div>
+
+                <button
+                  onClick={handleSaveFlashTimer}
+                  className="w-full px-5 py-2.5 bg-[#00b4d8] hover:bg-black text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center space-x-2"
+                >
+                  <span>{t('Lưu Thời Gian')}</span>
+                </button>
+              </div>
             </div>
-
-            <button
-              onClick={handleSaveFlashTimer}
-              className="w-full px-5 py-2.5 bg-[#00b4d8] hover:bg-black text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center space-x-2"
-            >
-              <span>{t('Lưu Thời Gian')}</span>
-            </button>
           </div>
+
+          {/* Right Column: Flash Sale Product Selector */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white border border-[#eeeeee] rounded-3xl p-8 space-y-6 shadow-sm">
+              
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-[#eeeeee]">
+                <div>
+                  <h3 className="text-lg font-black text-slate-800 uppercase tracking-wide flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-yellow-500 shrink-0" />
+                    <span>{t('Lựa Chọn Sản Phẩm Flash Sale')}</span>
+                  </h3>
+                  <p className="text-slate-400 text-xs font-semibold mt-0.5">{t('Tích chọn sản phẩm bên dưới để bật Flash Sale và đặt phần trăm giảm giá.')}</p>
+                </div>
+                
+                <button
+                  onClick={handleClearAllFlashSale}
+                  className="px-4 py-2 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all flex items-center space-x-1.5 border border-red-200"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{t('Hủy Toàn Bộ Flash Sale')}</span>
+                </button>
+              </div>
+
+              {/* Search filter for products */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={t('Tìm kiếm sản phẩm theo tên hoặc mã...')}
+                  value={settingsSearchQuery}
+                  onChange={(e) => setSettingsSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#f9f9f9] border border-[#eeeeee] rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:border-[#00b4d8] shadow-inner"
+                />
+                <span className="absolute left-3.5 top-3.5 text-slate-400">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </span>
+              </div>
+
+              {/* Products selection list */}
+              <div className="overflow-x-auto max-h-[450px] overflow-y-auto rounded-2xl border border-[#eeeeee] shadow-sm">
+                <table className="w-full text-left border-collapse text-xs min-w-[500px]">
+                  <thead>
+                    <tr className="border-b border-[#eeeeee] bg-slate-50 text-slate-500 font-bold uppercase tracking-wider">
+                      <th className="p-3 w-10 text-center">{t('Flash')}</th>
+                      <th className="p-3">{t('Sản Phẩm')}</th>
+                      <th className="p-3 text-right">{t('Giá Gốc')}</th>
+                      <th className="p-3 text-center w-28">{t('% Giảm')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {products
+                      .filter(p => 
+                        p.name.toLowerCase().includes(settingsSearchQuery.toLowerCase()) || 
+                        p.pid.toLowerCase().includes(settingsSearchQuery.toLowerCase())
+                      )
+                      .map((p, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50/50 font-medium">
+                          {/* Toggle Checkbox */}
+                          <td className="p-3 text-center">
+                            <input
+                              type="checkbox"
+                              checked={p.is_flash_sale}
+                              onChange={(e) => handleToggleFlashSale(p, e.target.checked, p.discount_percent || 20)}
+                              className="w-4 h-4 rounded text-[#00b4d8] focus:ring-[#00b4d8] border-[#eeeeee] cursor-pointer"
+                            />
+                          </td>
+                          
+                          {/* Image & Title */}
+                          <td className="p-3 flex items-center space-x-3">
+                            <img
+                              src={p.image_url || '/assets/img/products/default.jpg'}
+                              alt={p.name}
+                              className="w-8 h-8 rounded-lg object-cover bg-slate-100 border border-slate-200"
+                              onError={(e) => { e.target.src = '/assets/img/products/default.jpg' }}
+                            />
+                            <div>
+                              <div className="font-bold text-slate-800 text-xs">{p.name}</div>
+                              <div className="text-[9px] text-slate-400 font-mono font-bold uppercase">{p.pid} • {p.unit}</div>
+                            </div>
+                          </td>
+
+                          {/* Regular Price */}
+                          <td className="p-3 text-right font-mono font-bold text-slate-700">
+                            {p.price.toLocaleString('vi-VN')}đ
+                          </td>
+
+                          {/* Discount percent input */}
+                          <td className="p-3 text-center">
+                            <div className="flex items-center justify-center space-x-1">
+                              <input
+                                type="number"
+                                min="1"
+                                max="99"
+                                disabled={!p.is_flash_sale}
+                                defaultValue={p.discount_percent || 20}
+                                onBlur={(e) => {
+                                  const val = parseInt(e.target.value)
+                                  if (val !== p.discount_percent) {
+                                    handleToggleFlashSale(p, p.is_flash_sale, val)
+                                  }
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    const val = parseInt(e.target.value)
+                                    if (val !== p.discount_percent) {
+                                      handleToggleFlashSale(p, p.is_flash_sale, val)
+                                    }
+                                    e.target.blur()
+                                  }
+                                }}
+                                className={`w-14 text-center px-1.5 py-1 text-xs font-mono font-black border rounded-lg focus:outline-none transition-all ${
+                                  p.is_flash_sale
+                                    ? 'bg-white border-[#00b4d8] text-slate-800'
+                                    : 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed'
+                                }`}
+                              />
+                              <span className={`text-[10px] font-bold ${p.is_flash_sale ? 'text-slate-650' : 'text-slate-400'}`}>%</span>
+                            </div>
+                          </td>
+                        </tr>
+                    ))}
+                    {products.filter(p => 
+                      p.name.toLowerCase().includes(settingsSearchQuery.toLowerCase()) || 
+                      p.pid.toLowerCase().includes(settingsSearchQuery.toLowerCase())
+                    ).length === 0 && (
+                      <tr>
+                        <td colSpan="4" className="text-center p-8 text-slate-400 text-xs font-bold">
+                          {t('Không tìm thấy sản phẩm nào')}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </div>
+
         </div>
       )}
 
