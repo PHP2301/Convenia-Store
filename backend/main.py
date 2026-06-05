@@ -382,14 +382,15 @@ def update_profile(uid: str, data: ProfileUpdate):
 
 @app.post("/api/auth/fido-register")
 def fido_register(data: FidoRegister):
+    hashed_password = hash_password(data.fido_password)
     execute_query(
         "UPDATE users SET fido_credential_id = %s, fido_password = %s, has_fido = TRUE WHERE uid = %s",
-        (data.fido_credential_id, data.fido_password, data.uid)
+        (data.fido_credential_id, hashed_password, data.uid)
     )
     return {"status": "success", "message": "Liên kết thiết bị bảo mật FIDO2 thành công!"}
 
 @app.post("/api/auth/fido-login")
-def fido_login(data: FidoLogin):
+def fido_login(data: FidoLogin, response: Response):
     user = execute_query(
         "SELECT uid, email, fullname, dob, phone, address, nearest_store, role, has_fido, tfa_secret, fido_password FROM users WHERE fido_credential_id = %s",
         (data.fido_credential_id,),
@@ -397,7 +398,44 @@ def fido_login(data: FidoLogin):
     )
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Thiết bị FIDO2 chưa được liên kết!")
-    return user[0]
+    
+    user_data = user[0]
+    
+    # Generate tokens
+    access_token = create_access_token(user_data["uid"], user_data["role"])
+    refresh_token = create_refresh_token(user_data["uid"])
+    
+    # Set cookies
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        max_age=300,  # 5 minutes
+        samesite="lax",
+        secure=False
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        max_age=604800,  # 7 days
+        samesite="lax",
+        secure=False
+    )
+    
+    return {
+        "uid": user_data["uid"],
+        "email": user_data["email"],
+        "fullname": user_data["fullname"],
+        "dob": user_data["dob"],
+        "phone": user_data["phone"],
+        "address": user_data["address"],
+        "nearest_store": user_data["nearest_store"],
+        "role": user_data["role"],
+        "has_fido": user_data["has_fido"],
+        "tfa_secret": user_data["tfa_secret"],
+        "access_token": access_token
+    }
 
 # --- PRODUCTS ENDPOINTS ---
 
