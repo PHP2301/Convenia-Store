@@ -223,6 +223,11 @@ class InventoryLogSchema(BaseModel):
 class SettingSchema(BaseModel):
     value: str
 
+# --- ROOT ENDPOINT ---
+@app.get("/")
+def read_root():
+    return {"status": "online", "message": "Convenia API is running"}
+
 # --- AUTH ENDPOINTS ---
 
 @app.post("/api/auth/register")
