@@ -17,7 +17,7 @@
 
                         ĐỒ ÁN CUỐI KỲ
 
-                    HỌC PHẦN: LẬP TRÌNH WEB
+                    HỌC PHẦN: BẢO MẬT THÔNG TIN
 
 
                                 ĐỀ TÀI:
@@ -27,10 +27,10 @@
 
 
 
-                 Ngành: CÔNG NGHỆ THÔNG TIN
-                 Mã học phần: IT403 (Lập trình Web)
+                 Ngành: CÔNG NGHỆ THÔNG TIN<br>
+                 Mã học phần: IT403 (Bảo mật thông tin)
 
-                 Giảng viên hướng dẫn: ThS. Nguyễn Văn A
+                 Giảng viên hướng dẫn: ThS. Nguyễn Trọng Minh Hồng Phước
                  Nhóm sinh viên thực hiện: Nhóm 01
                  Lớp: 24DTHHA1
 
@@ -62,7 +62,7 @@
 
 ## 3. LỜI CẢM ƠN (Mẫu 04)
 
-Lời đầu tiên, nhóm thực hiện đồ án chúng em xin được bày tỏ lòng cảm ơn sâu sắc nhất tới ThS. Nguyễn Văn A - Giảng viên hướng dẫn học phần Lập trình Web. Thầy đã tận tình định hướng đề tài, chia sẻ những kiến thức chuyên môn quý báu và đưa ra những góp ý quan trọng để giúp nhóm hoàn thiện hệ thống một cách tối ưu.
+Lời đầu tiên, nhóm thực hiện đồ án chúng em xin được bày tỏ lòng cảm ơn sâu sắc nhất tới ThS. Nguyễn Trọng Minh Hồng Phước - Giảng viên hướng dẫn học phần Bảo mật thông tin. Thầy đã tận tình định hướng đề tài, chia sẻ những kiến thức chuyên môn quý báu và đưa ra những góp ý quan trọng để giúp nhóm hoàn thiện hệ thống một cách tối ưu.
 
 Chúng em cũng xin chân thành cảm ơn Ban giám hiệu Trường Đại học Công nghệ TP.HCM (HUTECH) cùng toàn thể các thầy cô giáo Viện Công nghệ Việt Hàn đã tạo mọi điều kiện tốt nhất về cơ sở vật chất, phòng thực hành và tài liệu nghiên cứu phục vụ học tập trong suốt quá trình chúng em học tập tại trường.
 
