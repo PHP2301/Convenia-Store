@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext'
 import { useThemeLang } from '../context/ThemeLangContext'
 import { Mail, Lock, ShieldCheck, LogIn, UserPlus, Key } from 'lucide-react'
 import { motion } from 'framer-motion'
-import * as OTPAuth from 'otpauth'
 
 function bufferToBase64url(buffer) {
   const bytes = new Uint8Array(buffer)
@@ -24,11 +23,6 @@ export default function Login() {
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  
-  // 2FA state
-  const [showTfa, setShowTfa] = useState(false)
-  const [tfaCode, setTfaCode] = useState('')
-  const [tempUserData, setTempUserData] = useState(null)
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -46,15 +40,9 @@ export default function Login() {
     
     try {
       if (isLogin) {
-        const data = await login(email, password)
-        if (data.tfa_secret) {
-          setTempUserData(data)
-          setShowTfa(true)
-          setSuccess(t('Vui lòng nhập mã bảo mật 2 lớp (TOTP) để tiếp tục!'))
-        } else {
-          setSuccess(t('Đăng nhập thành công! Đang chuyển hướng...'))
-          setTimeout(() => navigate(from, { replace: true }), 1000)
-        }
+        await login(email, password)
+        setSuccess(t('Đăng nhập thành công! Đang chuyển hướng...'))
+        setTimeout(() => navigate(from, { replace: true }), 1000)
       } else {
         await register(email, password)
         setSuccess(t('Đăng ký tài khoản thành công! Hãy đăng nhập ngay.'))
@@ -65,41 +53,6 @@ export default function Login() {
       setError(err.message || t('Có lỗi xảy ra!'))
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleVerifyTfa = (e) => {
-    e.preventDefault()
-    setError('')
-    if (tfaCode.length !== 6) {
-      setError(t('Mã OTP 2FA phải gồm đúng 6 chữ số!'))
-      return
-    }
-
-    try {
-      const totp = new OTPAuth.TOTP({
-        issuer: "Convenia",
-        label: tempUserData.email,
-        algorithm: "SHA1",
-        digits: 6,
-        period: 30,
-        secret: OTPAuth.Secret.fromBase32(tempUserData.tfa_secret),
-      })
-
-      const delta = totp.validate({
-        token: tfaCode,
-        window: 6,
-      })
-
-      if (delta !== null) {
-        completeLogin(tempUserData)
-        setSuccess(t('Đăng nhập thành công! Đang chuyển hướng...'))
-        setTimeout(() => navigate(from, { replace: true }), 1000)
-      } else {
-        setError(t('Mã bảo mật 2FA không chính xác!'))
-      }
-    } catch (err) {
-      setError(t('Lỗi xác thực: ') + err.message)
     }
   }
 
@@ -164,14 +117,12 @@ export default function Login() {
       >
         <div className="text-center space-y-2">
           <h2 className="text-3xl font-black text-slate-800 tracking-tight">
-            {showTfa ? t('xác thực hai lớp') : isLogin ? t('chào mừng trở lại') : t('đăng ký thành viên')}
+            {isLogin ? t('chào mừng trở lại') : t('đăng ký thành viên')}
           </h2>
           <p className="text-slate-550 text-sm font-medium">
-            {showTfa 
-              ? t('nhập mã otp 6 số từ google authenticator trên thiết bị của bạn') 
-              : isLogin 
-                ? t('đăng nhập để nhận ngập tràn ưu đãi tại convenia') 
-                : t('gia nhập convenia premium chỉ trong vài giây')}
+            {isLogin 
+              ? t('đăng nhập để nhận ngập tràn ưu đãi tại convenia') 
+              : t('gia nhập convenia premium chỉ trong vài giây')}
           </p>
         </div>
 
@@ -187,89 +138,48 @@ export default function Login() {
           </div>
         )}
 
-        {showTfa ? (
-          <form onSubmit={handleVerifyTfa} className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block text-center">{t('mã bảo mật otp (2fa)')}</label>
-              <div className="relative">
-                <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  maxLength={6}
-                  required
-                  value={tfaCode}
-                  onChange={(e) => setTfaCode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="000000"
-                  className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 text-slate-800 text-center font-mono font-bold tracking-widest text-lg shadow-sm"
-                />
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('địa chỉ email')}</label>
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email@vidu.com"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 text-slate-800 text-sm shadow-sm"
+              />
             </div>
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-white font-bold text-sm transition-all shadow-lg"
-            >
-              <span>{t('xác nhận & đăng nhập')}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setShowTfa(false)
-                setTfaCode('')
-                setError('')
-                setSuccess('')
-              }}
-              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-655 text-slate-600 font-bold text-xs rounded-xl"
-            >
-              {t('hủy bỏ')}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('địa chỉ email')}</label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email@vidu.com"
-                  className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 text-slate-800 text-sm shadow-sm"
-                />
-              </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('mật khẩu')}</label>
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 text-slate-800 text-sm shadow-sm"
+              />
             </div>
+          </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('mật khẩu')}</label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-cyan-500 text-slate-800 text-sm shadow-sm"
-                />
-              </div>
-            </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-white font-bold text-sm transition-all shadow-lg shadow-cyan-500/10 disabled:opacity-50"
+          >
+            {isLogin ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+            <span>{isLogin ? t('đăng nhập') : t('tạo tài khoản')}</span>
+          </button>
+        </form>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-white font-bold text-sm transition-all shadow-lg shadow-cyan-500/10 disabled:opacity-50"
-            >
-              {isLogin ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-              <span>{isLogin ? t('đăng nhập') : t('tạo tài khoản')}</span>
-            </button>
-          </form>
-        )}
-
-        {!showTfa && isLogin && (
+        {isLogin && (
           <div className="space-y-4 pt-2">
             <div className="relative flex py-2 items-center">
               <div className="flex-grow border-t border-slate-200" />
@@ -289,20 +199,18 @@ export default function Login() {
           </div>
         )}
 
-        {!showTfa && (
-          <div className="text-center pt-2">
-            <button
-              onClick={() => {
-                setIsLogin(!isLogin)
-                setError('')
-                setSuccess('')
-              }}
-              className="text-xs font-bold text-cyan-600 hover:text-cyan-500 transition-colors"
-            >
-              {isLogin ? t('chưa có tài khoản? đăng ký ngay') : t('đã có tài khoản? đăng nhập ngay')}
-            </button>
-          </div>
-        )}
+        <div className="text-center pt-2">
+          <button
+            onClick={() => {
+              setIsLogin(!isLogin)
+              setError('')
+              setSuccess('')
+            }}
+            className="text-xs font-bold text-cyan-600 hover:text-cyan-500 transition-colors"
+          >
+            {isLogin ? t('chưa có tài khoản? đăng ký ngay') : t('đã có tài khoản? đăng nhập ngay')}
+          </button>
+        </div>
       </motion.div>
     </div>
   )

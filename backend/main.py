@@ -9,6 +9,7 @@ from datetime import datetime
 import os
 import bcrypt
 import time
+import hashlib
 from collections import defaultdict
 from contextlib import asynccontextmanager
 
@@ -20,22 +21,23 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def hash_password(password: str) -> str:
-    pwd_bytes = password.encode('utf-8')
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(pwd_bytes, salt)
-    return hashed.decode('utf-8')
+    # Use standard SHA-256 hash representation
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     if not hashed_password:
         return False
+    # Fallback checking for older bcrypt records
     if hashed_password.startswith("$2a$") or hashed_password.startswith("$2b$"):
         try:
             pwd_bytes = plain_password.encode('utf-8')
             hashed_bytes = hashed_password.encode('utf-8')
             return bcrypt.checkpw(pwd_bytes, hashed_bytes)
         except Exception:
-            return False
-    return plain_password == hashed_password
+            pass
+    # Verify via SHA-256
+    sha_hash = hashlib.sha256(plain_password.encode('utf-8')).hexdigest()
+    return sha_hash == hashed_password
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -52,18 +54,18 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Error checking/updating products schema: {e}")
 
-    # Migrate passwords to bcrypt if they are plaintext
+    # Migrate passwords to SHA-256 if they are plaintext
     try:
         all_users = execute_query("SELECT uid, password, fido_password FROM users", fetch=True)
         if all_users:
             for u in all_users:
                 pwd = u["password"]
-                if pwd and not (pwd.startswith("$2a$") or pwd.startswith("$2b$")):
+                if pwd and not (pwd.startswith("$2a$") or pwd.startswith("$2b$")) and len(pwd) != 64:
                     hashed = hash_password(pwd)
                     execute_query("UPDATE users SET password = %s WHERE uid = %s", (hashed, u["uid"]))
                 
                 fido_pwd = u["fido_password"]
-                if fido_pwd and not (fido_pwd.startswith("$2a$") or fido_pwd.startswith("$2b$")):
+                if fido_pwd and not (fido_pwd.startswith("$2a$") or fido_pwd.startswith("$2b$")) and len(fido_pwd) != 64:
                     hashed_fido = hash_password(fido_pwd)
                     execute_query("UPDATE users SET fido_password = %s WHERE uid = %s", (hashed_fido, u["uid"]))
             logger.info("Passwords migration completed successfully.")
@@ -301,7 +303,7 @@ def login(data: UserLogin, response: Response):
         "nearest_store": user_data["nearest_store"],
         "role": user_data["role"],
         "has_fido": user_data["has_fido"],
-        "tfa_secret": user_data["tfa_secret"],
+        "tfa_secret": None,
         "access_token": access_token
     }
 
@@ -349,7 +351,9 @@ def get_profile(uid: str):
     )
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy người dùng!")
-    return user[0]
+    user_data = dict(user[0])
+    user_data["tfa_secret"] = None
+    return user_data
 
 @app.delete("/api/auth/profile/{uid}")
 def delete_profile(uid: str):
@@ -443,7 +447,7 @@ def fido_login(data: FidoLogin, response: Response):
         "nearest_store": user_data["nearest_store"],
         "role": user_data["role"],
         "has_fido": user_data["has_fido"],
-        "tfa_secret": user_data["tfa_secret"],
+        "tfa_secret": None,
         "access_token": access_token
     }
 

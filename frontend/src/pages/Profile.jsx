@@ -8,12 +8,9 @@ import {
   MapPin,
   Calendar,
   ShieldCheck,
-  QrCode,
-  Clipboard,
   Navigation,
   CheckCircle2,
 } from "lucide-react";
-import * as OTPAuth from "otpauth";
 
 // Haversine distance calculator
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -43,12 +40,6 @@ export default function Profile() {
   const [phone, setPhone] = useState(user?.phone || "");
   const [address, setAddress] = useState(user?.address || "");
   const [nearestStore, setNearestStore] = useState(user?.nearest_store || "ngt");
-
-  // 2FA state
-  const [tfaEnabled, setTfaEnabled] = useState(!!user?.tfa_secret);
-  const [tfaSecret, setTfaSecret] = useState(user?.tfa_secret || "");
-  const [showTfaSetup, setShowTfaSetup] = useState(false);
-  const [tfaCode, setTfaCode] = useState("");
 
   // Status
   const [loading, setLoading] = useState(false);
@@ -177,65 +168,6 @@ export default function Profile() {
     }
   };
 
-  // Real TOTP Setup using otpauth
-  const handleSetupTfa = async () => {
-    if (tfaEnabled) {
-      setLoading(true);
-      try {
-        await updateProfile({ tfa_secret: "" });
-        setTfaEnabled(false);
-        setTfaSecret("");
-        setMessage({ type: "success", text: t("Đã tắt xác thực 2 lớp TOTP!") });
-      } catch (err) {
-        setMessage({ type: "error", text: err.message });
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      const secretObj = new OTPAuth.Secret({ size: 20 });
-      const randomSecret = secretObj.base32;
-      setTfaSecret(randomSecret);
-      setShowTfaSetup(true);
-    }
-  };
-
-  const handleConfirmTfa = async () => {
-    if (tfaCode.length !== 6) {
-      setMessage({ type: "error", text: t("Vui lòng nhập đủ 6 chữ số TOTP!") });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const totp = new OTPAuth.TOTP({
-        issuer: "Convenia",
-        label: user.email,
-        algorithm: "SHA1",
-        digits: 6,
-        period: 30,
-        secret: OTPAuth.Secret.fromBase32(tfaSecret),
-      });
-
-      const delta = totp.validate({
-        token: tfaCode,
-        window: 6,
-      });
-
-      if (delta !== null) {
-        await updateProfile({ tfa_secret: tfaSecret });
-        setTfaEnabled(true);
-        setShowTfaSetup(false);
-        setTfaCode("");
-        setMessage({ type: "success", text: t("Đã bật thành công bảo mật 2 lớp TOTP!") });
-      } else {
-        setMessage({ type: "error", text: t("Mã 2FA không chính xác!") });
-      }
-    } catch (err) {
-      setMessage({ type: "error", text: err.message });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Real Geolocation Nearest Store Picker
   const handleGetLocation = () => {
@@ -337,85 +269,7 @@ export default function Profile() {
               )}
             </div>
 
-            {/* 2FA Card */}
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 shadow-sm">
-              <div className="flex justify-between items-start">
-                <h3 className="text-sm font-bold text-slate-700">{t("xác thực 2 lớp (totp)")}</h3>
-                <span
-                  className={`px-2 py-0.5 text-[9px] font-black rounded-md ${
-                    tfaEnabled ? "bg-green-50 text-green-600 border border-green-200" : "bg-slate-200 text-slate-500"
-                  }`}>
-                  {tfaEnabled ? t("đã bật") : t("tắt")}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
-                {t("bảo vệ tài khoản bằng mã bảo mật 6 số từ google authenticator / microsoft authenticator.")}
-              </p>
 
-              {!showTfaSetup ? (
-                <button
-                  type="button"
-                  onClick={handleSetupTfa}
-                  disabled={loading}
-                  className={`w-full py-2 font-bold text-xs rounded-xl transition-colors shadow-sm ${
-                    tfaEnabled
-                      ? "bg-red-50 hover:bg-red-500 text-red-500 hover:text-white border border-red-200"
-                      : "bg-cyan-500 hover:bg-cyan-600 text-white"
-                  }`}>
-                  {tfaEnabled ? t("tắt 2fa") : t("thiết lập 2fa")}
-                </button>
-              ) : (
-                <div className="space-y-3 pt-2 border-t border-slate-200">
-                  <div className="p-3 bg-white rounded-xl border border-slate-200 flex flex-col items-center shadow-inner">
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`otpauth://totp/Convenia:${user?.email}?secret=${tfaSecret}&issuer=Convenia`)}`}
-                      alt="2FA QR Code"
-                      className="w-32 h-32"
-                    />
-                    <span className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-wider">
-                      {t("mã khóa (secret key)")}
-                    </span>
-                    <div className="flex items-center space-x-1.5 mt-1">
-                      <span className="font-mono text-xs font-bold text-cyan-600 select-all">{tfaSecret}</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(tfaSecret);
-                          alert(t("Đã copy mã 2FA secret!"));
-                        }}
-                        className="text-slate-400 hover:text-slate-600">
-                        <Clipboard className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                      {t("nhập mã 6 số từ ứng dụng:")}
-                    </label>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      value={tfaCode}
-                      onChange={(e) => setTfaCode(e.target.value.replace(/\D/g, ""))}
-                      placeholder="Ví dụ: 123456"
-                      className="w-full px-3 py-2 text-center bg-white border border-slate-200 rounded-lg font-mono text-sm focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleConfirmTfa}
-                    className="w-full py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-bold text-xs rounded-xl">
-                    {t("xác nhận kích hoạt 2fa")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowTfaSetup(false)}
-                    className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-650 text-slate-600 font-bold text-xs rounded-xl">
-                    {t("hủy bỏ")}
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
