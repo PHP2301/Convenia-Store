@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }) => {
     if (!res.ok) {
       throw new Error(data.detail || 'Cập nhật thất bại!')
     }
-    const updatedUser = { ...user, ...data }
+    const updatedUser = { ...user, ...profileData }
     setUser(updatedUser)
     localStorage.setItem('current_user', JSON.stringify(updatedUser))
     return updatedUser
