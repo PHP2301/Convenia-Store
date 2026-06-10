@@ -168,6 +168,25 @@ export default function Profile() {
     }
   };
 
+  const handleRemoveFido = async () => {
+    if (!confirm(t("Bạn có chắc chắn muốn hủy liên kết thiết bị bảo mật FIDO2 này không?"))) {
+      return;
+    }
+    setLoading(true);
+    setMessage({ type: "", text: "" });
+    try {
+      await updateProfile({
+        has_fido: false,
+        fido_credential_id: "",
+      });
+      localStorage.removeItem("fido_credential_id");
+      setMessage({ type: "success", text: t("Đã hủy liên kết thiết bị bảo mật FIDO2 thành công!") });
+    } catch (err) {
+      setMessage({ type: "error", text: err.message || t("Lỗi hủy liên kết!") });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Real Geolocation Nearest Store Picker
   const handleGetLocation = () => {
@@ -258,13 +277,21 @@ export default function Profile() {
               <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
                 {t("đăng nhập nhanh bằng cảm biến vân tay hoặc nhận diện khuôn mặt mà không cần nhập mật khẩu.")}
               </p>
-              {!user?.has_fido && (
+              {!user?.has_fido ? (
                 <button
                   type="button"
                   onClick={handleRegisterFido}
                   disabled={loading}
                   className="w-full py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-bold text-xs rounded-xl transition-colors shadow-sm">
                   {t("liên kết khóa bảo mật")}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleRemoveFido}
+                  disabled={loading}
+                  className="w-full py-2 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white border border-red-200 font-bold text-xs rounded-xl transition-colors shadow-sm">
+                  {t("hủy liên kết khóa")}
                 </button>
               )}
             </div>

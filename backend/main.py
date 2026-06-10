@@ -172,6 +172,8 @@ class ProfileUpdate(BaseModel):
     address: Optional[str] = None
     nearest_store: Optional[str] = None
     tfa_secret: Optional[str] = None
+    has_fido: Optional[bool] = None
+    fido_credential_id: Optional[str] = None
 
 class CartUpdate(BaseModel):
     items: List[Dict[str, Any]]
@@ -384,6 +386,12 @@ def update_profile(uid: str, data: ProfileUpdate):
     if data.tfa_secret is not None:
         updates.append("tfa_secret = %s")
         params.append(data.tfa_secret)
+    if data.has_fido is not None:
+        updates.append("has_fido = %s")
+        params.append(data.has_fido)
+    if data.fido_credential_id is not None:
+        updates.append("fido_credential_id = %s")
+        params.append(data.fido_credential_id)
         
     if not updates:
         return {"status": "success", "message": "Không có thông tin thay đổi!"}
