@@ -110,18 +110,26 @@ def is_rate_limited(ip: str, limit: int, window: int) -> bool:
 async def rate_limiting_middleware(request: Request, call_next):
     # Only rate limit API requests
     if request.url.path.startswith("/api"):
-        client_ip = request.client.host if request.client else "unknown"
+        # Try to get the real client IP behind reverse proxies (Vercel, Render, Cloudflare)
+        x_forwarded_for = request.headers.get("x-forwarded-for")
+        x_real_ip = request.headers.get("x-real-ip")
+        if x_forwarded_for:
+            client_ip = x_forwarded_for.split(",")[0].strip()
+        elif x_real_ip:
+            client_ip = x_real_ip.strip()
+        else:
+            client_ip = request.client.host if request.client else "unknown"
         
         # Bypass rate limiting for localhost to allow local development & testing
         if client_ip in ("127.0.0.1", "localhost", "::1"):
             response = await call_next(request)
             return response
             
-        limit = 60      # Default API rate limit: 60 requests/min
+        limit = 100     # Default API rate limit: 100 requests/min
         window = 60
         
         if request.url.path == "/api/auth/login":
-            limit = 5   # Login limit: 5 requests/min
+            limit = 15   # Increase login limit to 15 requests/min for testing safety
         elif request.url.path == "/api/upload":
             limit = 10  # Upload limit: 10 requests/min
             
